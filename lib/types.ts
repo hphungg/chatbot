@@ -1,6 +1,13 @@
 import { UIMessage } from "ai";
 import { z } from "zod";
 
+export type User = {
+    id: string;
+    email: string;
+    name: string;
+    image?: string | null | undefined;
+}
+
 export const messageMetaDataSchema = z.object({
     createdAt: z.string(),
 });
@@ -37,7 +44,7 @@ export type Chat = {
 };
 
 export type Attachment = {
-  name: string;
-  url: string;
-  contentType: string;
+    name: string;
+    url: string;
+    contentType: string;
 };

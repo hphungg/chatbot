@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import Script from "next/script";
 import { AppSidebar } from "@/components/chat/sidebar-app";
 import { DataStreamProvider } from "@/components/providers/data-stream-provider";

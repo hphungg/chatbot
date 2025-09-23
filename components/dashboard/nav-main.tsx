@@ -1,6 +1,12 @@
 "use client";
 
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
+import {
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem
+} from "../ui/sidebar";
 import { type Icon } from "@tabler/icons-react"
 
 export function NavMain({
