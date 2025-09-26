@@ -1,7 +1,7 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { ChatMessage } from "@/lib/types";
 import { useMessages } from "@/hooks/use-messages";
-import { useDataStream } from "../providers/data-stream-provider";
+import { useDataStream } from "../../context/data-stream-provider";
 import { memo, useEffect } from "react";
 import { Conversation, ConversationContent } from "../ai-elements/conversation";
 import { ArrowDown } from "lucide-react";

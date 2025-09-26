@@ -9,7 +9,7 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
-import { useDataStream } from "../providers/data-stream-provider";
+import { useDataStream } from "../../context/data-stream-provider";
 import { getChatHistoryPaginationKey } from "./sidebar-history";
 import { ChatInput } from "./chat-input";
 

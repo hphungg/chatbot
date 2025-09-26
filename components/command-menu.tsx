@@ -12,7 +12,7 @@ import {
 
 import { ScrollArea } from './ui/scroll-area'
 import { sidebarData } from './dashboard/data/sidebar-data'
-import { useSearch } from './providers/search-provider'
+import { useSearch } from '../context/search-provider'
 import { redirect } from 'next/navigation'
 
 export function CommandMenu() {

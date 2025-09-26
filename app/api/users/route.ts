@@ -1,0 +1,46 @@
+"use server";
+
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
+
+async function authenticate() {
+    const header = await headers();
+    const session = await auth.api.getSession({
+        headers: header
+    });
+    if (!session) throw new Error("Unauthorized");
+    return session.user;
+}
+
+export const getAllUsers = async () => {
+    const user = await authenticate();
+
+    if (!user) throw new Error("Unauthorized");
+
+    try {
+        const users = await prisma.user.findMany();
+        return users;
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to fetch users");
+    }
+}
+
+export const deleteUsers = async (userIds: string[]) => {
+    const user = await authenticate();
+
+    if (!user) throw new Error("Unauthorized");
+
+    try {
+        await prisma.user.deleteMany({
+            where: {
+                id: { in: userIds }
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to delete users");
+    }
+    return true;
+}

@@ -2,7 +2,7 @@
 
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { ChatMessage } from "@/lib/types";
-import { useDataStream } from "../providers/data-stream-provider";
+import { useDataStream } from "../../context/data-stream-provider";
 import { motion } from "framer-motion";
 import { memo } from "react";
 import equal from "fast-deep-equal";

@@ -2,8 +2,7 @@ import { AppHeader } from "@/components/dashboard/app-header";
 import { Main } from "@/components/layout/main";
 import { Search } from "@/components/search";
 
-export default async function Page() {
-
+export default function ProjectsPage() {
     return (
         <div>
             <AppHeader fixed>
@@ -12,10 +11,13 @@ export default async function Page() {
             <Main>
                 <div className="mb-2 flex flex-wrap items-center justify-between space-y-2">
                     <div>
-                        <h2 className="text-2xl font-bold">Dashboard</h2>
+                        <h2 className="text-2xl font-bold tracking-tight">Projects</h2>
+                        <p className="text-muted-foreground">
+                            Manage projects here.
+                        </p>
                     </div>
                 </div>
             </Main>
         </div>
-    )
+    );
 }

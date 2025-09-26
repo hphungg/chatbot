@@ -1,6 +1,6 @@
 import Script from "next/script";
 import { AppSidebar } from "@/components/chat/sidebar-app";
-import { DataStreamProvider } from "@/components/providers/data-stream-provider";
+import { DataStreamProvider } from "@/context/data-stream-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export const experimental_ppr = true;
