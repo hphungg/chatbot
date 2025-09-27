@@ -1,14 +1,11 @@
-import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import { AppHeader } from "@/components/dashboard/app-header";
-import { SearchProvider } from "@/context/search-provider";
-import { Search } from "@/components/search";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
 import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { Main } from "@/components/layout/main";
+import { DashboardSidebar } from "@/components/dashboard/sidebar/dashboard-sidebar";
+import { DashboardSearchProvider } from "@/context/dashboard-search-provider";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default async function DashboardLayout({
     children,
@@ -28,9 +25,9 @@ export default async function DashboardLayout({
 
     const user: User = session.user;
     return (
-        <SearchProvider>
+        <DashboardSearchProvider>
             <SidebarProvider defaultOpen={true}>
-                <AppSidebar user={user} />
+                <DashboardSidebar user={user} />
                 <SidebarInset
                     className={cn(
                         '@container/content', 'has-[[data-layout=fixed]]:h-svh', 'peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]'
@@ -39,6 +36,6 @@ export default async function DashboardLayout({
                     {children}
                 </SidebarInset>
             </SidebarProvider>
-        </SearchProvider>
+        </DashboardSearchProvider>
     );
 }

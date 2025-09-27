@@ -1,14 +1,13 @@
-import { AppHeader } from "@/components/dashboard/app-header";
-import { Main } from "@/components/layout/main";
+import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header";
 import { Search } from "@/components/search";
 
 export default function Departments() {
     return (
         <div>
-            <AppHeader fixed>
+            <DashboardHeader fixed>
                 <Search />
-            </AppHeader>
-            <Main>
+            </DashboardHeader>
+            <div className="p-4 sm:p-6 lg:p-8">
                 <div className="mb-2 flex flex-wrap items-center justify-between space-y-2">
                     <div>
                         <h2 className="text-2xl font-bold tracking-tight">Departments</h2>
@@ -17,7 +16,7 @@ export default function Departments() {
                         </p>
                     </div>
                 </div>
-            </Main>
+            </div>
         </div>
     );
 }

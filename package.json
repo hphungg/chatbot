@@ -8,6 +8,7 @@
         "start": "next start"
     },
     "dependencies": {
+        "@ai-sdk/openai": "^2.0.38",
         "@ai-sdk/react": "^2.0.48",
         "@prisma/client": "^6.16.2",
         "@radix-ui/react-alert-dialog": "^1.1.15",

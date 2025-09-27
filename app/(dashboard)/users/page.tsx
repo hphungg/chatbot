@@ -1,16 +1,15 @@
-import { AppHeader } from "@/components/dashboard/app-header";
+import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header";
 import { UsersProvider } from "./_components/user-provider";
 import { Search } from "@/components/search";
-import { Main } from "@/components/layout/main";
 import { UsersTable } from "./_components/user-table";
 
 export default function UsersPage() {
     return (
         <UsersProvider>
-            <AppHeader fixed>
+            <DashboardHeader fixed>
                 <Search />
-            </AppHeader>
-            <Main>
+            </DashboardHeader>
+            <div className="p-4 sm:p-6 lg:p-8">
                 <div className="mb-2 flex flex-wrap items-center justify-between space-y-2">
                     <div>
                         <h2 className="text-2xl font-bold tracking-tight">Users</h2>
@@ -22,7 +21,7 @@ export default function UsersPage() {
                 <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12">
                     <UsersTable />
                 </div>
-            </Main>
+            </div>
         </UsersProvider>
     )
 }

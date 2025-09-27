@@ -1,12 +1,19 @@
 import { ChevronDown, LogOut } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "../ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from "../../ui/dropdown-menu";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "../../ui/sidebar";
 import useDialogState from "@/hooks/use-dialog-state";
-import { SignOutDialog } from "../sign-out-dialog";
+import { SignOutDialog } from "../../auth/sign-out-dialog";
 import { User } from "@/lib/types";
 
-export function NavUser({ user }: { user: User }) {
+export function SidebarUser({ user }: { user: User }) {
     const { isMobile } = useSidebar();
     const [ open, setOpen ] = useDialogState();
 
@@ -16,15 +23,12 @@ export function NavUser({ user }: { user: User }) {
                 <SidebarMenuItem>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <SidebarMenuButton
-                                size='lg'
-                                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                            >
-                                <Avatar className="h-8 w-8 rounded-lg">
+                            <SidebarMenuButton size='lg'>
+                                <Avatar className="h-8 w-8 rounded-full">
                                     <AvatarImage src={user.image as string} alt={user?.name} />
                                     <AvatarFallback className="rounded-lg">U</AvatarFallback>
                                 </Avatar>
-                                <div className="grid flex-1 text-start text-sm leading-tight">
+                                <div className="grid flex-1 text-start text-base ml-1">
                                     <span className="truncate font-semibold">{user?.name}</span>
                                     <span className="truncate text-xs">{user?.email}</span>
                                 </div>
@@ -38,12 +42,12 @@ export function NavUser({ user }: { user: User }) {
                             sideOffset={4}
                         >
                             <DropdownMenuLabel className="p-0 font-normal">
-                                <div className='flex items-center gap-2 px-1 py-1.5 text-start text-sm'>
-                                    <Avatar className='h-8 w-8 rounded-lg'>
+                                <div className='flex items-center px-1 py-1.5 gap-2 text-base'>
+                                    <Avatar className='h-8 w-8 rounded-full'>
                                         <AvatarImage src={user.image as string} alt={user.name} />
-                                        <AvatarFallback className='rounded-lg'>SN</AvatarFallback>
+                                        <AvatarFallback className='rounded-lg'>U</AvatarFallback>
                                     </Avatar>
-                                    <div className='grid flex-1 text-start text-sm leading-tight'>
+                                    <div className='grid flex-1 ml-1'>
                                         <span className='truncate font-semibold'>{user.name}</span>
                                         <span className='truncate text-xs'>{user.email}</span>
                                     </div>
@@ -52,7 +56,7 @@ export function NavUser({ user }: { user: User }) {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setOpen(true)}>
                                 <LogOut />
-                                Sign out
+                                <span className="ml-2">Sign out</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

@@ -3,7 +3,7 @@
 import { SearchIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from './ui/button'
-import { useSearch } from '../context/search-provider'
+import { useSearch } from '../context/dashboard-search-provider'
 
 type SearchProps = {
     className?: string

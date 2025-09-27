@@ -5,7 +5,6 @@ import "./globals.css";
 
 const inter = Inter({
     variable: "--font-inter",
-    subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -24,7 +23,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${inter.variable} antialiased`}>
+            <body className={`${inter.className} antialiased`}>
                 <Toaster position="top-center" richColors />
                 {children}
             </body>

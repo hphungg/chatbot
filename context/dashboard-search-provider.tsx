@@ -1,20 +1,20 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { CommandMenu } from '../components/command-menu'
+import { CommandMenu } from '@/components/dashboard/command-menu'
 
-type SearchContextType = {
+type DashboardSearchContextType = {
     open: boolean
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const SearchContext = createContext<SearchContextType | null>(null)
+const DashboardSearchContext = createContext<DashboardSearchContextType | null>(null)
 
-type SearchProviderProps = {
-     children: React.ReactNode
+type DashboardSearchProviderProps = {
+    children: React.ReactNode
 }
 
-export function SearchProvider({ children }: SearchProviderProps) {
+export function DashboardSearchProvider({ children }: DashboardSearchProviderProps) {
     const [open, setOpen] = useState(false)
 
     useEffect(() => {
@@ -29,15 +29,15 @@ export function SearchProvider({ children }: SearchProviderProps) {
     }, [])
 
     return (
-        <SearchContext value={{ open, setOpen }}>
+        <DashboardSearchContext value={{ open, setOpen }}>
             {children}
             <CommandMenu />
-        </SearchContext>
+        </DashboardSearchContext>
     )
 }
 
 export const useSearch = () => {
-    const searchContext = useContext(SearchContext)
+    const searchContext = useContext(DashboardSearchContext)
 
     if (!searchContext) {
         throw new Error('useSearch has to be used within SearchProvider')

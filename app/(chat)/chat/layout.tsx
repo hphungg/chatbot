@@ -1,30 +1,38 @@
-import Script from "next/script";
-import { AppSidebar } from "@/components/chat/sidebar-app";
-import { DataStreamProvider } from "@/context/data-stream-provider";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { ChatSidebar } from "@/components/chat/sidebar/chat-sidebar";
+import { User } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
-export const experimental_ppr = true;
-
-export default async function Layout({
+export default async function ChatLayout({
     children,
-}: {
+}: Readonly<{
     children: React.ReactNode;
-}) {
-    // const [session, cookieStore] = await Promise.all([auth(), cookies()]);
-    // const isCollapsed = cookieStore.get("sidebar_state")?.value !== "true";
+}>) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    }).catch((e) => {
+        console.error(e);
+        throw redirect("/sign-in");
+    });
 
+    if (!session) {
+        return redirect("/sign-in");
+    }
+
+    const user: User = session.user;
     return (
-        <>
-            <Script
-                src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"
-                strategy="beforeInteractive"
-            />
-            <DataStreamProvider>
-                <SidebarProvider defaultOpen={true}>
-                <AppSidebar user={undefined} />
-                    <SidebarInset>{children}</SidebarInset>
-                </SidebarProvider>
-            </DataStreamProvider>
-        </>
+        <SidebarProvider defaultOpen={true}>
+            <ChatSidebar user={user} />
+            <SidebarInset
+                className={cn(
+                    '@container/content', 'has-[[data-layout=fixed]]:h-svh', 'peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]'
+                )}
+            >
+                {children}
+            </SidebarInset>
+        </SidebarProvider>
     );
 }
