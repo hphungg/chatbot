@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import { openai } from '@ai-sdk/openai';
-import { streamText, convertToModelMessages, UIMessage, validateUIMessages } from 'ai';
+import { streamText, convertToModelMessages, UIMessage, validateUIMessages, createUIMessageStream, smoothStream, JsonToSseTransformStream } from 'ai';
 import { headers } from 'next/headers';
 import {
     deleteChatById,
@@ -10,6 +10,7 @@ import {
     saveMessages
 } from './queries';
 import { convertToUIMessages, generateTitleFromUserMessage } from '@/lib/ai/actions';
+import { generateUUID } from '@/lib/utils';
 
 async function authenticate() {
     const header = await headers();
@@ -41,20 +42,54 @@ export async function POST(request: Request) {
     }
 
     const prevMessages = await getMessagesByChatId(chatId);
-    const messages = [...convertToUIMessages({ messages: prevMessages }), message];
-    const validatedMessages = await validateUIMessages({ messages });
+    const uiMessages = [...convertToUIMessages({ messages: prevMessages }), message];
 
-    const result = streamText({
-        model: openai('gpt-4o'),
-        messages: convertToModelMessages(validatedMessages),
+    await saveMessages({
+        messages: [
+            {
+                id: message.id,
+                chatId: chatId,
+                role: "user",
+                parts: JSON.parse(JSON.stringify(message.parts)),
+                attachments: [],
+                createdAt: new Date(),
+            }
+        ]
     })
 
-    return result.toUIMessageStreamResponse({
-        originalMessages: validatedMessages,
+    const stream = createUIMessageStream({
+        execute: ({ writer: dataStream }) => {
+            const result = streamText({
+                model: openai("gpt-4o-mini"),
+                messages: convertToModelMessages(uiMessages),
+                experimental_transform: smoothStream({ chunking: "word" }),
+            });
+
+            result.consumeStream();
+            dataStream.merge(
+                result.toUIMessageStream({
+                    sendReasoning: true,
+                })
+            )
+        },
+        generateId: generateUUID,
         onFinish: async ({ messages }) => {
-            await saveMessages(chatId, messages);
+            await saveMessages({
+                messages: messages.map((currentMessage) => ({
+                    id: currentMessage.id,
+                    role: currentMessage.role,
+                    chatId: chatId,
+                    parts: JSON.parse(JSON.stringify(currentMessage.parts)),
+                    attachments: [],
+                    createdAt: new Date(),
+                }))
+            });
+        },
+        onError: () => {
+            return "Oops, something went wrong. Please try again.";
         }
     })
+    return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
 }
 
 export async function DELETE(request: Request) {

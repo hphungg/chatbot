@@ -98,21 +98,19 @@ export async function getChatsByUserId(userId: string) {
     }
 }
 
-export async function saveMessages(chatId: string, messages: UIMessage[]) {
+export async function saveMessages({ messages }: { messages: Message[] }) {
     const user = await authenticate();
     if (!user) throw new Error("Unauthorized");
-    const storedMessage = messages.map(message => ({
-        chatId: chatId,
-        role: message.role,
-        parts: JSON.parse(JSON.stringify(message.parts || {})),
-        attachments: [],
-    }));
 
     try {
-        const savedMessages = await prisma.message.createMany({
-            data: storedMessage,
+        const result = await prisma.message.createMany({
+            data: messages.map(msg => ({
+                ...msg,
+                parts: msg.parts ?? {},
+                attachments: msg.attachments ?? []
+            })),
         });
-        return savedMessages;
+        return result;
     } catch (error) {
         console.error("Error saving messages:", error);
         throw new Error("Failed to save messages");

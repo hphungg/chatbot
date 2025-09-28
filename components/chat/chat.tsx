@@ -30,7 +30,6 @@ export function Chat( {
         sendMessage,
         status,
         stop,
-        regenerate,
     } = useChat({
         id,
         messages: initialMessages,
@@ -47,7 +46,7 @@ export function Chat( {
                 }
             }
         }),
-        onFinish: async (message) => {
+        onFinish: async () => {
             if (!chatCreated && initialMessages.length === 0) {
                 try {
                     const newChat = await getChatById(id);
