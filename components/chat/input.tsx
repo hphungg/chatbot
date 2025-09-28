@@ -16,7 +16,7 @@ import {
     PromptInputTools
 } from "../ai-elements/prompt-input";
 import { UIMessage, UseChatHelpers } from "@ai-sdk/react";
-import { Attachment, ChatMessage } from "@/lib/types";
+import { Attachment } from "@/lib/types";
 import { useWindowSize } from "usehooks-ts";
 import { Button } from "../ui/button";
 import { StopIcon } from "@radix-ui/react-icons";
@@ -29,9 +29,9 @@ interface ChatInputProps {
     stop: () => void;
     setAttachments: Dispatch<SetStateAction<Attachment[]>>;
     messages: UIMessage[];
-    sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
-    setMessages: UseChatHelpers<ChatMessage>["setMessages"];
-    status: UseChatHelpers<ChatMessage>["status"];
+    sendMessage: UseChatHelpers<UIMessage>["sendMessage"];
+    setMessages: UseChatHelpers<UIMessage>["setMessages"];
+    status: UseChatHelpers<UIMessage>["status"];
 }
 
 export function ChatInput({

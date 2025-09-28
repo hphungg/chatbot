@@ -1,7 +1,7 @@
 import { getChatById, getMessagesByChatId } from "@/app/api/chat/queries";
 import { Chat } from "@/components/chat/chat";
 import { ChatHeader } from "@/components/chat/sidebar/chat-header";
-import { convertToUIMessages } from "@/lib/utils";
+import { convertToUIMessages } from "@/lib/ai/actions";
 import { notFound } from "next/navigation";
 
 export default async function Page(
@@ -16,7 +16,7 @@ export default async function Page(
     }
 
     const messagesFromDatabase = await getMessagesByChatId(id);
-    const uiMessages = convertToUIMessages(messagesFromDatabase);
+    const uiMessages = convertToUIMessages({messages: messagesFromDatabase});
 
     return (
         <div>

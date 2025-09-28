@@ -19,7 +19,7 @@ import {
 import AppLogo from "@/components/app-logo";
 import { User } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
-import { BotIcon, MoreHorizontalIcon, TrashIcon, PlusIcon } from "lucide-react";
+import { MoreHorizontalIcon, TrashIcon, PlusIcon } from "lucide-react";
 import { deleteChatById, getChatsByUserId } from "@/app/api/chat/queries";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";

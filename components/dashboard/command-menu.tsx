@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/command'
 import { ScrollArea } from '../ui/scroll-area'
 import { sidebarData } from '../../constant/sidebar-data'
-import { useSearch } from '../../context/dashboard-search-provider'
+import { useSearch } from '../../context/dashboard-context'
 import { redirect } from 'next/navigation'
 
 export function CommandMenu() {

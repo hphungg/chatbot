@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 import type { Message } from "@prisma/client";
+import { UIMessage } from "ai";
 import { headers } from "next/headers";
 
 async function authenticate() {
@@ -97,17 +98,19 @@ export async function getChatsByUserId(userId: string) {
     }
 }
 
-export async function saveMessages({ messages }: { messages: Message[] }) {
+export async function saveMessages(chatId: string, messages: UIMessage[]) {
     const user = await authenticate();
     if (!user) throw new Error("Unauthorized");
+    const storedMessage = messages.map(message => ({
+        chatId: chatId,
+        role: message.role,
+        parts: JSON.parse(JSON.stringify(message.parts || {})),
+        attachments: [],
+    }));
 
     try {
         const savedMessages = await prisma.message.createMany({
-            data: messages.map(message => ({
-                ...message,
-                parts: message.parts ?? {},
-                attachments: message.attachments ?? {}
-            })),
+            data: storedMessage,
         });
         return savedMessages;
     } catch (error) {

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/sidebar/dashboard-sidebar";
-import { DashboardSearchProvider } from "@/context/dashboard-search-provider";
+import { DashboardSearchProvider } from "@/context/dashboard-context";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default async function DashboardLayout({

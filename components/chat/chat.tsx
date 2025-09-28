@@ -2,17 +2,17 @@
 
 import { useChat } from "@ai-sdk/react";
 import { ChatInput } from "./input";
-import { fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
-import { Attachment, ChatMessage } from "@/lib/types";
+import { generateUUID } from "@/lib/utils";
+import { Attachment } from "@/lib/types";
 import { useState } from "react";
 import { ChatConversation } from "./conversation";
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, UIMessage } from "ai";
 import { useChatContext } from "@/context/chat-context";
 import { getChatById } from "@/app/api/chat/queries";
 
 interface ChatProps {
     id: string;
-    initialMessages?: ChatMessage[];
+    initialMessages?: UIMessage[];
 }
 
 export function Chat( {
@@ -22,7 +22,7 @@ export function Chat( {
     const { addChat } = useChatContext();
     const [ input, setInput ] = useState<string>("");
     const [ attachments, setAttachments ] = useState<Attachment[]>([]);
-    const [chatCreated, setChatCreated] = useState(initialMessages.length > 0);
+    const [ chatCreated, setChatCreated ] = useState(initialMessages.length > 0);
 
     const {
         messages,
@@ -31,17 +31,16 @@ export function Chat( {
         status,
         stop,
         regenerate,
-    } = useChat<ChatMessage>({
+    } = useChat({
         id,
         messages: initialMessages,
         generateId: generateUUID,
         transport: new DefaultChatTransport({
             api: "/api/chat",
-            fetch: fetchWithErrorHandlers,
             prepareSendMessagesRequest(request) {
                 return {
                     body: {
-                        id: request.id,
+                        chatId: request.id,
                         message: request.messages.at(-1),
                         ...request.body,
                     }
@@ -68,6 +67,7 @@ export function Chat( {
             <div className="flex flex-col h-full p-2">
                 <ChatConversation
                     messages={messages}
+                    status={status}
                 />
                 <ChatInput
                     chatId={id}

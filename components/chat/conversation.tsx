@@ -1,21 +1,23 @@
-import { ChatMessage } from "@/lib/types";
+import { UIMessage } from "ai";
+import { UseChatHelpers } from "@ai-sdk/react";
 import {
     Conversation,
     ConversationContent,
     ConversationEmptyState
-} from "../ai-elements/conversation";
+} from "@/components/ai-elements/conversation";
 import { MessageSquare } from "lucide-react";
-import { Message, MessageContent } from "../ai-elements/message";
-import { Response } from "../ai-elements/response";
+import { Message, MessageContent } from "@/components/ai-elements/message";
+import { Response } from "@/components/ai-elements/response";
+import { Loader } from "@/components/ai-elements/loader";
 
 interface ChatConversationProps {
-    messages: ChatMessage[];
+    messages: UIMessage[];
+    status: UseChatHelpers<UIMessage>["status"];
 }
 
 export function ChatConversation({
-
     messages,
-
+    status
 }: ChatConversationProps) {
 
     return (
@@ -47,6 +49,7 @@ export function ChatConversation({
                         </Message>
                     </div>
                 ))}
+                {status === 'submitted' && <Loader />}
             </ConversationContent>
         </Conversation>
     )

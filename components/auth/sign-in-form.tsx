@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { LogoGoogle } from "../icons";
+import { IconBrandGoogle } from "@tabler/icons-react";
 
 export default function SignInForm() {
     const [ loading, setLoading ] = useState(false);
@@ -38,7 +38,7 @@ export default function SignInForm() {
                         onClick={() => handleSignIn()}
                         disabled={loading}
                     >
-                        <LogoGoogle />
+                        <IconBrandGoogle />
                         Sign in with Google
                     </Button>
                 </CardContent>
