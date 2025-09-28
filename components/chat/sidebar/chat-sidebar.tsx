@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -21,13 +21,13 @@ import { User } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
 import { BotIcon, MoreHorizontalIcon, TrashIcon, PlusIcon } from "lucide-react";
 import { deleteChatById, getChatsByUserId } from "@/app/api/chat/queries";
-import { Chat } from "@prisma/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { SidebarUser } from "./sidebar-user";
+import { useChatContext } from "@/context/chat-context";
 
 export function ChatSidebar({ user }: { user: User }) {
-    const [ chats, setChats ] = useState<Chat[]>([]);
+    const { chats, setChats, removeChat } = useChatContext();
     const pathname = usePathname();
     const router = useRouter();
 
@@ -41,12 +41,12 @@ export function ChatSidebar({ user }: { user: User }) {
             }
         }
         fetchChats();
-    }, []);
+    }, [user.id, setChats]);
 
     const handleDeleteChat = async (chatId: string) => {
         try {
             await deleteChatById(chatId);
-            setChats((prevChats) => prevChats.filter((chat) => chat.id !== chatId));
+            removeChat(chatId);
             toast.success("Chat deleted successfully");
             if (pathname === `/chat/${chatId}`) {
                 router.push("/chat");
@@ -85,8 +85,8 @@ export function ChatSidebar({ user }: { user: User }) {
                                             asChild
                                             className={isActive ? "bg-gray-200 hover:bg-gray-200" : ""}
                                         >
-                                            <Link href={`/chat/${chat.id}`} className="w-full h-full">
-                                                {chat.title || "Untitled Chat"}
+                                            <Link href={`/chat/${chat.id}`}>
+                                                <span>{chat.title || "Untitled Chat"}</span>
                                             </Link>
                                         </SidebarMenuButton>
                                         <DropdownMenu modal={true}>

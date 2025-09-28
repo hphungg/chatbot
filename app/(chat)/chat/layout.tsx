@@ -5,6 +5,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ChatSidebar } from "@/components/chat/sidebar/chat-sidebar";
 import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { ChatProvider } from "@/context/chat-context";
 
 export default async function ChatLayout({
     children,
@@ -25,14 +26,16 @@ export default async function ChatLayout({
     const user: User = session.user;
     return (
         <SidebarProvider defaultOpen={true}>
-            <ChatSidebar user={user} />
-            <SidebarInset
-                className={cn(
-                    '@container/content', 'has-[[data-layout=fixed]]:h-svh', 'peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]'
-                )}
-            >
-                {children}
-            </SidebarInset>
+            <ChatProvider>
+                <ChatSidebar user={user} />
+                <SidebarInset
+                    className={cn(
+                        '@container/content', 'has-[[data-layout=fixed]]:h-svh', 'peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]'
+                    )}
+                >
+                    {children}
+                </SidebarInset>
+            </ChatProvider>
         </SidebarProvider>
     );
 }

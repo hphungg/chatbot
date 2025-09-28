@@ -20,7 +20,7 @@ export function ChatConversation({
 
     return (
         <Conversation className="h-full">
-            <ConversationContent>
+            <ConversationContent className={messages.length === 0 ? "flex items-center justify-center h-full" : ""}>
                 {messages.length === 0 && (
                     <ConversationEmptyState
                         title="No messages yet"

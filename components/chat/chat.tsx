@@ -7,6 +7,8 @@ import { Attachment, ChatMessage } from "@/lib/types";
 import { useState } from "react";
 import { ChatConversation } from "./conversation";
 import { DefaultChatTransport } from "ai";
+import { useChatContext } from "@/context/chat-context";
+import { getChatById } from "@/app/api/chat/queries";
 
 interface ChatProps {
     id: string;
@@ -17,6 +19,11 @@ export function Chat( {
     id,
     initialMessages = []
 }: ChatProps) {
+    const { addChat } = useChatContext();
+    const [ input, setInput ] = useState<string>("");
+    const [ attachments, setAttachments ] = useState<Attachment[]>([]);
+    const [chatCreated, setChatCreated] = useState(initialMessages.length > 0);
+
     const {
         messages,
         setMessages,
@@ -40,11 +47,21 @@ export function Chat( {
                     }
                 }
             }
-        })
+        }),
+        onFinish: async (message) => {
+            if (!chatCreated && initialMessages.length === 0) {
+                try {
+                    const newChat = await getChatById(id);
+                    if (newChat) {
+                        addChat(newChat);
+                        setChatCreated(true);
+                    }
+                } catch (error) {
+                    console.error("Error fetching new chat:", error);
+                }
+            }
+        }
     });
-
-    const [ input, setInput ] = useState<string>("");
-    const [ attachments, setAttachments ] = useState<Attachment[]>([]);
 
     return (
         <div className="max-w-4xl mx-auto relative size-full h-[calc(100vh-4rem)] rounded-lg">
