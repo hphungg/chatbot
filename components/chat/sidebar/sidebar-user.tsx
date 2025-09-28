@@ -12,8 +12,10 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "../
 import useDialogState from "@/hooks/use-dialog-state";
 import { SignOutDialog } from "../../auth/sign-out-dialog";
 import { User } from "@/lib/types";
+import Link from "next/link";
+import { DashboardIcon } from "@radix-ui/react-icons";
 
-export function DashboardUser({ user }: { user: User }) {
+export function SidebarUser({ user }: { user: User }) {
     const { isMobile } = useSidebar();
     const [ open, setOpen ] = useDialogState();
 
@@ -54,7 +56,11 @@ export function DashboardUser({ user }: { user: User }) {
                                 </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => setOpen(true)}>
+                            <DropdownMenuItem className="cursor-pointer">
+                                <DashboardIcon />
+                                <Link href="/" className="ml-2">Dashboard</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setOpen(true)} className="cursor-pointer">
                                 <LogOut />
                                 <span className="ml-2">Sign out</span>
                             </DropdownMenuItem>

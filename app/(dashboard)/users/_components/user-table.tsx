@@ -25,7 +25,7 @@ import { DataTablePagination } from './pagination'
 import { BulkActionToolbar } from './bulk-action-toolbar'
 import { usersColumns as columns } from './user-columns'
 import { User } from '@/lib/types'
-import { getAllUsers } from '@/app/api/users/route'
+import { getAllUsers } from '@/app/api/users/queries'
 
 declare module '@tanstack/react-table' {
     interface ColumnMeta<TData, TValue> {

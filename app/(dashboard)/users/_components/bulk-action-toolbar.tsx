@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { type Table } from '@tanstack/react-table'
 import { Trash2, UserX, UserCheck, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
-import { sleep } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
     Tooltip,
@@ -12,7 +11,7 @@ import {
 import { BottomToolbar } from './bottom-toolbar'
 import { User } from '@/lib/types'
 import { ConfirmDialog } from '@/components/confirm-dialog'
-import { deleteUsers } from '@/app/api/users/route'
+import { deleteUsers } from '@/app/api/users/queries'
 
 type BulkActionToolbarProps<TData> = {
     table: Table<TData>
@@ -26,14 +25,7 @@ export function BulkActionToolbar<TData>({
 
     const handleBulkStatusChange = (status: 'verified' | 'not-verified') => {
         const selectedUsers = selectedRows.map((row) => row.original as User)
-        toast.promise(sleep(2000), {
-            loading: `${status === 'verified' ? 'Verifying' : 'Unverifying'} users...`,
-            success: () => {
-                table.resetRowSelection()
-                return `${status === 'verified' ? 'Verified' : 'Unverified'} ${selectedUsers.length} user${selectedUsers.length > 1 ? 's' : ''}`
-            },
-            error: `Error ${status === 'verified' ? 'verifying' : 'unverifying'} users`,
-        })
+        toast.success("In development...")
         table.resetRowSelection()
     }
 

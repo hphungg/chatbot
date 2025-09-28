@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import AppLogo from "@/components/app-logo";
 import { sidebarData } from "@/constant/sidebar-data";
-import { SidebarUser } from "./dashboard-user";
+import { DashboardUser } from "./dashboard-user";
 import { User } from "@/lib/types";
 import { buttonVariants } from "@/components/ui/button";
 import { BotIcon } from "lucide-react";
@@ -55,7 +55,7 @@ export function DashboardSidebar({ user }: { user: User }) {
                 <Link className={buttonVariants({ variant: "outline", className: "w-full mb-2" })} href="/chat">
                     <BotIcon className="size-4" /> Chat with LLM
                 </Link>
-                <SidebarUser user={user} />
+                <DashboardUser user={user} />
             </SidebarFooter>
         </Sidebar>
     )
