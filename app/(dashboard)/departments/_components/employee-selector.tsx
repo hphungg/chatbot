@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Check, ChevronsUpDown, User } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ChevronsUpDown, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Command,
@@ -17,7 +16,6 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
 import { User as UserType } from "@/lib/types";
 import { getAllUsers } from "@/app/api/users/queries";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";

@@ -97,6 +97,27 @@ export async function getChatsByUserId(userId: string) {
     }
 }
 
+export async function getChatByGroupId(groupId: string) {
+    const user = await authenticate();
+    if (!user) throw new Error("Unauthorized");
+
+    try {
+        const chats = await prisma.chat.findMany({
+            where: {
+                groupId,
+                userId: user.id
+            },
+            orderBy: {
+                updatedAt: "desc"
+            }
+        });
+        return chats;
+    } catch (error) {
+        console.error("Error fetching chats by group ID:", error);
+        throw new Error("Failed to fetch chats by group ID");
+    }
+}
+
 export async function saveMessages({ messages }: { messages: Message[] }) {
     const user = await authenticate();
     if (!user) throw new Error("Unauthorized");
@@ -135,3 +156,4 @@ export async function getMessagesByChatId(chatId: string) {
         throw new Error("Failed to fetch messages");
     }
 }
+

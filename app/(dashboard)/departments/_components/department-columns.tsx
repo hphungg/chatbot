@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Department } from '@/lib/types'
 import { Eye } from 'lucide-react'
-import { useDepartments } from './department-provider'
+import { useDepartments } from '@/context/department-context'
 
 export const departmentsColumns: ColumnDef<Department>[] = [
     {

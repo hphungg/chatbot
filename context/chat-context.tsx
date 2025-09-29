@@ -8,12 +8,17 @@ interface ChatContextType {
     setChats: React.Dispatch<React.SetStateAction<Chat[]>>;
     addChat: (chat: Chat) => void;
     removeChat: (chatId: string) => void;
+    groups: Chat[];
+    setGroups: React.Dispatch<React.SetStateAction<Chat[]>>;
+    addGroups: (group: Chat) => void;
+    removeGroups: (groupId: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
     const [chats, setChats] = useState<Chat[]>([]);
+    const [groups, setGroups] = useState<Chat[]>([]);
 
     const addChat = (chat: Chat) => {
         setChats(prevChats => {
@@ -25,16 +30,34 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         });
     };
 
+    const addGroups = (group: Chat) => {
+        setGroups(prevGroups => {
+            const exists = prevGroups.some(existingGroup => existingGroup.id === group.id);
+            if (exists) {
+                return prevGroups;
+            }
+            return [group, ...prevGroups];
+        });
+    };
+
     const removeChat = (chatId: string) => {
         setChats(prevChats => prevChats.filter(chat => chat.id !== chatId));
     };
+
+    const removeGroups = (groupId: string) => {
+        setGroups(prevGroups => prevGroups.filter(group => group.id !== groupId));
+    }
 
     return (
         <ChatContext.Provider value={{
             chats,
             setChats,
             addChat,
-            removeChat
+            removeChat,
+            groups,
+            setGroups,
+            addGroups,
+            removeGroups
         }}>
             {children}
         </ChatContext.Provider>

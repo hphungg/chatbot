@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useDepartments } from "./department-provider";
+import { useDepartments } from "@/context/department-context";
 import { EmployeeSelector } from "./employee-selector";
 import { createDepartment } from "@/app/api/departments/queries";
 
@@ -114,7 +114,9 @@ export function CreateDepartmentDialog() {
                             <Input
                                 id="code"
                                 value={formData.code}
-                                onChange={(e) => handleInputChange("code", e.target.value.toUpperCase())}
+                                onChange={(e) =>
+                                    handleInputChange("code", e.target.value.toUpperCase())
+                                }
                                 placeholder="Enter department code (e.g. HR01, ENG)"
                                 className="col-span-4"
                                 maxLength={10}

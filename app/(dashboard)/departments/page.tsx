@@ -1,11 +1,18 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header";
-import { DepartmentsProvider } from "./_components/department-provider";
+import { DepartmentsProvider, useDepartments } from "@/context/department-context";
 import { Search } from "@/components/search";
 import { DepartmentsTable } from "./_components/department-table";
-import { CreateDepartmentButton } from "./_components/create-department-button";
 import { CreateDepartmentDialog } from "./_components/create-department-dialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default function Departments() {
+    const { setOpen } = useDepartments();
+
+    const handleCreateDepartment = () => {
+        setOpen('add');
+    };
+
     return (
         <DepartmentsProvider>
             <DashboardHeader fixed>
@@ -20,7 +27,10 @@ export default function Departments() {
                         </p>
                     </div>
                     <div className="flex items-center space-x-2">
-                        <CreateDepartmentButton />
+                        <Button onClick={handleCreateDepartment} className="gap-2">
+                            <Plus className="h-4 w-4" />
+                            Create new Department
+                        </Button>
                     </div>
                 </div>
                 <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12">

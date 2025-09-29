@@ -9,7 +9,6 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { BottomToolbar } from './bottom-toolbar'
-import { Department } from '@/lib/types'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { deleteDepartments } from '@/app/api/departments/queries'
 
