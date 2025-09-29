@@ -3,7 +3,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 import type { Message } from "@prisma/client";
-import { UIMessage } from "ai";
 import { headers } from "next/headers";
 
 async function authenticate() {
@@ -35,7 +34,7 @@ export async function getChatById(chatId: string) {
     }
 }
 
-export async function saveChat(chatId: string, title: string, userId: string, projectId?: string) {
+export async function saveChat(chatId: string, title: string, userId: string, groupId?: string) {
     const user = await authenticate();
 
     if (!user) throw new Error("Unauthorized");
@@ -47,11 +46,11 @@ export async function saveChat(chatId: string, title: string, userId: string, pr
                 id: chatId,
                 title,
                 userId,
-                projectId
+                groupId
             },
             update: {
                 title,
-                projectId
+                groupId
             }
         });
         return chat;

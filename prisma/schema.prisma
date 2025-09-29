@@ -16,14 +16,32 @@ model User {
     email         String
     emailVerified Boolean @default(false)
     image         String?
+    departmentId  String?
 
-    sessions Session[]
-    accounts Account[]
-    chat     Chat[]
-    project  Project[]
+    department Department?    @relation(fields: [departmentId], references: [id])
+    sessions   Session[]
+    accounts   Account[]
+    chat       Chat[]
+    group      Group[]
+    projects   UserProjects[]
 
     @@unique([email])
     @@map("user")
+}
+
+model Department {
+    id        String   @id @default(uuid()) @map("_id")
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    name String
+    code String
+
+    users    User[]
+    projects Project[]
+
+    @@unique([code])
+    @@map("department")
 }
 
 model Session {
@@ -79,18 +97,18 @@ model Chat {
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
 
-    title     String
-    userId    String
-    projectId String?
+    title   String
+    userId  String
+    groupId String?
 
     user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    project Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    group   Group?    @relation(fields: [groupId], references: [id], onDelete: Cascade)
     message Message[]
 
     @@map("chat")
 }
 
-model Project {
+model Group {
     id        String   @id @map("_id")
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
@@ -102,7 +120,7 @@ model Project {
     user User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     chat Chat[]
 
-    @@map("project")
+    @@map("group")
 }
 
 model Message {
@@ -115,4 +133,30 @@ model Message {
     attachments Json
 
     chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+    id        String   @id @default(uuid()) @map("_id")
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    name         String
+    departmentId String?
+
+    department Department?    @relation(fields: [departmentId], references: [id])
+    users      UserProjects[]
+
+    @@map("project")
+}
+
+model UserProjects {
+    id        String @id @map("_id")
+    userId    String
+    projectId String
+
+    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, projectId])
+    @@map("user_projects")
 }
