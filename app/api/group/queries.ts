@@ -52,14 +52,14 @@ export async function addChatToGroup(chatId: string, groupId: string) {
     }
 }
 
-export async function getGroupsByUserId() {
+export async function getGroupsByUserId(userId: string) {
     const user = await authenticate();
     if (!user) throw new Error("Unauthorized");
 
     try {
         const groups = await prisma.group.findMany({
             where: {
-                userId: user.id
+                userId
             },
             orderBy: {
                 createdAt: "desc"

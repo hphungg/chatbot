@@ -6,6 +6,7 @@ import { ChatSidebar } from "@/components/chat/sidebar/chat-sidebar";
 import { User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ChatProvider } from "@/context/chat-context";
+import { CreateGroupDialog } from "@/components/group/create-group-dialog";
 
 export default async function ChatLayout({
     children,
@@ -35,6 +36,7 @@ export default async function ChatLayout({
                 >
                     {children}
                 </SidebarInset>
+                <CreateGroupDialog />
             </ChatProvider>
         </SidebarProvider>
     );

@@ -1,6 +1,6 @@
 "use client"
 
-import { Chat } from "@prisma/client";
+import { Chat, Group } from "@prisma/client";
 import { createContext, useContext, ReactNode, useState } from "react";
 
 interface ChatContextType {
@@ -8,17 +8,22 @@ interface ChatContextType {
     setChats: React.Dispatch<React.SetStateAction<Chat[]>>;
     addChat: (chat: Chat) => void;
     removeChat: (chatId: string) => void;
-    groups: Chat[];
-    setGroups: React.Dispatch<React.SetStateAction<Chat[]>>;
-    addGroups: (group: Chat) => void;
+    groups: Group[];
+    setGroups: React.Dispatch<React.SetStateAction<Group[]>>;
+    addGroups: (group: Group) => void;
     removeGroups: (groupId: string) => void;
+    open: GroupDialogType | null;
+    setOpen: (str: GroupDialogType | null) => void;
 }
+
+type GroupDialogType = 'create-group' | 'edit' | 'delete' | 'view'
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
     const [chats, setChats] = useState<Chat[]>([]);
-    const [groups, setGroups] = useState<Chat[]>([]);
+    const [groups, setGroups] = useState<Group[]>([]);
+    const [open, setOpen] = useState<GroupDialogType | null>(null);
 
     const addChat = (chat: Chat) => {
         setChats(prevChats => {
@@ -30,7 +35,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         });
     };
 
-    const addGroups = (group: Chat) => {
+    const addGroups = (group: Group) => {
         setGroups(prevGroups => {
             const exists = prevGroups.some(existingGroup => existingGroup.id === group.id);
             if (exists) {
@@ -57,7 +62,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             groups,
             setGroups,
             addGroups,
-            removeGroups
+            removeGroups,
+            open,
+            setOpen
         }}>
             {children}
         </ChatContext.Provider>

@@ -28,9 +28,14 @@ import { toast } from "sonner";
 import { SidebarUser } from "./sidebar-user";
 import { useChatContext } from "@/context/chat-context";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { getGroupsByUserId } from "@/app/api/group/queries";
 
 export function ChatSidebar({ user }: { user: User }) {
-    const { chats, setChats, removeChat, groups, setGroups, removeGroups } = useChatContext();
+    const {
+        chats, setChats, removeChat,
+        groups, setGroups, removeGroups,
+        open, setOpen
+    } = useChatContext();
     const pathname = usePathname();
     const router = useRouter();
 
@@ -43,8 +48,29 @@ export function ChatSidebar({ user }: { user: User }) {
                 console.error("Error fetching chats:", error);
             }
         }
+        async function fetchGroups() {
+            try {
+                const response = await getGroupsByUserId(user.id);
+                setGroups(response);
+            } catch (error) {
+                console.error("Error fetching groups:", error);
+            }
+        }
+        fetchGroups();
         fetchChats();
     }, [user.id, setChats]);
+
+    useEffect(() => {
+        async function fetchGroups() {
+            try {
+                const response = await getGroupsByUserId(user.id);
+                setGroups(response);
+            } catch (error) {
+                console.error("Error fetching groups:", error);
+            }
+        }
+        fetchGroups();
+    }, [user.id, setGroups]);
 
     const handleDeleteChat = async (chatId: string) => {
         try {
@@ -61,7 +87,7 @@ export function ChatSidebar({ user }: { user: User }) {
     }
 
     const handleCreateGroupChat = () => {
-        router.push("/chat/group");
+        setOpen('create-group');
     };
 
     return (
@@ -101,7 +127,11 @@ export function ChatSidebar({ user }: { user: User }) {
                                         <Collapsible defaultOpen={false} key={group.id}>
                                             <SidebarMenuItem>
                                                 <CollapsibleTrigger asChild>
-                                                    <SidebarMenuButton />
+                                                    <SidebarMenuButton asChild className="cursor-pointer">
+                                                        <Link href={`/chat/group`}>
+                                                            <span>{group.title}</span>
+                                                        </Link>
+                                                    </SidebarMenuButton>
                                                 </CollapsibleTrigger>
                                                 <CollapsibleContent>
                                                     <SidebarMenuSub>
