@@ -58,10 +58,10 @@ export function BottomToolbar<TData>({
                         onClick={handleClearSelection}
                         className='size-6 rounded-md'
                         aria-label='Clear selection'
-                        title='Clear selection'
+                        title='Bỏ chọn tất cả'
                     >
                         <X />
-                        <span className='sr-only'>Clear selection</span>
+                        <span className='sr-only'>Bỏ chọn</span>
                     </Button>
                     </TooltipTrigger>
                 </Tooltip>
@@ -79,9 +79,8 @@ export function BottomToolbar<TData>({
                     {selectedCount}
                     <span className='hidden sm:inline'>
                         {entityName}
-                        {selectedCount > 1 ? 's' : ''}
                     </span>{' '}
-                    selected
+                    được chọn
                 </div>
 
                 <Separator

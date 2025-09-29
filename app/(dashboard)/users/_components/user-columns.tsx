@@ -33,7 +33,7 @@ export const usersColumns: ColumnDef<User>[] = [
     },
     {
         accessorKey: 'name',
-        header: "Name",
+        header: "Tên",
         cell: ({ row }) => (
             <div className='w-fit text-nowrap'>{row.getValue('name')}</div>
         ),

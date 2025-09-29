@@ -210,7 +210,7 @@ export function DepartmentsTable() {
                                     colSpan={columns.length}
                                     className='h-24 text-center'
                                 >
-                                    No departments found.
+                                    Không có dữ liệu.
                                 </TableCell>
                             </TableRow>
                         )}

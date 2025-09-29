@@ -53,7 +53,7 @@ export function DashboardSidebar({ user }: { user: User }) {
             </SidebarContent>
             <SidebarFooter>
                 <Link className={buttonVariants({ variant: "outline", className: "w-full mb-2" })} href="/chat">
-                    <BotIcon className="size-4" /> Chat with LLM
+                    <BotIcon className="size-4" /> Tới trang Chat
                 </Link>
                 <DashboardUser user={user} />
             </SidebarFooter>

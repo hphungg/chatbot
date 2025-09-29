@@ -69,7 +69,7 @@ export function CreateGroupDialog() {
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="sm:max-w-[500px] p-3 pt-4">
                 <DialogHeader>
-                    <DialogTitle>Group Chat Title</DialogTitle>
+                    <DialogTitle>Tên nhóm chat</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit}>
@@ -77,7 +77,7 @@ export function CreateGroupDialog() {
                         id="title"
                         value={formData.title}
                         onChange={(e) => handleInputChange("title", e.target.value)}
-                        placeholder="Enter group chat title"
+                        placeholder="Nhập tên nhóm chat"
                         className="mb-4 mt-2"
                         required
                     />
@@ -89,7 +89,7 @@ export function CreateGroupDialog() {
                             onClick={handleClose}
                             disabled={isSubmitting}
                         >
-                            Cancel
+                            Hủy
                         </Button>
                         <Button
                             type="submit"
@@ -99,7 +99,7 @@ export function CreateGroupDialog() {
                             {isSubmitting && (
                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             )}
-                            {isSubmitting ? "Creating..." : "Create Group Chat"}
+                            {isSubmitting ? "Đang tạo..." : "Tạo nhóm chat"}
                         </Button>
                     </DialogFooter>
                 </form>

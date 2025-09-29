@@ -12,9 +12,9 @@ export default function UsersPage() {
             <div className="p-4 sm:p-6 lg:p-8">
                 <div className="mb-2 flex flex-wrap items-center justify-between space-y-2">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight">Users</h2>
+                        <h2 className="text-2xl font-bold tracking-tight">Nhân viên</h2>
                         <p className="text-muted-foreground">
-                            Manage users and their permissions here.
+                            Quản lý nhân viên tại đây.
                         </p>
                     </div>
                 </div>

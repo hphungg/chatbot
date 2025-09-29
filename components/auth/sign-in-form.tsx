@@ -26,9 +26,9 @@ export default function SignInForm() {
         <div className="flex flex-col gap-6">
             <Card>
                 <CardHeader className="text-center">
-                    <CardTitle className="text-xl">Welcome back!</CardTitle>
+                    <CardTitle className="text-xl">Xin chào!</CardTitle>
                     <CardDescription>
-                        Sign in with your Google account to continue.
+                        Đăng nhập bằng tài khoản Google của bạn.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -39,7 +39,7 @@ export default function SignInForm() {
                         disabled={loading}
                     >
                         <IconBrandGoogle />
-                        Sign in with Google
+                        Đăng nhập bằng Google
                     </Button>
                 </CardContent>
             </Card>

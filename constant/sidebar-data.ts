@@ -3,22 +3,22 @@ import { Users } from "lucide-react";
 
 export const sidebarData = [
     {
-        title: "Dashboard",
+        title: "Tổng quan",
         url: "/",
         icon: IconDashboard,
     },
     {
-        title: "Departments",
+        title: "Phòng ban",
         url: "/departments",
         icon: IconHome,
     },
     {
-        title: "Users",
+        title: "Nhân viên",
         url: "/users",
         icon: Users,
     },
     {
-        title: "Projects",
+        title: "Dự án",
         url: "/projects",
         icon: IconFolder,
     }

@@ -76,13 +76,13 @@ export function ChatSidebar({ user }: { user: User }) {
         try {
             await deleteChatById(chatId);
             removeChat(chatId);
-            toast.success("Chat deleted successfully");
+            toast.success("Xóa cuộc trò chuyện thành công");
             if (pathname === `/chat/${chatId}`) {
                 router.push("/chat");
             }
         } catch (error) {
             console.error("Error deleting chat:", error);
-            toast.error("Failed to delete chat");
+            toast.error("Xóa cuộc trò chuyện thất bại");
         }
     }
 
@@ -102,22 +102,22 @@ export function ChatSidebar({ user }: { user: User }) {
                             className: "w-full mt-3 justify-start"
                         })}
                     >
-                        <PlusIcon className="size-4" />
-                        New Chat
+                        <PlusIcon className="size-4 mr-2" />
+                        Tạo cuộc trò chuyện
                     </Link>
                     <Button
                         variant="ghost"
                         className="w-full justify-start"
                         onClick={handleCreateGroupChat}
                     >
-                        <Folder className="size-4" />
-                        Create Group Chat
+                        <Folder className="size-4 mr-2" />
+                        Tạo nhóm chat mới
                     </Button>
                 </div>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup className="mt-1">
-                    <SidebarGroupLabel>Groups</SidebarGroupLabel>
+                    <SidebarGroupLabel>Nhóm chat</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {
@@ -156,7 +156,7 @@ export function ChatSidebar({ user }: { user: User }) {
                     </SidebarGroupContent>
                 </SidebarGroup>
                 <SidebarGroup className="mt-1">
-                    <SidebarGroupLabel>Chats</SidebarGroupLabel>
+                    <SidebarGroupLabel>Cuộc trò chuyện</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {chats.map((chat) => {
@@ -188,7 +188,7 @@ export function ChatSidebar({ user }: { user: User }) {
                                                     onSelect={() => handleDeleteChat(chat.id)}
                                                 >
                                                     <TrashIcon />
-                                                    <span>Delete</span>
+                                                    <span>Xóa</span>
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>

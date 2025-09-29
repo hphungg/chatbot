@@ -1,12 +1,17 @@
+"use client"
+
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header";
-import { DepartmentsProvider, useDepartments } from "@/context/department-context";
+import {
+    DepartmentsProvider,
+    useDepartments
+} from "./_components/department-context";
 import { Search } from "@/components/search";
 import { DepartmentsTable } from "./_components/department-table";
 import { CreateDepartmentDialog } from "./_components/create-department-dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
-export default function Departments() {
+function DepartmentsContent() {
     const { setOpen } = useDepartments();
 
     const handleCreateDepartment = () => {
@@ -14,22 +19,22 @@ export default function Departments() {
     };
 
     return (
-        <DepartmentsProvider>
+        <>
             <DashboardHeader fixed>
                 <Search />
             </DashboardHeader>
             <div className="p-4 sm:p-6 lg:p-8">
                 <div className="mb-2 flex flex-wrap items-center justify-between space-y-2">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight">Departments</h2>
+                        <h2 className="text-2xl font-bold tracking-tight">Phòng ban</h2>
                         <p className="text-muted-foreground">
-                            Manage departments and their information here.
+                            Quản lý thông tin các phòng ban.
                         </p>
                     </div>
                     <div className="flex items-center space-x-2">
                         <Button onClick={handleCreateDepartment} className="gap-2">
                             <Plus className="h-4 w-4" />
-                            Create new Department
+                            Tạo phòng ban
                         </Button>
                     </div>
                 </div>
@@ -38,6 +43,14 @@ export default function Departments() {
                 </div>
             </div>
             <CreateDepartmentDialog />
+        </>
+    );
+}
+
+export default function Departments() {
+    return (
+        <DepartmentsProvider>
+            <DepartmentsContent />
         </DepartmentsProvider>
-    )
+    );
 }

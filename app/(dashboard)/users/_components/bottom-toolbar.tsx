@@ -43,12 +43,12 @@ export function BottomToolbar<TData>({
                 className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl cursor-pointer"
             >
                 <div
-                className={cn(
-                    'p-2 shadow-xl',
-                    'rounded-xl border',
-                    'bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur-lg',
-                    'flex items-center gap-x-2'
-                )}
+                    className={cn(
+                        'p-2 shadow-xl',
+                        'rounded-xl border',
+                        'bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur-lg',
+                        'flex items-center gap-x-2'
+                    )}
                 >
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -57,11 +57,11 @@ export function BottomToolbar<TData>({
                         size='icon'
                         onClick={handleClearSelection}
                         className='size-6 rounded-md'
-                        aria-label='Clear selection'
-                        title='Clear selection'
+                        aria-label='Xóa lựa chọn'
+                        title='Xóa lựa chọn'
                     >
                         <X />
-                        <span className='sr-only'>Clear selection</span>
+                        <span className='sr-only'>Bỏ chọn</span>
                     </Button>
                     </TooltipTrigger>
                 </Tooltip>
@@ -79,9 +79,8 @@ export function BottomToolbar<TData>({
                     {selectedCount}
                     <span className='hidden sm:inline'>
                         {entityName}
-                        {selectedCount > 1 ? 's' : ''}
                     </span>{' '}
-                    selected
+                    được chọn
                 </div>
 
                 <Separator

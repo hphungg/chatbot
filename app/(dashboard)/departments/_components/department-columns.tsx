@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Department } from '@/lib/types'
 import { Eye } from 'lucide-react'
-import { useDepartments } from '@/context/department-context'
+import { useDepartments } from '@/app/(dashboard)/departments/_components/department-context'
 
 export const departmentsColumns: ColumnDef<Department>[] = [
     {
@@ -38,7 +38,7 @@ export const departmentsColumns: ColumnDef<Department>[] = [
     },
     {
         accessorKey: 'name',
-        header: "Name",
+        header: "Tên phòng ban",
         cell: ({ row }) => (
             <div className='w-fit text-nowrap font-medium'>{row.getValue('name')}</div>
         ),
@@ -52,7 +52,7 @@ export const departmentsColumns: ColumnDef<Department>[] = [
     },
     {
         accessorKey: 'code',
-        header: "Code",
+        header: "Mã phòng ban",
         cell: ({ row }) => (
             <div className='w-fit text-nowrap font-bold text-sm py-1'>
                 {row.getValue('code')}
@@ -61,7 +61,7 @@ export const departmentsColumns: ColumnDef<Department>[] = [
     },
     {
         accessorKey: 'employeeCount',
-        header: "Total Employees",
+        header: "Tổng số nhân viên",
         cell: ({ row }) => (
             <div className='w-fit text-center'>
                 <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'>
@@ -72,7 +72,7 @@ export const departmentsColumns: ColumnDef<Department>[] = [
     },
     {
         accessorKey: 'projectCount',
-        header: "Total Projects",
+        header: "Tổng số dự án",
         cell: ({ row }) => (
             <div className='w-fit text-center'>
                 <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'>
@@ -83,7 +83,7 @@ export const departmentsColumns: ColumnDef<Department>[] = [
     },
     {
         id: 'actions',
-        header: "Actions",
+        header: "Chi tiết",
         cell: ({ row }) => {
             const department = row.original
             return (
@@ -115,7 +115,7 @@ function DepartmentActions({ department }: { department: Department }) {
                 className='cursor-pointer'
             >
                 <Eye />
-                <span className='sr-only'>View</span>
+                <span className='sr-only'>Xem</span>
             </Button>
         </div>
     )

@@ -56,7 +56,7 @@ export function DashboardUser({ user }: { user: User }) {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setOpen(true)}>
                                 <LogOut />
-                                <span className="ml-2">Sign out</span>
+                                <span className="ml-2">Đăng xuất</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

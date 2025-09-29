@@ -45,7 +45,7 @@ export function BulkActionToolbar<TData>({
 
     return (
         <>
-            <BottomToolbar table={table} entityName='user'>
+            <BottomToolbar table={table} entityName='nhân viên'>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button
@@ -54,14 +54,13 @@ export function BulkActionToolbar<TData>({
                             onClick={() => handleBulkStatusChange('verified')}
                             className='size-8'
                             aria-label='Activate selected users'
-                            title='Activate selected users'
                         >
                             <UserCheck />
-                            <span className='sr-only'>Verify selected users</span>
+                            <span className='sr-only'>Duyệt nhân viên</span>
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Verify selected users</p>
+                        <p>Duyệt các nhân viên đã chọn</p>
                     </TooltipContent>
                 </Tooltip>
 
@@ -73,14 +72,13 @@ export function BulkActionToolbar<TData>({
                         onClick={() => handleBulkStatusChange('not-verified')}
                         className='size-8'
                         aria-label='Deactivate selected users'
-                        title='Deactivate selected users'
                     >
                         <UserX />
-                        <span className='sr-only'>Unverify selected users</span>
+                        <span className='sr-only'>Bỏ duyệt các nhân viên đã chọn</span>
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>Unverify selected users</p>
+                    <p>Bỏ duyệt các nhân viên đã chọn</p>
                 </TooltipContent>
                 </Tooltip>
 
@@ -92,14 +90,13 @@ export function BulkActionToolbar<TData>({
                             onClick={() => setShowDeleteConfirm(true)}
                             className='size-8'
                             aria-label='Delete selected users'
-                            title='Delete selected users'
                         >
                             <Trash2 />
-                            <span className='sr-only'>Delete selected users</span>
+                            <span className='sr-only'>Xóa các nhân viên đã chọn </span>
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Delete selected users</p>
+                        <p>Xóa các nhân viên đã chọn</p>
                     </TooltipContent>
                 </Tooltip>
             </BottomToolbar>
@@ -114,16 +111,16 @@ export function BulkActionToolbar<TData>({
                             className='stroke-destructive me-1 inline-block'
                             size={18}
                         />{' '}
-                        Delete {selectedRows.length}{' '}
-                        {selectedRows.length > 1 ? 'users' : 'user'}
+                        Xóa {selectedRows.length}{' nhân viên'}
                     </span>
                 }
                 desc={
                     <div className='space-y-4'>
-                        Are you sure you want to delete the selected users? <br />
+                        Bạn có chắc chắn muốn xóa các nhân viên đã chọn không? <br />
                     </div>
                 }
-                confirmText='Delete'
+                confirmText='Xác nhận xóa'
+                cancelBtnText='Hủy'
                 destructive
             />
         </>

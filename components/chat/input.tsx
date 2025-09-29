@@ -98,7 +98,7 @@ export function ChatInput({
                     rows={2}
                     onChange={(e) => setInput(e.target.value)}
                     value={input}
-                    placeholder="Ask a question or type a command..."
+                    placeholder="Hỏi một câu nào đó..."
                 />
             </PromptInputBody>
             <PromptInputToolbar>
@@ -107,7 +107,7 @@ export function ChatInput({
                         <PromptInputActionMenuTrigger />
                         <PromptInputActionMenuContent>
                             <PromptInputActionAddAttachments
-                                label="Add Documents"
+                                label="Thêm tài liệu"
                             />
                         </PromptInputActionMenuContent>
                     </PromptInputActionMenu>

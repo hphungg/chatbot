@@ -58,11 +58,11 @@ export function SidebarUser({ user }: { user: User }) {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="cursor-pointer">
                                 <DashboardIcon />
-                                <Link href="/" className="ml-2">Dashboard</Link>
+                                <Link href="/" className="ml-2">Hồ sơ</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setOpen(true)} className="cursor-pointer">
                                 <LogOut />
-                                <span className="ml-2">Sign out</span>
+                                <span className="ml-2">Đăng xuất</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

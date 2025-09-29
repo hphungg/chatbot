@@ -67,9 +67,9 @@ export function EmployeeSelector({ selectedEmployees, onSelectionChange }: Emplo
                         <div className="flex items-center">
                             <User className="mr-2 h-4 w-4" />
                             {selectedEmployees.length === 0 ? (
-                                <span className="text-muted-foreground">Select employees...</span>
+                                <span className="text-muted-foreground">Thêm nhân viên...</span>
                             ) : (
-                                <span>{selectedEmployees.length} employee(s) selected</span>
+                                <span>{selectedEmployees.length} nhân viên được chọn</span>
                             )}
                             </div>
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -77,13 +77,13 @@ export function EmployeeSelector({ selectedEmployees, onSelectionChange }: Emplo
                 </PopoverTrigger>
                 <PopoverContent className="w-full p-0">
                     <Command>
-                        <CommandInput placeholder="Search employee name..." />
+                        <CommandInput placeholder="Tìm kiếm tên nhân viên..." />
                         <CommandList>
                             {loading ? (
-                                <CommandEmpty>Loading employees...</CommandEmpty>
+                                <CommandEmpty>Đang tải nhân viên...</CommandEmpty>
                             ) : (
                                 <>
-                                    <CommandEmpty>No employees found.</CommandEmpty>
+                                    <CommandEmpty>Không tìm thấy nhân viên.</CommandEmpty>
                                     <CommandGroup>
                                         <div className="max-h-60 overflow-y-auto space-y-1">
                                             {users.map((user) => (

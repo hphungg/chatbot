@@ -8,7 +8,7 @@ export default function SignInPage() {
                 <AppLogo className="items-center justify-center" />
                 <SignInForm />
                 <div className="text-muted-foreground text-center text-xs text-balance">
-                    By signing in, you agree to our term of service and privacy policy.
+                    Nếu bạn gặp sự cố khi đăng nhập, vui lòng liên hệ với quản lý để cấp lại tài khoản.
                 </div>
             </div>
         </div>

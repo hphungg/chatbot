@@ -41,22 +41,22 @@ export function BulkActionToolbar<TData>({
 
     return (
         <>
-            <BottomToolbar table={table} entityName='department'>
+            <BottomToolbar table={table} entityName='phòng ban'>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button
                             variant='destructive'
                             onClick={() => setShowDeleteConfirm(true)}
-                            aria-label='Delete selected departments'
-                            title='Delete selected departments'
+                            aria-label='Xóa các phòng ban đã chọn'
+                            title='Xóa các phòng ban đã chọn'
                             className='hover:bg-destructive/80 focus:bg-destructive/10 active:bg-destructive/10 cursor-pointer'
                         >
                             <Trash2 />
-                            <span>Delete</span>
+                            <span>Xóa</span>
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Delete selected departments</p>
+                        <p>Xóa {selectedRows.length} phòng ban đã chọn</p>
                     </TooltipContent>
                 </Tooltip>
             </BottomToolbar>
@@ -71,17 +71,18 @@ export function BulkActionToolbar<TData>({
                             className='stroke-destructive me-1 inline-block'
                             size={18}
                         />{' '}
-                        Delete {selectedRows.length}{' '}
-                        {selectedRows.length > 1 ? 'departments' : 'department'}
+                        Xóa {selectedRows.length}{' '}
+                        {selectedRows.length > 1 ? 'phòng ban' : 'phòng ban'}
                     </span>
                 }
                 desc={
                     <div className='space-y-4'>
-                        Are you sure you want to delete the selected departments? <br />
-                        <strong>Warning:</strong> This action cannot be undone and may affect associated users and projects.
+                        Bạn có chắc chắn muốn xóa các phòng ban đã chọn không? <br />
+                        <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác và có thể ảnh hưởng đến các nhân viên và dự án liên quan.
                     </div>
                 }
-                confirmText='Delete'
+                confirmText='Xác nhận xóa'
+                cancelBtnText='Hủy'
                 destructive
             />
         </>

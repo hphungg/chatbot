@@ -25,8 +25,8 @@ export function ChatConversation({
             <ConversationContent className={messages.length === 0 ? "flex items-center justify-center h-full" : ""}>
                 {messages.length === 0 && (
                     <ConversationEmptyState
-                        title="No messages yet"
-                        description="Send a message to start the conversation."
+                        title="Bắt đầu cuộc trò chuyện"
+                        description="Gửi tin nhắn để bắt đầu cuộc trò chuyện."
                         icon={<MessageSquare className="size-12" />}
                     />
                 )}

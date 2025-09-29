@@ -10,9 +10,9 @@ export default function ProjectsPage() {
             <div className="p-4 sm:p-6 lg:p-8">
                 <div className="mb-2 flex flex-wrap items-center justify-between space-y-2">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight">Projects</h2>
+                        <h2 className="text-2xl font-bold tracking-tight">Dự án</h2>
                         <p className="text-muted-foreground">
-                            Manage projects here.
+                            Quản lý dự án tại đây.
                         </p>
                     </div>
                 </div>

@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useDepartments } from "@/context/department-context";
+import { useDepartments } from "@/app/(dashboard)/departments/_components/department-context";
 import { EmployeeSelector } from "./employee-selector";
 import { createDepartment } from "@/app/api/departments/queries";
 
@@ -54,12 +54,12 @@ export function CreateDepartmentDialog() {
                 selectedEmployees: formData.selectedEmployees,
             });
 
-            toast.success("Department created successfully!");
+            toast.success("Tạo phòng ban thành công!");
             handleClose();
             window.location.reload();
         } catch (error) {
             console.error("Error creating department:", error);
-            toast.error("Failed to create department");
+            toast.error("Tạo phòng ban thất bại");
         } finally {
             setIsSubmitting(false);
         }
@@ -83,9 +83,9 @@ export function CreateDepartmentDialog() {
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Create New Department</DialogTitle>
+                    <DialogTitle>Tạo phòng ban mới</DialogTitle>
                     <DialogDescription>
-                        Fill in the details below.
+                        Điền thông tin bên dưới.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -93,14 +93,14 @@ export function CreateDepartmentDialog() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-5 items-center gap-2">
                             <Label htmlFor="name" className="text-right">
-                                <span>Name</span>
+                                <span>Tên</span>
                                 <span className="text-red-500">*</span>
                             </Label>
                             <Input
                                 id="name"
                                 value={formData.name}
                                 onChange={(e) => handleInputChange("name", e.target.value)}
-                                placeholder="Enter department name"
+                                placeholder="Nhập tên phòng ban"
                                 className="col-span-4"
                                 required
                             />
@@ -108,7 +108,7 @@ export function CreateDepartmentDialog() {
 
                         <div className="grid grid-cols-5 items-center gap-2">
                             <Label htmlFor="code">
-                                <span>Code</span>
+                                <span>Mã</span>
                                 <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -117,7 +117,7 @@ export function CreateDepartmentDialog() {
                                 onChange={(e) =>
                                     handleInputChange("code", e.target.value.toUpperCase())
                                 }
-                                placeholder="Enter department code (e.g. HR01, ENG)"
+                                placeholder="Nhập mã phòng ban (ví dụ: HR01, ENG)"
                                 className="col-span-4"
                                 maxLength={10}
                                 required
@@ -126,7 +126,7 @@ export function CreateDepartmentDialog() {
 
                         <div className="grid grid-cols-7 items-center gap-4">
                             <Label htmlFor="employees" className="col-span-2">
-                                Add Employees
+                                Thêm nhân viên
                             </Label>
                             <div className="col-span-5">
                                 <EmployeeSelector
@@ -144,7 +144,7 @@ export function CreateDepartmentDialog() {
                             onClick={handleClose}
                             disabled={isSubmitting}
                         >
-                            Cancel
+                            Hủy
                         </Button>
                         <Button
                             type="submit"
@@ -154,7 +154,7 @@ export function CreateDepartmentDialog() {
                             {isSubmitting && (
                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             )}
-                            {isSubmitting ? "Creating..." : "Create Department"}
+                            {isSubmitting ? "Đang tạo..." : "Tạo phòng ban"}
                         </Button>
                     </DialogFooter>
                 </form>
