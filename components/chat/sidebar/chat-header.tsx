@@ -9,19 +9,24 @@ type ChatHeaderProps = React.HTMLAttributes<HTMLElement> & {
     ref?: React.Ref<HTMLElement>
 }
 
-export function ChatHeader({ className, fixed, children, ...props }: ChatHeaderProps) {
-    const [ offset, setOffset ] = useState(0)
+export function ChatHeader({
+    className,
+    fixed,
+    children,
+    ...props
+}: ChatHeaderProps) {
+    const [offset, setOffset] = useState(0)
     return (
         <header
             className={cn(
-                'z-50 h-12',
-                fixed && 'header-fixed peer/header sticky top-0 w-[inherit]',
-                className
+                "z-50 h-12",
+                fixed && "header-fixed peer/header sticky top-0 w-[inherit]",
+                className,
             )}
             {...props}
         >
             <div className="relative flex h-full items-center gap-3 p-4 sm:gap-4 border-b">
-                <SidebarTrigger variant='outline' />
+                <SidebarTrigger variant="outline" />
             </div>
         </header>
     )

@@ -1,8 +1,7 @@
-import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header";
-import { Search } from "@/components/search";
+import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
+import { Search } from "@/components/search"
 
 export default function Page() {
-
     return (
         <div>
             <DashboardHeader fixed>

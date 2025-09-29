@@ -1,4 +1,4 @@
-import { BotIcon } from "lucide-react";
+import { BotIcon } from "lucide-react"
 
 export default function AppLogo({ className }: { className?: string }) {
     return (
@@ -8,5 +8,5 @@ export default function AppLogo({ className }: { className?: string }) {
             </div>
             <a className="font-semibold text-xl">Chatbot</a>
         </div>
-    );
+    )
 }

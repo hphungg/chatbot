@@ -1,6 +1,6 @@
 "use client"
 
-import { Dispatch, SetStateAction, useCallback, useRef } from "react";
+import { Dispatch, SetStateAction, useCallback, useRef } from "react"
 import {
     PromptInput,
     PromptInputActionAddAttachments,
@@ -13,25 +13,25 @@ import {
     PromptInputSubmit,
     PromptInputTextarea,
     PromptInputToolbar,
-    PromptInputTools
-} from "../ai-elements/prompt-input";
-import { UIMessage, UseChatHelpers } from "@ai-sdk/react";
-import { Attachment } from "@/lib/types";
-import { useWindowSize } from "usehooks-ts";
-import { Button } from "../ui/button";
-import { StopIcon } from "@radix-ui/react-icons";
+    PromptInputTools,
+} from "../ai-elements/prompt-input"
+import { UIMessage, UseChatHelpers } from "@ai-sdk/react"
+import { Attachment } from "@/lib/types"
+import { useWindowSize } from "usehooks-ts"
+import { Button } from "../ui/button"
+import { StopIcon } from "@radix-ui/react-icons"
 
 interface ChatInputProps {
-    chatId?: string;
-    input: string;
-    setInput: Dispatch<SetStateAction<string>>;
-    attachments: Attachment[];
-    stop: () => void;
-    setAttachments: Dispatch<SetStateAction<Attachment[]>>;
-    messages: UIMessage[];
-    sendMessage: UseChatHelpers<UIMessage>["sendMessage"];
-    setMessages: UseChatHelpers<UIMessage>["setMessages"];
-    status: UseChatHelpers<UIMessage>["status"];
+    chatId?: string
+    input: string
+    setInput: Dispatch<SetStateAction<string>>
+    attachments: Attachment[]
+    stop: () => void
+    setAttachments: Dispatch<SetStateAction<Attachment[]>>
+    messages: UIMessage[]
+    sendMessage: UseChatHelpers<UIMessage>["sendMessage"]
+    setMessages: UseChatHelpers<UIMessage>["setMessages"]
+    status: UseChatHelpers<UIMessage>["status"]
 }
 
 export function ChatInput({
@@ -44,14 +44,13 @@ export function ChatInput({
     setAttachments,
     messages,
     sendMessage,
-    setMessages
+    setMessages,
 }: ChatInputProps) {
-
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const { width } = useWindowSize();
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const { width } = useWindowSize()
 
     const handleSubmit = useCallback(() => {
-        window.history.replaceState({}, "", `/chat/${chatId}`);
+        window.history.replaceState({}, "", `/chat/${chatId}`)
 
         sendMessage({
             role: "user",
@@ -64,21 +63,29 @@ export function ChatInput({
                 })),
                 {
                     type: "text",
-                    text: input
-                }
-            ]
-        });
-        setInput("");
-        setAttachments([]);
+                    text: input,
+                },
+            ],
+        })
+        setInput("")
+        setAttachments([])
 
         if (width && width > 768) {
-            textareaRef.current?.focus();
+            textareaRef.current?.focus()
         }
-    }, [chatId, input, setInput, sendMessage, attachments, setAttachments, width]);
+    }, [
+        chatId,
+        input,
+        setInput,
+        sendMessage,
+        attachments,
+        setAttachments,
+        width,
+    ])
 
     const handleStop = () => {
-        stop();
-        setMessages((messages) => messages);
+        stop()
+        setMessages((messages) => messages)
     }
 
     return (
@@ -90,7 +97,9 @@ export function ChatInput({
         >
             <PromptInputBody>
                 <PromptInputAttachments>
-                    {(attachment) => <PromptInputAttachment data={attachment} />}
+                    {(attachment) => (
+                        <PromptInputAttachment data={attachment} />
+                    )}
                 </PromptInputAttachments>
                 <PromptInputTextarea
                     autoFocus
@@ -106,24 +115,23 @@ export function ChatInput({
                     <PromptInputActionMenu>
                         <PromptInputActionMenuTrigger />
                         <PromptInputActionMenuContent>
-                            <PromptInputActionAddAttachments
-                                label="Thêm tài liệu"
-                            />
+                            <PromptInputActionAddAttachments label="Thêm tài liệu" />
                         </PromptInputActionMenuContent>
                     </PromptInputActionMenu>
                 </PromptInputTools>
-                {
-                    status === "submitted" ? (
-                        <Button
-                            className="size-7 rounded-full bg-foreground p-1 text-background transition-colors duration-200 hover:bg-foreground/80 disabled:bg-muted disabled:text-muted-foreground"
-                            onClick={handleStop}
-                        >
-                            <StopIcon className="size-4" />
-                        </Button>
-                    ) : (
-                        <PromptInputSubmit disabled={!input && !status} status={status}/>
-                    )
-                }
+                {status === "submitted" ? (
+                    <Button
+                        className="size-7 rounded-full bg-foreground p-1 text-background transition-colors duration-200 hover:bg-foreground/80 disabled:bg-muted disabled:text-muted-foreground"
+                        onClick={handleStop}
+                    >
+                        <StopIcon className="size-4" />
+                    </Button>
+                ) : (
+                    <PromptInputSubmit
+                        disabled={!input && !status}
+                        status={status}
+                    />
+                )}
             </PromptInputToolbar>
         </PromptInput>
     )

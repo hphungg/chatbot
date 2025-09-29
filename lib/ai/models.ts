@@ -1,20 +1,22 @@
-export const DEFAULT_CHAT_MODEL: string = "chat-model";
+export const DEFAULT_CHAT_MODEL: string = "chat-model"
 
 export type ChatModel = {
-    id: string;
-    name: string;
-    description: string;
-};
+    id: string
+    name: string
+    description: string
+}
 
 export const chatModels: ChatModel[] = [
     {
         id: "gpt-4o",
         name: "GPT-4o",
-        description: "Advanced multimodal model with vision and text capabilities",
+        description:
+            "Advanced multimodal model with vision and text capabilities",
     },
     {
         id: "chat-model-reasoning",
         name: "GPT-4o-Reasoning",
-        description: "Uses advanced chain-of-thought reasoning for complex problems",
+        description:
+            "Uses advanced chain-of-thought reasoning for complex problems",
     },
-];
+]

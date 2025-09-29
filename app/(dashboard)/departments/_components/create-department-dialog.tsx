@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { toast } from "sonner";
+import React, { useState } from "react"
+import { toast } from "sonner"
 import {
     Dialog,
     DialogContent,
@@ -9,75 +9,75 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useDepartments } from "@/app/(dashboard)/departments/_components/department-context";
-import { EmployeeSelector } from "./employee-selector";
-import { createDepartment } from "@/app/api/departments/queries";
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useDepartments } from "@/app/(dashboard)/departments/_components/department-context"
+import { EmployeeSelector } from "./employee-selector"
+import { createDepartment } from "@/app/api/departments/queries"
 
 export function CreateDepartmentDialog() {
-    const { open, setOpen } = useDepartments();
+    const { open, setOpen } = useDepartments()
     const [formData, setFormData] = useState({
         name: "",
         code: "",
         selectedEmployees: [] as string[],
-    });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    })
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const isOpen = open === 'add';
+    const isOpen = open === "add"
 
     const handleClose = () => {
-        setOpen(null);
+        setOpen(null)
         setFormData({
             name: "",
             code: "",
             selectedEmployees: [],
-        });
-    };
+        })
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+        e.preventDefault()
 
         if (!formData.name.trim() || !formData.code.trim()) {
-            toast.error("Please fill in all required fields");
-            return;
+            toast.error("Please fill in all required fields")
+            return
         }
 
-        setIsSubmitting(true);
+        setIsSubmitting(true)
 
         try {
             await createDepartment({
                 name: formData.name,
                 code: formData.code,
                 selectedEmployees: formData.selectedEmployees,
-            });
+            })
 
-            toast.success("Tạo phòng ban thành công!");
-            handleClose();
-            window.location.reload();
+            toast.success("Tạo phòng ban thành công!")
+            handleClose()
+            window.location.reload()
         } catch (error) {
-            console.error("Error creating department:", error);
-            toast.error("Tạo phòng ban thất bại");
+            console.error("Error creating department:", error)
+            toast.error("Tạo phòng ban thất bại")
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false)
         }
-    };
+    }
 
     const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [field]: value,
-        }));
-    };
+        }))
+    }
 
     const handleEmployeeSelectionChange = (employees: string[]) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             selectedEmployees: employees,
-        }));
-    };
+        }))
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -99,7 +99,9 @@ export function CreateDepartmentDialog() {
                             <Input
                                 id="name"
                                 value={formData.name}
-                                onChange={(e) => handleInputChange("name", e.target.value)}
+                                onChange={(e) =>
+                                    handleInputChange("name", e.target.value)
+                                }
                                 placeholder="Nhập tên phòng ban"
                                 className="col-span-4"
                                 required
@@ -115,7 +117,10 @@ export function CreateDepartmentDialog() {
                                 id="code"
                                 value={formData.code}
                                 onChange={(e) =>
-                                    handleInputChange("code", e.target.value.toUpperCase())
+                                    handleInputChange(
+                                        "code",
+                                        e.target.value.toUpperCase(),
+                                    )
                                 }
                                 placeholder="Nhập mã phòng ban (ví dụ: HR01, ENG)"
                                 className="col-span-4"
@@ -130,8 +135,12 @@ export function CreateDepartmentDialog() {
                             </Label>
                             <div className="col-span-5">
                                 <EmployeeSelector
-                                    selectedEmployees={formData.selectedEmployees}
-                                    onSelectionChange={handleEmployeeSelectionChange}
+                                    selectedEmployees={
+                                        formData.selectedEmployees
+                                    }
+                                    onSelectionChange={
+                                        handleEmployeeSelectionChange
+                                    }
                                 />
                             </div>
                         </div>
@@ -160,5 +169,5 @@ export function CreateDepartmentDialog() {
                 </form>
             </DialogContent>
         </Dialog>
-    );
+    )
 }

@@ -1,0 +1,10 @@
+{
+    "tabWidth": 4,
+    "semi": false,
+    "singleQuote": false,
+    "bracketSpacing": true,
+    "trailingComma": "all",
+    "objectWrap": "preserve",
+    "bracketSameLine": false,
+    "arrowParens": "always"
+}

@@ -1,16 +1,16 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { Toaster } from "sonner";
-import "./globals.css";
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import { Toaster } from "sonner"
+import "./globals.css"
 
 const inter = Inter({
     variable: "--font-inter",
-});
+})
 
 export const metadata: Metadata = {
     title: "Chatbot",
     description: "A chatbot application built with Next.js",
-};
+}
 
 export const viewport = {
     maximumScale: 1,
@@ -19,14 +19,17 @@ export const viewport = {
 export default function RootLayout({
     children,
 }: Readonly<{
-    children: React.ReactNode;
+    children: React.ReactNode
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body suppressHydrationWarning className={`${inter.className} antialiased`}>
+            <body
+                suppressHydrationWarning
+                className={`${inter.className} antialiased`}
+            >
                 <Toaster position="top-center" />
                 {children}
             </body>
         </html>
-    );
+    )
 }

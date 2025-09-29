@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { toast } from "sonner";
+import React, { useState } from "react"
+import { toast } from "sonner"
 import {
     Dialog,
     DialogContent,
@@ -9,61 +9,60 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useChatContext } from "@/context/chat-context";
-import { createGroupChat } from "@/app/api/group/queries";
-import { useRouter } from "next/navigation";
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useChatContext } from "@/context/chat-context"
+import { createGroupChat } from "@/app/api/group/queries"
+import { useRouter } from "next/navigation"
 
 export function CreateGroupDialog() {
-    const { open, setOpen, addGroups } = useChatContext();
+    const { open, setOpen, addGroups } = useChatContext()
     const [formData, setFormData] = useState({
         title: "",
-    });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const isOpen = open === 'create-group';
-    const router = useRouter();
+    })
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const isOpen = open === "create-group"
+    const router = useRouter()
 
     const handleClose = () => {
-        setOpen(null);
+        setOpen(null)
         setFormData({
             title: "",
-        });
-    };
+        })
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+        e.preventDefault()
 
         if (!formData.title.trim()) {
-            toast.error("Please fill in title");
-            return;
+            toast.error("Please fill in title")
+            return
         }
 
-        setIsSubmitting(true);
+        setIsSubmitting(true)
 
         try {
-            const group = await createGroupChat(formData.title);
-            toast.success("Group chat created successfully!");
-            handleClose();
-            addGroups(group);
-            router.push(`/chat`);
+            const group = await createGroupChat(formData.title)
+            toast.success("Group chat created successfully!")
+            handleClose()
+            addGroups(group)
+            router.push(`/chat`)
         } catch (error) {
-            console.error("Error creating group chat:", error);
-            toast.error("Failed to create group chat");
+            console.error("Error creating group chat:", error)
+            toast.error("Failed to create group chat")
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false)
         }
-    };
+    }
 
     const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [field]: value,
-        }));
-    };
-
+        }))
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -76,7 +75,9 @@ export function CreateGroupDialog() {
                     <Input
                         id="title"
                         value={formData.title}
-                        onChange={(e) => handleInputChange("title", e.target.value)}
+                        onChange={(e) =>
+                            handleInputChange("title", e.target.value)
+                        }
                         placeholder="Nhập tên nhóm chat"
                         className="mb-4 mt-2"
                         required
@@ -105,5 +106,5 @@ export function CreateGroupDialog() {
                 </form>
             </DialogContent>
         </Dialog>
-    );
+    )
 }

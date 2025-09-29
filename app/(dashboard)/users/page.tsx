@@ -1,7 +1,7 @@
-import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header";
-import { UsersProvider } from "./_components/user-provider";
-import { Search } from "@/components/search";
-import { UsersTable } from "./_components/user-table";
+import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
+import { UsersProvider } from "./_components/user-provider"
+import { Search } from "@/components/search"
+import { UsersTable } from "./_components/user-table"
 
 export default function UsersPage() {
     return (
@@ -12,7 +12,9 @@ export default function UsersPage() {
             <div className="p-4 sm:p-6 lg:p-8">
                 <div className="mb-2 flex flex-wrap items-center justify-between space-y-2">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight">Nhân viên</h2>
+                        <h2 className="text-2xl font-bold tracking-tight">
+                            Nhân viên
+                        </h2>
                         <p className="text-muted-foreground">
                             Quản lý nhân viên tại đây.
                         </p>

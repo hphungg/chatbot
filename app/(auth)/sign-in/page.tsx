@@ -1,5 +1,5 @@
-import AppLogo from "@/components/app-logo";
-import SignInForm from "@/components/auth/sign-in-form";
+import AppLogo from "@/components/app-logo"
+import SignInForm from "@/components/auth/sign-in-form"
 
 export default function SignInPage() {
     return (
@@ -8,7 +8,8 @@ export default function SignInPage() {
                 <AppLogo className="items-center justify-center" />
                 <SignInForm />
                 <div className="text-muted-foreground text-center text-xs text-balance">
-                    Nếu bạn gặp sự cố khi đăng nhập, vui lòng liên hệ với quản lý để cấp lại tài khoản.
+                    Nếu bạn gặp sự cố khi đăng nhập, vui lòng liên hệ với quản
+                    lý để cấp lại tài khoản.
                 </div>
             </div>
         </div>

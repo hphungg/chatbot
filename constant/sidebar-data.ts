@@ -1,5 +1,5 @@
-import { IconDashboard, IconFolder, IconHome } from "@tabler/icons-react";
-import { Users } from "lucide-react";
+import { IconDashboard, IconFolder, IconHome } from "@tabler/icons-react"
+import { Users } from "lucide-react"
 
 export const sidebarData = [
     {
@@ -21,5 +21,5 @@ export const sidebarData = [
         title: "Dự án",
         url: "/projects",
         icon: IconFolder,
-    }
+    },
 ]

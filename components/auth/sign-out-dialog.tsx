@@ -1,7 +1,7 @@
-import { ConfirmDialog } from '@/components/confirm-dialog'
-import { authClient } from '@/lib/db/auth-client'
-import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { authClient } from "@/lib/db/auth-client"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface SignOutDialogProps {
     open: boolean
@@ -9,7 +9,7 @@ interface SignOutDialogProps {
 }
 
 export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
-    const router = useRouter();
+    const router = useRouter()
 
     async function handleSignOut() {
         await authClient.signOut({
@@ -18,10 +18,10 @@ export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
                     toast.error(ctx.error.message)
                 },
                 onSuccess: () => {
-                    router.push('/sign-in');
-                    onOpenChange(false);
-                }
-            }
+                    router.push("/sign-in")
+                    onOpenChange(false)
+                },
+            },
         })
     }
 
@@ -29,12 +29,12 @@ export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
         <ConfirmDialog
             open={open}
             onOpenChange={onOpenChange}
-            title='Đăng xuất'
-            desc='Bạn có chắc chắn muốn đăng xuất không?'
-            confirmText='Đăng xuất'
-            cancelBtnText='Hủy'
+            title="Đăng xuất"
+            desc="Bạn có chắc chắn muốn đăng xuất không?"
+            confirmText="Đăng xuất"
+            cancelBtnText="Hủy"
             handleConfirm={handleSignOut}
-            className='sm:max-w-sm'
+            className="sm:max-w-sm"
         />
     )
 }

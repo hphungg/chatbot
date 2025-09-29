@@ -1,7 +1,7 @@
-import { openai } from "@ai-sdk/openai";
-import { Message } from "@prisma/client";
-import { generateText, UIDataTypes, UIMessage, UIMessagePart } from "ai";
-import { formatISO } from "date-fns";
+import { openai } from "@ai-sdk/openai"
+import { Message } from "@prisma/client"
+import { generateText, UIDataTypes, UIMessage, UIMessagePart } from "ai"
+import { formatISO } from "date-fns"
 
 export async function generateTitleFromUserMessage({
     message,
@@ -17,9 +17,9 @@ export async function generateTitleFromUserMessage({
         - do not use quotes or colons
         - the title must be in the same language as the user's message`,
         prompt: JSON.stringify(message),
-    });
+    })
 
-    return title;
+    return title
 }
 
 export function convertToUIMessages({
@@ -29,10 +29,10 @@ export function convertToUIMessages({
 }): UIMessage[] {
     return messages.map((message) => ({
         id: message.id,
-        role: message.role as 'user' | 'assistant' | 'system',
+        role: message.role as "user" | "assistant" | "system",
         parts: message.parts as UIMessagePart<UIDataTypes, {}>[],
         metadata: {
             createdAt: formatISO(message.createdAt),
-        }
-    }));
+        },
+    }))
 }

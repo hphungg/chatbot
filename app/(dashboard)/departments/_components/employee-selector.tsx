@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
-import { ChevronsUpDown, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react"
+import { ChevronsUpDown, User } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
     Command,
     CommandEmpty,
@@ -10,49 +10,54 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from "@/components/ui/command";
+} from "@/components/ui/command"
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "@/components/ui/popover";
-import { User as UserType } from "@/lib/types";
-import { getAllUsers } from "@/app/api/users/queries";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "@/components/ui/popover"
+import { User as UserType } from "@/lib/types"
+import { getAllUsers } from "@/app/api/users/queries"
+import { Avatar, AvatarImage } from "@/components/ui/avatar"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface EmployeeSelectorProps {
-    selectedEmployees: string[];
-    onSelectionChange: (employees: string[]) => void;
+    selectedEmployees: string[]
+    onSelectionChange: (employees: string[]) => void
 }
 
-export function EmployeeSelector({ selectedEmployees, onSelectionChange }: EmployeeSelectorProps) {
-    const [open, setOpen] = useState(false);
-    const [users, setUsers] = useState<UserType[]>([]);
-    const [loading, setLoading] = useState(true);
+export function EmployeeSelector({
+    selectedEmployees,
+    onSelectionChange,
+}: EmployeeSelectorProps) {
+    const [open, setOpen] = useState(false)
+    const [users, setUsers] = useState<UserType[]>([])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         async function fetchUsers() {
             try {
-                const response = await getAllUsers();
-                setUsers(response);
+                const response = await getAllUsers()
+                setUsers(response)
             } catch (error) {
-                console.error("Error fetching users:", error);
+                console.error("Error fetching users:", error)
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
         }
-        fetchUsers();
-    }, []);
+        fetchUsers()
+    }, [])
 
     const toggleEmployee = (employeeId: string) => {
-        const isSelected = selectedEmployees.includes(employeeId);
+        const isSelected = selectedEmployees.includes(employeeId)
         if (isSelected) {
-            onSelectionChange(selectedEmployees.filter(id => id !== employeeId));
+            onSelectionChange(
+                selectedEmployees.filter((id) => id !== employeeId),
+            )
         } else {
-            onSelectionChange([...selectedEmployees, employeeId]);
+            onSelectionChange([...selectedEmployees, employeeId])
         }
-    };
+    }
 
     return (
         <div className="w-full space-y-2">
@@ -67,11 +72,16 @@ export function EmployeeSelector({ selectedEmployees, onSelectionChange }: Emplo
                         <div className="flex items-center">
                             <User className="mr-2 h-4 w-4" />
                             {selectedEmployees.length === 0 ? (
-                                <span className="text-muted-foreground">Thêm nhân viên...</span>
+                                <span className="text-muted-foreground">
+                                    Thêm nhân viên...
+                                </span>
                             ) : (
-                                <span>{selectedEmployees.length} nhân viên được chọn</span>
+                                <span>
+                                    {selectedEmployees.length} nhân viên được
+                                    chọn
+                                </span>
                             )}
-                            </div>
+                        </div>
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
@@ -80,31 +90,47 @@ export function EmployeeSelector({ selectedEmployees, onSelectionChange }: Emplo
                         <CommandInput placeholder="Tìm kiếm tên nhân viên..." />
                         <CommandList>
                             {loading ? (
-                                <CommandEmpty>Đang tải nhân viên...</CommandEmpty>
+                                <CommandEmpty>
+                                    Đang tải nhân viên...
+                                </CommandEmpty>
                             ) : (
                                 <>
-                                    <CommandEmpty>Không tìm thấy nhân viên.</CommandEmpty>
+                                    <CommandEmpty>
+                                        Không tìm thấy nhân viên.
+                                    </CommandEmpty>
                                     <CommandGroup>
                                         <div className="max-h-60 overflow-y-auto space-y-1">
                                             {users.map((user) => (
                                                 <CommandItem
                                                     key={user.id}
                                                     value={user.name}
-                                                    onSelect={() => toggleEmployee(user.id)}
+                                                    onSelect={() =>
+                                                        toggleEmployee(user.id)
+                                                    }
                                                 >
-                                                        <Checkbox
-                                                            checked={selectedEmployees.includes(user.id)}
-                                                            onCheckedChange={() => toggleEmployee(user.id)}
+                                                    <Checkbox
+                                                        checked={selectedEmployees.includes(
+                                                            user.id,
+                                                        )}
+                                                        onCheckedChange={() =>
+                                                            toggleEmployee(
+                                                                user.id,
+                                                            )
+                                                        }
+                                                    />
+                                                    <Avatar>
+                                                        <AvatarImage
+                                                            src={
+                                                                user.image as string
+                                                            }
                                                         />
-                                                        <Avatar>
-                                                            <AvatarImage src={user.image as string} />
-                                                        </Avatar>
-                                                        <div className="flex flex-col">
-                                                            <span>{user.name}</span>
-                                                            <span className="text-xs text-muted-foreground">
-                                                                {user.email}
-                                                            </span>
-                                                        </div>
+                                                    </Avatar>
+                                                    <div className="flex flex-col">
+                                                        <span>{user.name}</span>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {user.email}
+                                                        </span>
+                                                    </div>
                                                 </CommandItem>
                                             ))}
                                         </div>
@@ -116,5 +142,5 @@ export function EmployeeSelector({ selectedEmployees, onSelectionChange }: Emplo
                 </PopoverContent>
             </Popover>
         </div>
-    );
+    )
 }

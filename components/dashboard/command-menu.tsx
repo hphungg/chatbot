@@ -1,5 +1,5 @@
-import React from 'react'
-import { ArrowRight } from 'lucide-react'
+import React from "react"
+import { ArrowRight } from "lucide-react"
 import {
     CommandDialog,
     CommandEmpty,
@@ -7,11 +7,11 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from '@/components/ui/command'
-import { ScrollArea } from '../ui/scroll-area'
-import { sidebarData } from '../../constant/sidebar-data'
-import { useSearch } from '../../context/dashboard-context'
-import { redirect } from 'next/navigation'
+} from "@/components/ui/command"
+import { ScrollArea } from "../ui/scroll-area"
+import { sidebarData } from "../../constant/sidebar-data"
+import { useSearch } from "../../context/dashboard-context"
+import { redirect } from "next/navigation"
 
 export function CommandMenu() {
     const { open, setOpen } = useSearch()
@@ -21,34 +21,32 @@ export function CommandMenu() {
             setOpen(false)
             command()
         },
-        [setOpen]
+        [setOpen],
     )
 
     return (
         <CommandDialog modal open={open} onOpenChange={setOpen}>
-            <CommandInput placeholder='Tìm kiếm...' />
+            <CommandInput placeholder="Tìm kiếm..." />
             <CommandList>
-                <ScrollArea type='hover' className='h-72 pe-1'>
+                <ScrollArea type="hover" className="h-72 pe-1">
                     <CommandEmpty>Không tìm thấy kết quả phù hợp.</CommandEmpty>
                     <CommandGroup key={"navigation"} heading={"Tới trang"}>
-                        {
-                            sidebarData.map((item) => {
-                                return (
-                                    <CommandItem
-                                        key={item.title}
-                                        value={item.title}
-                                        onSelect={() => {
-                                            runCommand(() => redirect(item.url))
-                                        }}
-                                    >
-                                        <div className='flex size-4 items-center justify-center'>
-                                            <ArrowRight className='text-muted-foreground/80 size-2' />
-                                        </div>
-                                        {item.title}
-                                    </CommandItem>
-                                )
-                            })
-                        }
+                        {sidebarData.map((item) => {
+                            return (
+                                <CommandItem
+                                    key={item.title}
+                                    value={item.title}
+                                    onSelect={() => {
+                                        runCommand(() => redirect(item.url))
+                                    }}
+                                >
+                                    <div className="flex size-4 items-center justify-center">
+                                        <ArrowRight className="text-muted-foreground/80 size-2" />
+                                    </div>
+                                    {item.title}
+                                </CommandItem>
+                            )
+                        })}
                     </CommandGroup>
                 </ScrollArea>
             </CommandList>

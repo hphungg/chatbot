@@ -1,46 +1,46 @@
-"use server";
+"use server"
 
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db/prisma";
-import { headers } from "next/headers";
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/db/prisma"
+import { headers } from "next/headers"
 
 async function authenticate() {
-    const header = await headers();
+    const header = await headers()
     const session = await auth.api.getSession({
-        headers: header
-    });
-    if (!session) throw new Error("Unauthorized");
-    return session.user;
+        headers: header,
+    })
+    if (!session) throw new Error("Unauthorized")
+    return session.user
 }
 
 export const getAllUsers = async () => {
-    const user = await authenticate();
+    const user = await authenticate()
 
-    if (!user) throw new Error("Unauthorized");
+    if (!user) throw new Error("Unauthorized")
 
     try {
-        const users = await prisma.user.findMany();
-        return users;
+        const users = await prisma.user.findMany()
+        return users
     } catch (error) {
-        console.error(error);
-        throw new Error("Failed to fetch users");
+        console.error(error)
+        throw new Error("Failed to fetch users")
     }
 }
 
 export const deleteUsers = async (userIds: string[]) => {
-    const user = await authenticate();
+    const user = await authenticate()
 
-    if (!user) throw new Error("Unauthorized");
+    if (!user) throw new Error("Unauthorized")
 
     try {
         await prisma.user.deleteMany({
             where: {
-                id: { in: userIds }
-            }
-        });
+                id: { in: userIds },
+            },
+        })
     } catch (error) {
-        console.error(error);
-        throw new Error("Failed to delete users");
+        console.error(error)
+        throw new Error("Failed to delete users")
     }
-    return true;
+    return true
 }

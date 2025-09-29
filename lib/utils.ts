@@ -6,15 +6,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function sanitizeText(text: string) {
-    return text.replace('<has_function_call>', '');
+    return text.replace("<has_function_call>", "")
 }
 
 export function generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        const v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0
+        const v = c === "x" ? r : (r & 0x3) | 0x8
+        return v.toString(16)
+    })
 }
 
 export function getPageNumbers(currentPage: number, totalPages: number) {
@@ -32,18 +32,18 @@ export function getPageNumbers(currentPage: number, totalPages: number) {
             for (let i = 2; i <= 4; i++) {
                 rangeWithDots.push(i)
             }
-            rangeWithDots.push('...', totalPages)
+            rangeWithDots.push("...", totalPages)
         } else if (currentPage >= totalPages - 2) {
-            rangeWithDots.push('...')
+            rangeWithDots.push("...")
             for (let i = totalPages - 3; i <= totalPages; i++) {
                 rangeWithDots.push(i)
             }
         } else {
-            rangeWithDots.push('...')
+            rangeWithDots.push("...")
             for (let i = currentPage - 1; i <= currentPage + 1; i++) {
                 rangeWithDots.push(i)
             }
-            rangeWithDots.push('...', totalPages)
+            rangeWithDots.push("...", totalPages)
         }
     }
 

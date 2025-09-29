@@ -1,28 +1,30 @@
-import { UIMessage } from "ai";
-import { UseChatHelpers } from "@ai-sdk/react";
+import { UIMessage } from "ai"
+import { UseChatHelpers } from "@ai-sdk/react"
 import {
     Conversation,
     ConversationContent,
-    ConversationEmptyState
-} from "@/components/ai-elements/conversation";
-import { MessageSquare } from "lucide-react";
-import { Message, MessageContent } from "@/components/ai-elements/message";
-import { Response } from "@/components/ai-elements/response";
-import { Loader } from "@/components/ai-elements/loader";
+    ConversationEmptyState,
+} from "@/components/ai-elements/conversation"
+import { MessageSquare } from "lucide-react"
+import { Message, MessageContent } from "@/components/ai-elements/message"
+import { Response } from "@/components/ai-elements/response"
+import { Loader } from "@/components/ai-elements/loader"
 
 interface ChatConversationProps {
-    messages: UIMessage[];
-    status: UseChatHelpers<UIMessage>["status"];
+    messages: UIMessage[]
+    status: UseChatHelpers<UIMessage>["status"]
 }
 
-export function ChatConversation({
-    messages,
-    status
-}: ChatConversationProps) {
-
+export function ChatConversation({ messages, status }: ChatConversationProps) {
     return (
         <Conversation className="h-full">
-            <ConversationContent className={messages.length === 0 ? "flex items-center justify-center h-full" : ""}>
+            <ConversationContent
+                className={
+                    messages.length === 0
+                        ? "flex items-center justify-center h-full"
+                        : ""
+                }
+            >
                 {messages.length === 0 && (
                     <ConversationEmptyState
                         title="Bắt đầu cuộc trò chuyện"
@@ -34,22 +36,22 @@ export function ChatConversation({
                     <div key={message.id}>
                         <Message from={message.role}>
                             <MessageContent>
-                                {
-                                    message.parts.map((part, i) => {
-                                        if (part.type === "text") {
-                                            return (
-                                                <Response key={`${message.id}-${i}`}>
-                                                    {part.text}
-                                                </Response>
-                                            )
-                                        }
-                                    })
-                                }
+                                {message.parts.map((part, i) => {
+                                    if (part.type === "text") {
+                                        return (
+                                            <Response
+                                                key={`${message.id}-${i}`}
+                                            >
+                                                {part.text}
+                                            </Response>
+                                        )
+                                    }
+                                })}
                             </MessageContent>
                         </Message>
                     </div>
                 ))}
-                {status === 'submitted' && <Loader />}
+                {status === "submitted" && <Loader />}
             </ConversationContent>
         </Conversation>
     )

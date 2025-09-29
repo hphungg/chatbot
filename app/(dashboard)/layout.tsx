@@ -1,41 +1,45 @@
-import { auth } from "@/lib/auth";
-import { User } from "@/lib/types";
-import { cn } from "@/lib/utils";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { DashboardSidebar } from "@/components/dashboard/sidebar/dashboard-sidebar";
-import { DashboardSearchProvider } from "@/context/dashboard-context";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { auth } from "@/lib/auth"
+import { User } from "@/lib/types"
+import { cn } from "@/lib/utils"
+import { headers } from "next/headers"
+import { redirect } from "next/navigation"
+import { DashboardSidebar } from "@/components/dashboard/sidebar/dashboard-sidebar"
+import { DashboardSearchProvider } from "@/context/dashboard-context"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
 export default async function DashboardLayout({
     children,
 }: Readonly<{
-    children: React.ReactNode;
+    children: React.ReactNode
 }>) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    }).catch((e) => {
-        console.error(e);
-        throw redirect("/sign-in");
-    });
+    const session = await auth.api
+        .getSession({
+            headers: await headers(),
+        })
+        .catch((e) => {
+            console.error(e)
+            throw redirect("/sign-in")
+        })
 
     if (!session) {
-        return redirect("/sign-in");
+        return redirect("/sign-in")
     }
 
-    const user: User = session.user;
+    const user: User = session.user
     return (
         <DashboardSearchProvider>
             <SidebarProvider defaultOpen={true}>
                 <DashboardSidebar user={user} />
                 <SidebarInset
                     className={cn(
-                        '@container/content', 'has-[[data-layout=fixed]]:h-svh', 'peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]'
+                        "@container/content",
+                        "has-[[data-layout=fixed]]:h-svh",
+                        "peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]",
                     )}
                 >
                     {children}
                 </SidebarInset>
             </SidebarProvider>
         </DashboardSearchProvider>
-    );
+    )
 }
