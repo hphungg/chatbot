@@ -57,7 +57,7 @@ export function DashboardSidebar({ user }: { user: User }) {
                 <Link
                     className={buttonVariants({
                         variant: "outline",
-                        className: "w-full mb-2",
+                        className: "mb-2 w-full",
                     })}
                     href="/chat"
                 >

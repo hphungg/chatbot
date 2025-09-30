@@ -66,7 +66,7 @@ export function CreateGroupDialog() {
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[500px] p-3 pt-4">
+            <DialogContent className="p-3 pt-4 sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Tên nhóm chat</DialogTitle>
                 </DialogHeader>
@@ -79,7 +79,7 @@ export function CreateGroupDialog() {
                             handleInputChange("title", e.target.value)
                         }
                         placeholder="Nhập tên nhóm chat"
-                        className="mb-4 mt-2"
+                        className="mt-2 mb-4"
                         required
                     />
 

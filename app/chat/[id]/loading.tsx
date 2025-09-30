@@ -8,11 +8,11 @@ export default function Loading() {
             </div>
 
             <div className="flex h-[calc(100vh-5rem)] flex-col">
-                <div className="flex-1 p-4 space-y-4">
+                <div className="flex-1 space-y-4 p-4">
                     <div className="space-y-4">
                         <div className="flex justify-end">
                             <div className="max-w-xs space-y-2">
-                                <Skeleton className="h-4 w-16 ml-auto" />
+                                <Skeleton className="ml-auto h-4 w-16" />
                                 <Skeleton className="h-12 w-full rounded-lg" />
                             </div>
                         </div>
@@ -30,7 +30,7 @@ export default function Loading() {
 
                         <div className="flex justify-end">
                             <div className="max-w-xs space-y-2">
-                                <Skeleton className="h-4 w-16 ml-auto" />
+                                <Skeleton className="ml-auto h-4 w-16" />
                                 <Skeleton className="h-8 w-full rounded-lg" />
                             </div>
                         </div>
@@ -39,7 +39,7 @@ export default function Loading() {
 
                 <div className="border-t p-4">
                     <div className="flex space-x-2">
-                        <Skeleton className="flex-1 h-10 rounded-md" />
+                        <Skeleton className="h-10 flex-1 rounded-md" />
                         <Skeleton className="h-10 w-10 rounded-md" />
                     </div>
                 </div>

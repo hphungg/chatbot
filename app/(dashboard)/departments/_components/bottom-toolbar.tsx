@@ -37,7 +37,7 @@ export function BottomToolbar<TData>({
                 aria-label={`Bulk actions for ${selectedCount} selected ${entityName}${selectedCount > 1 ? "s" : ""}`}
                 aria-describedby="bulk-actions-description"
                 tabIndex={-1}
-                className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl cursor-pointer"
+                className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 cursor-pointer rounded-xl"
             >
                 <div
                     className={cn(

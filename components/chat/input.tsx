@@ -121,7 +121,7 @@ export function ChatInput({
                 </PromptInputTools>
                 {status === "submitted" ? (
                     <Button
-                        className="size-7 rounded-full bg-foreground p-1 text-background transition-colors duration-200 hover:bg-foreground/80 disabled:bg-muted disabled:text-muted-foreground"
+                        className="bg-foreground text-background hover:bg-foreground/80 disabled:bg-muted disabled:text-muted-foreground size-7 rounded-full p-1 transition-colors duration-200"
                         onClick={handleStop}
                     >
                         <StopIcon className="size-4" />

@@ -44,7 +44,7 @@ export const departmentsColumns: ColumnDef<Department>[] = [
         accessorKey: "name",
         header: "Tên phòng ban",
         cell: ({ row }) => (
-            <div className="w-fit text-nowrap font-medium">
+            <div className="w-fit font-medium text-nowrap">
                 {row.getValue("name")}
             </div>
         ),
@@ -60,7 +60,7 @@ export const departmentsColumns: ColumnDef<Department>[] = [
         accessorKey: "code",
         header: "Mã phòng ban",
         cell: ({ row }) => (
-            <div className="w-fit text-nowrap font-bold text-sm py-1">
+            <div className="w-fit py-1 text-sm font-bold text-nowrap">
                 {row.getValue("code")}
             </div>
         ),
@@ -70,7 +70,7 @@ export const departmentsColumns: ColumnDef<Department>[] = [
         header: "Tổng số nhân viên",
         cell: ({ row }) => (
             <div className="w-fit text-center">
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                     {row.getValue("employeeCount")}
                 </span>
             </div>
@@ -81,7 +81,7 @@ export const departmentsColumns: ColumnDef<Department>[] = [
         header: "Tổng số dự án",
         cell: ({ row }) => (
             <div className="w-fit text-center">
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
                     {row.getValue("projectCount")}
                 </span>
             </div>

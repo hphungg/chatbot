@@ -21,7 +21,7 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
             <ConversationContent
                 className={
                     messages.length === 0
-                        ? "flex items-center justify-center h-full"
+                        ? "flex h-full items-center justify-center"
                         : ""
                 }
             >

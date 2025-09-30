@@ -24,7 +24,7 @@ export default function Loading() {
                         {Array.from({ length: 6 }).map((_, i) => (
                             <div
                                 key={i}
-                                className="rounded-lg border p-6 space-y-3"
+                                className="space-y-3 rounded-lg border p-6"
                             >
                                 <div className="flex items-center justify-between">
                                     <Skeleton className="h-6 w-32" />
@@ -40,7 +40,7 @@ export default function Loading() {
                         ))}
                     </div>
 
-                    <div className="rounded-lg border p-6 space-y-4">
+                    <div className="space-y-4 rounded-lg border p-6">
                         <Skeleton className="h-6 w-40" />
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-full" />

@@ -38,7 +38,7 @@ export function DashboardUser({ user }: { user: User }) {
                                         U
                                     </AvatarFallback>
                                 </Avatar>
-                                <div className="grid flex-1 text-start text-base ml-1">
+                                <div className="ml-1 grid flex-1 text-start text-base">
                                     <span className="truncate font-semibold">
                                         {user?.name}
                                     </span>
@@ -56,7 +56,7 @@ export function DashboardUser({ user }: { user: User }) {
                             sideOffset={4}
                         >
                             <DropdownMenuLabel className="p-0 font-normal">
-                                <div className="flex items-center px-1 py-1.5 gap-2 text-base">
+                                <div className="flex items-center gap-2 px-1 py-1.5 text-base">
                                     <Avatar className="h-8 w-8 rounded-full">
                                         <AvatarImage
                                             src={user.image as string}
@@ -66,7 +66,7 @@ export function DashboardUser({ user }: { user: User }) {
                                             U
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div className="grid flex-1 ml-1">
+                                    <div className="ml-1 grid flex-1">
                                         <span className="truncate font-semibold">
                                             {user.name}
                                         </span>

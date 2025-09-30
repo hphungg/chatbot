@@ -83,22 +83,22 @@ export function DepartmentsTable() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-12">
-                                    <div className="w-4 h-4 bg-muted rounded animate-pulse" />
+                                    <div className="bg-muted h-4 w-4 animate-pulse rounded" />
                                 </TableHead>
                                 <TableHead>
-                                    <div className="w-32 h-4 bg-muted rounded animate-pulse" />
+                                    <div className="bg-muted h-4 w-32 animate-pulse rounded" />
                                 </TableHead>
                                 <TableHead>
-                                    <div className="w-24 h-4 bg-muted rounded animate-pulse" />
+                                    <div className="bg-muted h-4 w-24 animate-pulse rounded" />
                                 </TableHead>
                                 <TableHead>
-                                    <div className="w-28 h-4 bg-muted rounded animate-pulse" />
+                                    <div className="bg-muted h-4 w-28 animate-pulse rounded" />
                                 </TableHead>
                                 <TableHead>
-                                    <div className="w-28 h-4 bg-muted rounded animate-pulse" />
+                                    <div className="bg-muted h-4 w-28 animate-pulse rounded" />
                                 </TableHead>
                                 <TableHead>
-                                    <div className="w-20 h-4 bg-muted rounded animate-pulse" />
+                                    <div className="bg-muted h-4 w-20 animate-pulse rounded" />
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
@@ -106,22 +106,22 @@ export function DepartmentsTable() {
                             {[...Array(5)].map((_, index) => (
                                 <TableRow key={index}>
                                     <TableCell>
-                                        <div className="w-4 h-4 bg-muted rounded animate-pulse" />
+                                        <div className="bg-muted h-4 w-4 animate-pulse rounded" />
                                     </TableCell>
                                     <TableCell>
-                                        <div className="w-24 h-4 bg-muted rounded animate-pulse" />
+                                        <div className="bg-muted h-4 w-24 animate-pulse rounded" />
                                     </TableCell>
                                     <TableCell>
-                                        <div className="w-16 h-4 bg-muted rounded animate-pulse" />
+                                        <div className="bg-muted h-4 w-16 animate-pulse rounded" />
                                     </TableCell>
                                     <TableCell>
-                                        <div className="w-8 h-4 bg-muted rounded animate-pulse" />
+                                        <div className="bg-muted h-4 w-8 animate-pulse rounded" />
                                     </TableCell>
                                     <TableCell>
-                                        <div className="w-8 h-4 bg-muted rounded animate-pulse" />
+                                        <div className="bg-muted h-4 w-8 animate-pulse rounded" />
                                     </TableCell>
                                     <TableCell>
-                                        <div className="w-8 h-8 bg-muted rounded animate-pulse" />
+                                        <div className="bg-muted h-8 w-8 animate-pulse rounded" />
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -140,7 +140,7 @@ export function DepartmentsTable() {
                         <p className="text-muted-foreground">Error: {error}</p>
                         <button
                             onClick={() => window.location.reload()}
-                            className="mt-4 text-primary hover:underline"
+                            className="text-primary mt-4 hover:underline"
                         >
                             Try again
                         </button>

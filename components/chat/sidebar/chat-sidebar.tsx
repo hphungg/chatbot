@@ -113,10 +113,10 @@ export function ChatSidebar({ user }: { user: User }) {
                         href="/chat"
                         className={buttonVariants({
                             variant: "ghost",
-                            className: "w-full mt-3 justify-start",
+                            className: "mt-3 w-full justify-start",
                         })}
                     >
-                        <PlusIcon className="size-4 mr-2" />
+                        <PlusIcon className="mr-2 size-4" />
                         Tạo cuộc trò chuyện
                     </Link>
                     <Button
@@ -124,7 +124,7 @@ export function ChatSidebar({ user }: { user: User }) {
                         className="w-full justify-start"
                         onClick={handleCreateGroupChat}
                     >
-                        <Folder className="size-4 mr-2" />
+                        <Folder className="mr-2 size-4" />
                         Tạo nhóm chat mới
                     </Button>
                 </div>
@@ -213,7 +213,7 @@ export function ChatSidebar({ user }: { user: User }) {
                                         <DropdownMenu modal={true}>
                                             <DropdownMenuTrigger asChild>
                                                 <SidebarMenuAction
-                                                    className="mr-0.5 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                                                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground mr-0.5"
                                                     showOnHover={!isActive}
                                                 >
                                                     <MoreHorizontalIcon />
@@ -228,7 +228,7 @@ export function ChatSidebar({ user }: { user: User }) {
                                                 side="bottom"
                                             >
                                                 <DropdownMenuItem
-                                                    className="cursor-pointer text-destructive focus:bg-destructive/15 focus:text-destructive dark:text-red-500"
+                                                    className="text-destructive focus:bg-destructive/15 focus:text-destructive cursor-pointer dark:text-red-500"
                                                     onSelect={() =>
                                                         handleDeleteChat(
                                                             chat.id,

@@ -99,7 +99,7 @@ export function EmployeeSelector({
                                         Không tìm thấy nhân viên.
                                     </CommandEmpty>
                                     <CommandGroup>
-                                        <div className="max-h-60 overflow-y-auto space-y-1">
+                                        <div className="max-h-60 space-y-1 overflow-y-auto">
                                             {users.map((user) => (
                                                 <CommandItem
                                                     key={user.id}
@@ -127,7 +127,7 @@ export function EmployeeSelector({
                                                     </Avatar>
                                                     <div className="flex flex-col">
                                                         <span>{user.name}</span>
-                                                        <span className="text-xs text-muted-foreground">
+                                                        <span className="text-muted-foreground text-xs">
                                                             {user.email}
                                                         </span>
                                                     </div>
