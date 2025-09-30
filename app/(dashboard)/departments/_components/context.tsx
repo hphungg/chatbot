@@ -2,9 +2,10 @@
 
 import React, { useState } from "react"
 import useDialogState from "@/hooks/use-dialog-state"
-import { Department } from "@/lib/types"
+import { CreateDepartmentDialog } from "./create-department-dialog"
+import { Department } from "@prisma/client"
 
-type DepartmentsDialogType = "add" | "edit" | "delete" | "view"
+type DepartmentsDialogType = "add" | "view"
 
 type DepartmentsContextType = {
     open: DepartmentsDialogType | null
@@ -30,6 +31,7 @@ export function DepartmentsProvider({
             value={{ open, setOpen, currentRow, setCurrentRow }}
         >
             {children}
+            <CreateDepartmentDialog />
         </DepartmentsContext>
     )
 }

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import useDialogState from "@/hooks/use-dialog-state"
-import { User } from "@/lib/types"
+import { User } from "@prisma/client"
 
 type UsersDialogType = "invite" | "add" | "edit" | "delete"
 

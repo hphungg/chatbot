@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth"
-import { User } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -25,7 +24,8 @@ export default async function DashboardLayout({
         return redirect("/sign-in")
     }
 
-    const user: User = session.user
+    const user = session.user
+
     return (
         <DashboardSearchProvider>
             <SidebarProvider defaultOpen={true}>

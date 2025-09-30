@@ -30,64 +30,47 @@ export function BottomToolbar<TData>({
     }
 
     return (
-        <>
+        <div
+            ref={toolbarRef}
+            role="toolbar"
+            aria-label={`Bulk actions for ${selectedCount} selected ${entityName}${selectedCount > 1 ? "s" : ""}`}
+            aria-describedby="bulk-actions-description"
+            tabIndex={-1}
+            className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 cursor-pointer rounded-xl"
+        >
             <div
-                ref={toolbarRef}
-                role="toolbar"
-                aria-label={`Bulk actions for ${selectedCount} selected ${entityName}${selectedCount > 1 ? "s" : ""}`}
-                aria-describedby="bulk-actions-description"
-                tabIndex={-1}
-                className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 cursor-pointer rounded-xl"
+                className={cn(
+                    "px-4 py-2 shadow-xl",
+                    "rounded-xl border",
+                    "bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur-lg",
+                    "flex items-center gap-x-2",
+                )}
             >
                 <div
-                    className={cn(
-                        "p-2 shadow-xl",
-                        "rounded-xl border",
-                        "bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur-lg",
-                        "flex items-center gap-x-2",
-                    )}
+                    className="flex items-center gap-x-1 text-sm font-bold"
+                    id="bulk-actions-description"
                 >
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={handleClearSelection}
-                                className="size-6 rounded-md"
-                                aria-label="Clear selection"
-                                title="Bỏ chọn tất cả"
-                            >
-                                <X />
-                                <span className="sr-only">Bỏ chọn</span>
-                            </Button>
-                        </TooltipTrigger>
-                    </Tooltip>
-
-                    <Separator
-                        className="h-5"
-                        orientation="vertical"
-                        aria-hidden="true"
-                    />
-
-                    <div
-                        className="flex items-center gap-x-1 text-sm font-bold"
-                        id="bulk-actions-description"
-                    >
-                        {selectedCount}
-                        <span className="hidden sm:inline">
-                            {entityName}
-                        </span>{" "}
-                        được chọn
-                    </div>
-
-                    <Separator
-                        className="h-5"
-                        orientation="vertical"
-                        aria-hidden="true"
-                    />
-                    {children}
+                    Đã chọn {selectedCount}
+                    <span className="hidden sm:inline">{entityName}</span>
                 </div>
+
+                <Separator
+                    className="h-5"
+                    orientation="vertical"
+                    aria-hidden="true"
+                />
+
+                {children}
+
+                <Button
+                    variant="outline"
+                    onClick={handleClearSelection}
+                    title="Bỏ chọn tất cả"
+                    className="cursor-pointer"
+                >
+                    Bỏ chọn
+                </Button>
             </div>
-        </>
+        </div>
     )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { SearchIcon } from "lucide-react"
+import { ArrowRight, SearchIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "./ui/button"
 import { useSearch } from "../context/dashboard-context"
@@ -13,7 +13,7 @@ type SearchProps = {
 
 export function Search({
     className = "",
-    placeholder = "Tìm kiếm",
+    placeholder = "Đi tới...",
 }: SearchProps) {
     const { setOpen } = useSearch()
     return (
@@ -25,7 +25,7 @@ export function Search({
             )}
             onClick={() => setOpen(true)}
         >
-            <SearchIcon
+            <ArrowRight
                 aria-hidden="true"
                 className="absolute start-1.5 top-1/2 -translate-y-1/2"
                 size={16}

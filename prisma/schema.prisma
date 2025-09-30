@@ -13,10 +13,13 @@ model User {
     updatedAt DateTime @default(now()) @updatedAt
 
     name          String
+    displayName   String?
     email         String
     emailVerified Boolean @default(false)
     image         String?
     departmentId  String?
+    userVerified  Boolean @default(false)
+    role          String  @default("employee")
 
     department Department?    @relation(fields: [departmentId], references: [id])
     sessions   Session[]

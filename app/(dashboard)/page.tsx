@@ -1,5 +1,7 @@
+import { Schedule } from "@/components/dashboard/schedule/schedule"
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
 import { Search } from "@/components/search"
+import { Calendar } from "@/components/ui/calendar"
 
 export default function Page() {
     return (
@@ -8,12 +10,7 @@ export default function Page() {
                 <Search />
             </DashboardHeader>
             <div className="p-4 sm:p-6 lg:p-8">
-                <div>
-                    <h2 className="text-2xl font-bold">Dashboard</h2>
-                    <p className="text-muted-foreground">
-                        Dashboard is temporarily empty.
-                    </p>
-                </div>
+                <Schedule />
             </div>
         </div>
     )

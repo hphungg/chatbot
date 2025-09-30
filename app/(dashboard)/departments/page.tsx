@@ -1,25 +1,16 @@
-"use client"
-
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
-import {
-    DepartmentsProvider,
-    useDepartments,
-} from "./_components/department-context"
+import { DepartmentsProvider } from "./_components/context"
 import { Search } from "@/components/search"
-import { DepartmentsTable } from "./_components/department-table"
-import { CreateDepartmentDialog } from "./_components/create-department-dialog"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { DepartmentsTable } from "./_components/table"
+import { Department } from "@prisma/client"
+import { getAllDepartments } from "@/app/api/departments/queries"
+import { CreateDepartmentButton } from "./_components/create-department-button"
 
-function DepartmentsContent() {
-    const { setOpen } = useDepartments()
-
-    const handleCreateDepartment = () => {
-        setOpen("add")
-    }
+export default async function Departments() {
+    const departments: Department[] = await getAllDepartments()
 
     return (
-        <>
+        <DepartmentsProvider>
             <DashboardHeader fixed>
                 <Search />
             </DashboardHeader>
@@ -33,29 +24,12 @@ function DepartmentsContent() {
                             Quản lý thông tin các phòng ban.
                         </p>
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <Button
-                            onClick={handleCreateDepartment}
-                            className="gap-2"
-                        >
-                            <Plus className="h-4 w-4" />
-                            Tạo phòng ban
-                        </Button>
-                    </div>
+                    <CreateDepartmentButton />
                 </div>
                 <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12">
-                    <DepartmentsTable />
+                    <DepartmentsTable departments={departments} />
                 </div>
             </div>
-            <CreateDepartmentDialog />
-        </>
-    )
-}
-
-export default function Departments() {
-    return (
-        <DepartmentsProvider>
-            <DepartmentsContent />
         </DepartmentsProvider>
     )
 }

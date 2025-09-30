@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db/prisma"
+import { User } from "@prisma/client"
 import { headers } from "next/headers"
 
 async function authenticate() {
@@ -13,7 +14,7 @@ async function authenticate() {
     return session.user
 }
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (): Promise<User[]> => {
     const user = await authenticate()
 
     if (!user) throw new Error("Unauthorized")

@@ -3,8 +3,7 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db/prisma"
 import { headers } from "next/headers"
-import { Department } from "@/lib/types"
-import { generateUUID } from "@/lib/utils"
+import { Department } from "@prisma/client"
 
 async function authenticate() {
     const header = await headers()
@@ -49,7 +48,6 @@ export const getAllDepartments = async (): Promise<Department[]> => {
 
 export const deleteDepartments = async (departmentIds: string[]) => {
     const user = await authenticate()
-
     if (!user) throw new Error("Unauthorized")
 
     try {

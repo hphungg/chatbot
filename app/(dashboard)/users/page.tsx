@@ -1,9 +1,12 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
-import { UsersProvider } from "./_components/user-provider"
+import { UsersProvider } from "./_components/context"
 import { Search } from "@/components/search"
-import { UsersTable } from "./_components/user-table"
+import { UsersTable } from "./_components/table"
+import { getAllUsers } from "@/app/api/users/queries"
+import { User } from "@prisma/client"
 
-export default function UsersPage() {
+export default async function UsersPage() {
+    const users: User[] = await getAllUsers()
     return (
         <UsersProvider>
             <DashboardHeader fixed>
@@ -16,12 +19,12 @@ export default function UsersPage() {
                             Nhân viên
                         </h2>
                         <p className="text-muted-foreground">
-                            Quản lý nhân viên tại đây.
+                            Xem danh sách nhân viên.
                         </p>
                     </div>
                 </div>
                 <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12">
-                    <UsersTable />
+                    <UsersTable users={users} />
                 </div>
             </div>
         </UsersProvider>

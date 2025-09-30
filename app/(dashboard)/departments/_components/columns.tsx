@@ -4,9 +4,10 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { cn } from "@/lib/utils"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { Department } from "@/lib/types"
-import { Eye } from "lucide-react"
-import { useDepartments } from "@/app/(dashboard)/departments/_components/department-context"
+import { Pencil } from "lucide-react"
+import { useDepartments } from "@/app/(dashboard)/departments/_components/context"
+import { Department } from "@prisma/client"
+import { Badge } from "@/components/ui/badge"
 
 export const departmentsColumns: ColumnDef<Department>[] = [
     {
@@ -59,20 +60,14 @@ export const departmentsColumns: ColumnDef<Department>[] = [
     {
         accessorKey: "code",
         header: "Mã phòng ban",
-        cell: ({ row }) => (
-            <div className="w-fit py-1 text-sm font-bold text-nowrap">
-                {row.getValue("code")}
-            </div>
-        ),
+        cell: ({ row }) => <Badge>{row.getValue("code")}</Badge>,
     },
     {
         accessorKey: "employeeCount",
         header: "Tổng số nhân viên",
         cell: ({ row }) => (
             <div className="w-fit text-center">
-                <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                    {row.getValue("employeeCount")}
-                </span>
+                {row.getValue("employeeCount")}
             </div>
         ),
     },
@@ -81,24 +76,16 @@ export const departmentsColumns: ColumnDef<Department>[] = [
         header: "Tổng số dự án",
         cell: ({ row }) => (
             <div className="w-fit text-center">
-                <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
-                    {row.getValue("projectCount")}
-                </span>
+                {row.getValue("projectCount")}
             </div>
         ),
     },
     {
         id: "actions",
-        header: "Chi tiết",
         cell: ({ row }) => {
             const department = row.original
             return <DepartmentActions department={department} />
         },
-        meta: {
-            className: cn("sticky end-0 z-10"),
-        },
-        enableSorting: false,
-        enableHiding: false,
     },
 ]
 
@@ -118,7 +105,7 @@ function DepartmentActions({ department }: { department: Department }) {
                 onClick={handleViewDetails}
                 className="cursor-pointer"
             >
-                <Eye />
+                <Pencil />
                 <span className="sr-only">Xem</span>
             </Button>
         </div>

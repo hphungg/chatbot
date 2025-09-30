@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { type Table } from "@tanstack/react-table"
 import { Trash2, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
@@ -12,13 +13,14 @@ import { BottomToolbar } from "./bottom-toolbar"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { deleteDepartments } from "@/app/api/departments/queries"
 
-type BulkActionToolbarProps<TData> = {
+type DeleteDepartmentDialogProps<TData> = {
     table: Table<TData>
 }
 
-export function BulkActionToolbar<TData>({
+export function DeleteDepartmentDialog<TData>({
     table,
-}: BulkActionToolbarProps<TData>) {
+}: DeleteDepartmentDialogProps<TData>) {
+    const router = useRouter()
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const selectedRows = table.getFilteredSelectedRowModel().rows
 
@@ -29,9 +31,8 @@ export function BulkActionToolbar<TData>({
         try {
             const response = await deleteDepartments(departmentIds)
             if (!response) throw new Error("Failed to delete departments")
-            toast.success("Departments deleted successfully")
-            // Refresh the page or refetch data
-            window.location.reload()
+            toast.success("Xóa phòng ban thành công")
+            router.refresh()
         } catch (error) {
             console.error(error)
             toast.error(

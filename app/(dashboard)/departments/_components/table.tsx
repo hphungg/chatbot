@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
     type SortingState,
     flexRender,
@@ -12,7 +12,6 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-import { cn } from "@/lib/utils"
 import {
     Table,
     TableBody,
@@ -21,11 +20,11 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { DataTablePagination } from "./pagination"
-import { BulkActionToolbar } from "./bulk-action-toolbar"
-import { usersColumns as columns } from "./user-columns"
-import { User } from "@/lib/types"
-import { getAllUsers } from "@/app/api/users/queries"
+import { DeleteDepartmentDialog } from "./delete-department-dialog"
+import { departmentsColumns as columns } from "./columns"
+import { Department } from "@prisma/client"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData, TValue> {
@@ -33,26 +32,18 @@ declare module "@tanstack/react-table" {
     }
 }
 
-export function UsersTable() {
+interface DepartmentsTableProps {
+    departments: Department[]
+}
+
+export function DepartmentsTable({
+    departments,
+}: Readonly<DepartmentsTableProps>) {
     const [rowSelection, setRowSelection] = useState({})
     const [sorting, setSorting] = useState<SortingState>([])
 
-    const [users, setUsers] = useState<User[]>([])
-
-    useEffect(() => {
-        async function fetchUsers() {
-            try {
-                const response = await getAllUsers()
-                setUsers(response)
-            } catch (error) {
-                console.error("Error fetching users:", error)
-            }
-        }
-        fetchUsers()
-    }, [])
-
     const table = useReactTable({
-        data: users,
+        data: departments,
         columns,
         state: {
             sorting,
@@ -70,26 +61,25 @@ export function UsersTable() {
     })
 
     return (
-        <div className='space-y-4 max-sm:has-[div[role="toolbar"]]:mb-16'>
+        <div className="w-full">
+            <Input
+                placeholder="Tìm kiếm phòng ban..."
+                value={
+                    (table.getColumn("name")?.getFilterValue() as string) ?? ""
+                }
+                onChange={(event) =>
+                    table.getColumn("name")?.setFilterValue(event.target.value)
+                }
+                className="mb-4 max-w-sm"
+            />
             <div className="overflow-hidden rounded-md border">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow
-                                key={headerGroup.id}
-                                className="group/row"
-                            >
+                            <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead
-                                            key={header.id}
-                                            colSpan={header.colSpan}
-                                            className={cn(
-                                                "bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted",
-                                                header.column.columnDef.meta
-                                                    ?.className ?? "",
-                                            )}
-                                        >
+                                        <TableHead key={header.id}>
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -111,17 +101,9 @@ export function UsersTable() {
                                     data-state={
                                         row.getIsSelected() && "selected"
                                     }
-                                    className="group/row"
                                 >
                                     {row.getAllCells().map((cell) => (
-                                        <TableCell
-                                            key={cell.id}
-                                            className={cn(
-                                                "bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted cursor-pointer",
-                                                cell.column.columnDef.meta
-                                                    ?.className ?? "",
-                                            )}
-                                        >
+                                        <TableCell key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext(),
@@ -134,7 +116,7 @@ export function UsersTable() {
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length}
-                                    className="h-24 text-center"
+                                    className="h-12 text-center"
                                 >
                                     Không có dữ liệu.
                                 </TableCell>
@@ -143,8 +125,31 @@ export function UsersTable() {
                     </TableBody>
                 </Table>
             </div>
-            <DataTablePagination table={table} />
-            <BulkActionToolbar table={table} />
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="text-muted-foreground flex-1 text-sm">
+                    {table.getFilteredSelectedRowModel().rows.length} trên{" "}
+                    {table.getFilteredRowModel().rows.length} kết quả được chọn.
+                </div>
+                <div className="space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        Trang trước
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        Trang sau
+                    </Button>
+                </div>
+            </div>
+            <DeleteDepartmentDialog table={table} />
         </div>
     )
 }

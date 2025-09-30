@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { ChevronsUpDown, User } from "lucide-react"
+import { ChevronsUpDown, UserIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Command,
@@ -16,10 +16,10 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { User as UserType } from "@/lib/types"
 import { getAllUsers } from "@/app/api/users/queries"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
+import { User } from "@prisma/client"
 
 interface EmployeeSelectorProps {
     selectedEmployees: string[]
@@ -31,7 +31,7 @@ export function EmployeeSelector({
     onSelectionChange,
 }: EmployeeSelectorProps) {
     const [open, setOpen] = useState(false)
-    const [users, setUsers] = useState<UserType[]>([])
+    const [users, setUsers] = useState<User[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -70,7 +70,7 @@ export function EmployeeSelector({
                         className="w-full justify-between text-left font-normal"
                     >
                         <div className="flex items-center">
-                            <User className="mr-2 h-4 w-4" />
+                            <UserIcon className="mr-2 h-4 w-4" />
                             {selectedEmployees.length === 0 ? (
                                 <span className="text-muted-foreground">
                                     Thêm nhân viên...

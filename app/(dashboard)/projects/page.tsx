@@ -1,9 +1,11 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
+import { ProjectsProvider } from "./_components/context"
 import { Search } from "@/components/search"
+import { ProjectsTable } from "./_components/table"
 
 export default function ProjectsPage() {
     return (
-        <div>
+        <ProjectsProvider>
             <DashboardHeader fixed>
                 <Search />
             </DashboardHeader>
@@ -14,11 +16,14 @@ export default function ProjectsPage() {
                             Dự án
                         </h2>
                         <p className="text-muted-foreground">
-                            Quản lý dự án tại đây.
+                            Quản lý các dự án của bạn.
                         </p>
                     </div>
                 </div>
+                <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12">
+                    <ProjectsTable />
+                </div>
             </div>
-        </div>
+        </ProjectsProvider>
     )
 }

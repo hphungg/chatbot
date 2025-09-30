@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { toast } from "sonner"
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -13,9 +14,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useDepartments } from "@/app/(dashboard)/departments/_components/department-context"
+import { useDepartments } from "@/app/(dashboard)/departments/_components/context"
 import { EmployeeSelector } from "./employee-selector"
 import { createDepartment } from "@/app/api/departments/queries"
+import { useRouter } from "next/navigation"
 
 export function CreateDepartmentDialog() {
     const { open, setOpen } = useDepartments()
@@ -25,8 +27,8 @@ export function CreateDepartmentDialog() {
         selectedEmployees: [] as string[],
     })
     const [isSubmitting, setIsSubmitting] = useState(false)
-
     const isOpen = open === "add"
+    const router = useRouter()
 
     const handleClose = () => {
         setOpen(null)
@@ -41,7 +43,7 @@ export function CreateDepartmentDialog() {
         e.preventDefault()
 
         if (!formData.name.trim() || !formData.code.trim()) {
-            toast.error("Please fill in all required fields")
+            toast.error("Hãy điền đầy đủ các thông tin bắt buộc")
             return
         }
 
@@ -56,7 +58,7 @@ export function CreateDepartmentDialog() {
 
             toast.success("Tạo phòng ban thành công!")
             handleClose()
-            window.location.reload()
+            router.refresh()
         } catch (error) {
             console.error("Error creating department:", error)
             toast.error("Tạo phòng ban thất bại")
@@ -81,40 +83,40 @@ export function CreateDepartmentDialog() {
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Tạo phòng ban mới</DialogTitle>
                     <DialogDescription>
                         Điền thông tin bên dưới.
                     </DialogDescription>
                 </DialogHeader>
-
                 <form onSubmit={handleSubmit}>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-5 items-center gap-2">
-                            <Label htmlFor="name" className="text-right">
-                                <span>Tên</span>
+                    <div className="grid gap-4">
+                        <div className="grid gap-3">
+                            <Label htmlFor="name-1" className="ml-2">
+                                <span>Tên phòng ban</span>
                                 <span className="text-red-500">*</span>
                             </Label>
                             <Input
-                                id="name"
+                                id="name-1"
+                                name="name"
                                 value={formData.name}
                                 onChange={(e) =>
                                     handleInputChange("name", e.target.value)
                                 }
                                 placeholder="Nhập tên phòng ban"
-                                className="col-span-4"
                                 required
                             />
                         </div>
 
-                        <div className="grid grid-cols-5 items-center gap-2">
-                            <Label htmlFor="code">
-                                <span>Mã</span>
+                        <div className="grid gap-3">
+                            <Label htmlFor="code-1" className="ml-2">
+                                <span>Mã phòng ban</span>
                                 <span className="text-red-500">*</span>
                             </Label>
                             <Input
-                                id="code"
+                                id="code-1"
+                                name="code"
                                 value={formData.code}
                                 onChange={(e) =>
                                     handleInputChange(
@@ -123,43 +125,29 @@ export function CreateDepartmentDialog() {
                                     )
                                 }
                                 placeholder="Nhập mã phòng ban (ví dụ: HR01, ENG)"
-                                className="col-span-4"
-                                maxLength={10}
+                                maxLength={6}
                                 required
                             />
                         </div>
 
-                        <div className="grid grid-cols-7 items-center gap-4">
-                            <Label htmlFor="employees" className="col-span-2">
+                        <div className="grid gap-3">
+                            <Label htmlFor="employees" className="ml-2">
                                 Thêm nhân viên
                             </Label>
-                            <div className="col-span-5">
-                                <EmployeeSelector
-                                    selectedEmployees={
-                                        formData.selectedEmployees
-                                    }
-                                    onSelectionChange={
-                                        handleEmployeeSelectionChange
-                                    }
-                                />
-                            </div>
+                            <EmployeeSelector
+                                selectedEmployees={formData.selectedEmployees}
+                                onSelectionChange={
+                                    handleEmployeeSelectionChange
+                                }
+                            />
                         </div>
                     </div>
 
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleClose}
-                            disabled={isSubmitting}
-                        >
-                            Hủy
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="gap-2"
-                        >
+                    <DialogFooter className="mt-4">
+                        <DialogClose asChild>
+                            <Button variant="outline">Hủy</Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting && (
                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             )}
