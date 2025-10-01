@@ -1,30 +1,19 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/db/prisma"
 import { Events } from "@/lib/types"
 import { google } from "googleapis"
 import { headers } from "next/headers"
 
 async function getAuthenticatedToken() {
     const header = await headers()
-    const session = await auth.api.getSession({
-        headers: header,
-    })
-    if (!session) throw new Error("Unauthorized")
-    const user = session.user
-
-    const userToken = await prisma.account.findFirst({
-        where: {
-            userId: user.id,
+    const accessToken = await auth.api.getAccessToken({
+        body: {
             providerId: "google",
         },
-        select: {
-            accessToken: true,
-        },
+        headers: header,
     })
-
-    return userToken?.accessToken
+    return accessToken.accessToken
 }
 
 async function getGoogleAuthClient() {
@@ -75,11 +64,13 @@ export async function createCalendarEvent({
     description,
     startTime,
     endTime,
+    colorId,
 }: {
     title: string
     description?: string
     startTime: Date
     endTime: Date
+    colorId?: string
 }) {
     try {
         const oauth2Client = await getGoogleAuthClient()
@@ -95,11 +86,27 @@ export async function createCalendarEvent({
                 end: {
                     dateTime: endTime.toISOString(),
                 },
+                colorId: colorId || "7",
             },
         })
         return result.data
     } catch (error) {
         console.error("Error creating calendar event:", error)
         throw error
+    }
+}
+
+export async function deleteCalendarEvent(eventId: string) {
+    try {
+        const oauth2Client = await getGoogleAuthClient()
+        await google.calendar("v3").events.delete({
+            auth: oauth2Client,
+            calendarId: "primary",
+            eventId: eventId,
+        })
+        return true
+    } catch (error) {
+        console.error("Error deleting calendar event:", error)
+        return false
     }
 }

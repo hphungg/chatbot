@@ -6,11 +6,11 @@ import { getCalendarEvents } from "../api/calendar/queries"
 export default async function Page() {
     const events = await getCalendarEvents()
     return (
-        <div suppressHydrationWarning>
+        <div>
             <DashboardHeader fixed>
                 <Search />
             </DashboardHeader>
-            <div className="p-4 sm:p-6 lg:p-8">
+            <div className="p-4 sm:p-6 lg:p-8" suppressHydrationWarning>
                 <div className="mb-4 flex flex-wrap items-center justify-between space-y-2">
                     <div>
                         <h2 className="text-2xl font-bold tracking-tight">

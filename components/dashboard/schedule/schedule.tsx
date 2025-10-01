@@ -16,12 +16,17 @@ import {
     Calendar as CalendarIcon,
     ChevronDown,
     ChevronUp,
+    Trash2,
 } from "lucide-react"
 import { vi } from "date-fns/locale"
 import { format } from "date-fns"
 import { CreateTaskDialog } from "./create-task-dialog"
 import { Events } from "@/lib/types"
 import { formatDateRange } from "little-date"
+import { eventColors } from "@/lib/event-color"
+import { deleteCalendarEvent } from "@/app/api/calendar/queries"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 interface ScheduleProps {
     events: Events[]
@@ -31,6 +36,7 @@ export function Schedule({ events }: ScheduleProps) {
     const [date, setDate] = useState<Date | undefined>(new Date())
     const [showCreateDialog, setShowCreateDialog] = useState(false)
     const [showAllEvents, setShowAllEvents] = useState(false)
+    const router = useRouter()
 
     const selectedDateEvents = events.filter((event) => {
         if (!date) return false
@@ -42,30 +48,30 @@ export function Schedule({ events }: ScheduleProps) {
         )
     })
 
-    const eventColors: Record<number, string> = {
-        0: "#039be5",
-        1: "#7986cb",
-        2: "#33b679",
-        3: "#8e24aa",
-        4: "#e67c73",
-        5: "#f6c026",
-        6: "#f5511d",
-        7: "#039be5",
-        8: "#616161",
-        9: "#3f51b5",
-        10: "#0b8043",
-        11: "#d60000",
-    }
-
     const maxVisibleEvents = 4
     const visibleEvents = showAllEvents
         ? selectedDateEvents
         : selectedDateEvents.slice(0, maxVisibleEvents)
     const hasMoreEvents = selectedDateEvents.length > maxVisibleEvents
 
+    const handleDeleteEvent = async (eventId: string) => {
+        try {
+            const response = await deleteCalendarEvent(eventId)
+            if (response) {
+                toast.success("Sự kiện đã được xóa")
+                router.refresh()
+            } else {
+                toast.error("Xóa sự kiện thất bại")
+            }
+        } catch (error) {
+            toast.error("Xóa sự kiện thất bại")
+            console.error("Error deleting event:", error)
+        }
+    }
+
     return (
         <div className="flex h-full flex-col gap-6 lg:flex-row">
-            <div className="flex flex-shrink-0 justify-center lg:justify-start">
+            <div className="flex flex-shrink-0 justify-center lg:justify-start lg:self-start">
                 <Calendar
                     mode="single"
                     selected={date}
@@ -123,7 +129,7 @@ export function Schedule({ events }: ScheduleProps) {
                                 {visibleEvents.map((event) => (
                                     <div
                                         key={event.id}
-                                        className="hover:bg-accent/50 flex items-center justify-between rounded-lg border p-2 transition-colors"
+                                        className="hover:bg-accent/50 flex items-center justify-between rounded-lg border px-2 py-1 transition-colors"
                                     >
                                         <div className="flex min-w-0 flex-1 items-center gap-3">
                                             <div
@@ -139,17 +145,29 @@ export function Schedule({ events }: ScheduleProps) {
                                                 {event.title}
                                             </div>
                                         </div>
-                                        <div className="text-muted-foreground ml-4 flex items-center gap-1 text-sm">
-                                            <Clock className="h-4 w-4" />
-                                            <span>
-                                                {formatDateRange(
-                                                    new Date(event.start),
-                                                    new Date(event.end),
-                                                    {
-                                                        locale: "vi",
-                                                    },
-                                                )}
-                                            </span>
+                                        <div className="flex items-center gap-2">
+                                            <div className="text-muted-foreground flex items-center gap-1 text-sm">
+                                                <span>
+                                                    {formatDateRange(
+                                                        new Date(event.start),
+                                                        new Date(event.end),
+                                                        {
+                                                            locale: "vi",
+                                                        },
+                                                    )}
+                                                </span>
+                                                <Clock className="ml-1 h-4 w-4" />
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handleDeleteEvent(event.id)
+                                                }
+                                                className="hover:bg-destructive/10 hover:text-destructive text-muted-foreground h-8 w-8"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
                                     </div>
                                 ))}
@@ -160,7 +178,7 @@ export function Schedule({ events }: ScheduleProps) {
                                         onClick={() =>
                                             setShowAllEvents(!showAllEvents)
                                         }
-                                        className="text-muted-foreground hover:text-foreground w-full justify-center gap-2 text-sm"
+                                        className="text-muted-foreground hover:text-foreground w-full justify-center py-1 text-sm"
                                     >
                                         {showAllEvents ? (
                                             <>

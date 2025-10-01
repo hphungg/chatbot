@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { type Table } from "@tanstack/react-table"
-import { Trash2, AlertTriangle } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,8 +10,15 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { BottomToolbar } from "./bottom-toolbar"
-import { ConfirmDialog } from "@/components/confirm-dialog"
 import { deleteDepartments } from "@/app/api/departments/queries"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
 
 type DeleteDepartmentDialogProps<TData> = {
     table: Table<TData>
@@ -22,9 +29,11 @@ export function DeleteDepartmentDialog<TData>({
 }: DeleteDepartmentDialogProps<TData>) {
     const router = useRouter()
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+    const [loading, setLoading] = useState(false)
     const selectedRows = table.getFilteredSelectedRowModel().rows
 
     const handleDelete = async () => {
+        setLoading(true)
         const departmentIds = selectedRows.map(
             (row) => (row.original as any).id,
         )
@@ -40,6 +49,7 @@ export function DeleteDepartmentDialog<TData>({
             )
         } finally {
             setShowDeleteConfirm(false)
+            setLoading(false)
             table.resetRowSelection()
         }
     }
@@ -66,33 +76,38 @@ export function DeleteDepartmentDialog<TData>({
                 </Tooltip>
             </BottomToolbar>
 
-            <ConfirmDialog
+            <Dialog
                 open={showDeleteConfirm}
                 onOpenChange={setShowDeleteConfirm}
-                handleConfirm={handleDelete}
-                title={
-                    <span className="text-destructive">
-                        <AlertTriangle
-                            className="stroke-destructive me-1 inline-block"
-                            size={18}
-                        />{" "}
-                        Xóa {selectedRows.length}{" "}
-                        {selectedRows.length > 1 ? "phòng ban" : "phòng ban"}
-                    </span>
-                }
-                desc={
-                    <div className="space-y-4">
-                        Bạn có chắc chắn muốn xóa các phòng ban đã chọn không?{" "}
-                        <br />
-                        <strong>Cảnh báo:</strong> Hành động này không thể hoàn
-                        tác và có thể ảnh hưởng đến các nhân viên và dự án liên
-                        quan.
-                    </div>
-                }
-                confirmText="Xác nhận xóa"
-                cancelBtnText="Hủy"
-                destructive
-            />
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            Xóa {selectedRows.length} phòng ban?
+                        </DialogTitle>
+                        <DialogDescription>
+                            Hành động này không thể hoàn tác. Tất cả dữ liệu
+                            liên quan đến phòng ban sẽ bị xóa vĩnh viễn.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowDeleteConfirm(false)}
+                        >
+                            Hủy
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            className="hover:bg-destructive/80 cursor-pointer"
+                            disabled={loading}
+                        >
+                            {loading ? "Đang xóa..." : "Xác nhận xóa"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     )
 }
