@@ -19,7 +19,6 @@ import {
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import AppLogo from "@/components/app-logo"
-import { User } from "@/lib/types"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { MoreHorizontalIcon, TrashIcon, PlusIcon, Folder } from "lucide-react"
 import { deleteChatById, getChatsByUserId } from "@/app/api/chat/queries"
@@ -39,7 +38,7 @@ import {
 } from "@/components/ui/collapsible"
 import { getGroupsByUserId } from "@/app/api/group/queries"
 
-export function ChatSidebar({ user }: { user: User }) {
+export function ChatSidebar({ user }: { user: any }) {
     const {
         chats,
         setChats,

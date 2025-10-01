@@ -15,11 +15,10 @@ import {
 import AppLogo from "@/components/app-logo"
 import { sidebarData } from "@/constant/sidebar-data"
 import { DashboardUser } from "./dashboard-user"
-import { User } from "@/lib/types"
 import { buttonVariants } from "@/components/ui/button"
 import { BotIcon } from "lucide-react"
 
-export function DashboardSidebar({ user }: { user: User }) {
+export function DashboardSidebar({ user }: { user: any }) {
     const pathname = usePathname()
 
     return (

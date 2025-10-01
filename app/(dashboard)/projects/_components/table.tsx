@@ -19,43 +19,9 @@ import {
     TableCell,
 } from "@/components/ui/table"
 import { mockProjects, MockProject } from "../_data/mock-projects"
-import { format } from "date-fns"
+import { projectsColumns as columns } from "./columns"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-
-function formatDate(date?: string) {
-    if (!date) return "-"
-    try {
-        return format(new Date(date), "dd/MM/yyyy")
-    } catch {
-        return date
-    }
-}
-
-const columns = [
-    {
-        accessorKey: "name",
-        header: "Tên dự án",
-        cell: (info: any) => (
-            <div className="max-w-xs truncate">{info.getValue()}</div>
-        ),
-    },
-    {
-        accessorKey: "members",
-        header: "Số thành viên",
-        cell: (info: any) => info.getValue(),
-    },
-    {
-        accessorKey: "startDate",
-        header: "Ngày bắt đầu",
-        cell: (info: any) => formatDate(info.getValue()),
-    },
-    {
-        accessorKey: "endDate",
-        header: "Ngày kết thúc",
-        cell: (info: any) => formatDate(info.getValue()),
-    },
-]
 
 export function ProjectsTable() {
     const [sorting, setSorting] = useState<SortingState>([])

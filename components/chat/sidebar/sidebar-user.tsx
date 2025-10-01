@@ -16,11 +16,10 @@ import {
 } from "../../ui/sidebar"
 import useDialogState from "@/hooks/use-dialog-state"
 import { SignOutDialog } from "../../auth/sign-out-dialog"
-import { User } from "@/lib/types"
 import Link from "next/link"
 import { DashboardIcon } from "@radix-ui/react-icons"
 
-export function SidebarUser({ user }: { user: User }) {
+export function SidebarUser({ user }: { user: any }) {
     const { isMobile } = useSidebar()
     const [open, setOpen] = useDialogState()
 

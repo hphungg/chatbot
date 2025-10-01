@@ -21,6 +21,7 @@ export default function SignInForm() {
         const { error } = await authClient.signIn.social({
             provider: "google",
             callbackURL: "/",
+            scopes: ["https://www.googleapis.com/auth/calendar"],
         })
         if (error) {
             toast.error(error.message)

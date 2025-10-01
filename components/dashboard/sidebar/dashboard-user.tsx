@@ -16,9 +16,8 @@ import {
 } from "../../ui/sidebar"
 import useDialogState from "@/hooks/use-dialog-state"
 import { SignOutDialog } from "../../auth/sign-out-dialog"
-import { User } from "@/lib/types"
 
-export function DashboardUser({ user }: { user: User }) {
+export function DashboardUser({ user }: { user: any }) {
     const { isMobile } = useSidebar()
     const [open, setOpen] = useDialogState()
 
