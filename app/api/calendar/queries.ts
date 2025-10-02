@@ -1,41 +1,54 @@
 "use server"
 
 import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/db/prisma"
 import { Events } from "@/lib/types"
-import { google } from "googleapis"
 import { headers } from "next/headers"
+import { OAuth2Client } from "google-auth-library"
+import { google } from "googleapis"
 
-async function getAuthenticatedToken() {
+async function authenticate() {
     const header = await headers()
-    const accessToken = await auth.api.getAccessToken({
-        body: {
-            providerId: "google",
-        },
+    const session = await auth.api.getSession({
         headers: header,
     })
-    return accessToken.accessToken
+    if (!session) throw new Error("Unauthorized")
+    return session.user
 }
 
-async function getGoogleAuthClient() {
-    const token = await getAuthenticatedToken()
-    if (!token) throw new Error("Unauthorized")
+async function getGoogleAuthClient(userId: string) {
+    const userToken = await prisma.account.findFirst({
+        where: {
+            userId: userId,
+            providerId: "google",
+        },
+        select: {
+            refreshToken: true,
+        },
+    })
 
-    const oauth2Client = new google.auth.OAuth2(
+    const oauth2Client = new OAuth2Client(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
     )
 
     oauth2Client.setCredentials({
-        access_token: token,
+        refresh_token: userToken?.refreshToken,
     })
+
+    const { credentials } = await oauth2Client.refreshAccessToken()
+
+    oauth2Client.setCredentials(credentials)
 
     return oauth2Client
 }
 
 export async function getCalendarEvents(): Promise<Events[]> {
-    const oauth2Client = await getGoogleAuthClient()
+    const user = await authenticate()
+    if (!user) throw new Error("Unauthorized")
+
     const results = await google.calendar("v3").events.list({
-        auth: oauth2Client,
+        auth: await getGoogleAuthClient(user.id),
         calendarId: "primary",
         eventTypes: ["default"],
         singleEvents: true,
@@ -72,10 +85,11 @@ export async function createCalendarEvent({
     endTime: Date
     colorId?: string
 }) {
+    const user = await authenticate()
+    if (!user) throw new Error("Unauthorized")
     try {
-        const oauth2Client = await getGoogleAuthClient()
         const result = await google.calendar("v3").events.insert({
-            auth: oauth2Client,
+            auth: await getGoogleAuthClient(user.id),
             calendarId: "primary",
             requestBody: {
                 summary: title,
@@ -97,10 +111,11 @@ export async function createCalendarEvent({
 }
 
 export async function deleteCalendarEvent(eventId: string) {
+    const user = await authenticate()
+    if (!user) throw new Error("Unauthorized")
     try {
-        const oauth2Client = await getGoogleAuthClient()
         await google.calendar("v3").events.delete({
-            auth: oauth2Client,
+            auth: await getGoogleAuthClient(user.id),
             calendarId: "primary",
             eventId: eventId,
         })
