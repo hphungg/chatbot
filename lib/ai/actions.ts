@@ -3,19 +3,13 @@ import { Message } from "@prisma/client"
 import { generateText, UIDataTypes, UIMessage, UIMessagePart } from "ai"
 import { formatISO } from "date-fns"
 
-export async function generateTitleFromUserMessage({
-    message,
-}: {
-    message: UIMessage
-}) {
+export async function generateTitle({ message }: { message: UIMessage }) {
     const { text: title } = await generateText({
         model: openai("gpt-3.5-turbo"),
         system: `\n
-        - You will generate a short title based on the first message a user begins a conversation with
-        - ensure it is not more than 80 characters long
-        - the title should be a summary of the user's message
-        - do not use quotes or colons
-        - the title must be in the same language as the user's message`,
+        - Generate a concise, 3-5 word title that captures the essence of the first message.
+        - The title should clearly represent the main theme or subject of the conversation
+        - Write the title in the chat's primary language; default to English if multilingual.`,
         prompt: JSON.stringify(message),
     })
 

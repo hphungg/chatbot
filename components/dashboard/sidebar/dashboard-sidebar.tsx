@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import dynamic from "next/dynamic"
 import {
     Sidebar,
     SidebarContent,
@@ -14,9 +15,16 @@ import {
 } from "@/components/ui/sidebar"
 import AppLogo from "@/components/app-logo"
 import { sidebarData } from "@/constant/sidebar-data"
-import { DashboardUser } from "./dashboard-user"
 import { buttonVariants } from "@/components/ui/button"
 import { BotIcon } from "lucide-react"
+
+const DashboardUser = dynamic(
+    () =>
+        import("./dashboard-user").then((mod) => ({
+            default: mod.DashboardUser,
+        })),
+    { ssr: false },
+)
 
 export function DashboardSidebar({ user }: { user: any }) {
     const pathname = usePathname()

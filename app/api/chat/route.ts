@@ -4,10 +4,9 @@ import {
     streamText,
     convertToModelMessages,
     UIMessage,
-    validateUIMessages,
     createUIMessageStream,
     smoothStream,
-    JsonToSseTransformStream,
+    createUIMessageStreamResponse,
 } from "ai"
 import { headers } from "next/headers"
 import {
@@ -17,13 +16,12 @@ import {
     saveChat,
     saveMessages,
 } from "./queries"
-import {
-    convertToUIMessages,
-    generateTitleFromUserMessage,
-} from "@/lib/ai/actions"
+import { convertToUIMessages, generateTitle } from "@/lib/ai/actions"
 import { generateUUID } from "@/lib/utils"
 
-async function authenticate() {
+export const maxDuration = 30
+
+async function getAuthenticatedUser() {
     const header = await headers()
     const session = await auth.api.getSession({
         headers: header,
@@ -33,7 +31,7 @@ async function authenticate() {
 }
 
 export async function POST(request: Request) {
-    const user = await authenticate()
+    const user = await getAuthenticatedUser()
     if (!user) throw new Error("Unauthorized")
 
     const {
@@ -51,7 +49,7 @@ export async function POST(request: Request) {
             return new Response("Chat not found", { status: 404 })
         }
     } else {
-        const title = await generateTitleFromUserMessage({ message })
+        const title = await generateTitle({ message })
         await saveChat(chatId, title, user.id)
     }
 
@@ -77,12 +75,16 @@ export async function POST(request: Request) {
     const stream = createUIMessageStream({
         execute: ({ writer: dataStream }) => {
             const result = streamText({
-                model: openai("gpt-4o-mini"),
+                model: openai("gpt-4o"),
                 messages: convertToModelMessages(uiMessages),
-                experimental_transform: smoothStream({ chunking: "word" }),
+                experimental_transform: smoothStream({
+                    delayInMs: 10,
+                    chunking: "word",
+                }),
             })
 
             result.consumeStream()
+
             dataStream.merge(
                 result.toUIMessageStream({
                     sendReasoning: true,
@@ -106,11 +108,11 @@ export async function POST(request: Request) {
             return "Oops, something went wrong. Please try again."
         },
     })
-    return new Response(stream.pipeThrough(new JsonToSseTransformStream()))
+    return createUIMessageStreamResponse({ stream })
 }
 
 export async function DELETE(request: Request) {
-    const user = await authenticate()
+    const user = await getAuthenticatedUser()
     if (!user) throw new Error("Unauthorized")
 
     const { searchParams } = new URL(request.url)

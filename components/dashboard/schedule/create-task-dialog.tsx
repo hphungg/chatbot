@@ -30,7 +30,7 @@ import { DialogDescription } from "@radix-ui/react-dialog"
 import { createCalendarEvent } from "@/app/api/calendar/queries"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { eventColors } from "@/lib/event-color"
+import { eventColors } from "@/constant/event-color"
 
 interface CreateTaskDialogProps {
     open: boolean

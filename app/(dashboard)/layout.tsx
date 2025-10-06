@@ -5,7 +5,6 @@ import { redirect } from "next/navigation"
 import { DashboardSidebar } from "@/components/dashboard/sidebar/dashboard-sidebar"
 import { DashboardSearchProvider } from "@/context/dashboard-context"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { User } from "@prisma/client"
 
 export default async function DashboardLayout({
     children,

@@ -1,36 +1,28 @@
 "use client"
 
-import { Dispatch, SetStateAction, useCallback, useRef } from "react"
+import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react"
 import {
     PromptInput,
-    PromptInputActionAddAttachments,
-    PromptInputActionMenu,
-    PromptInputActionMenuContent,
-    PromptInputActionMenuTrigger,
     PromptInputAttachment,
     PromptInputAttachments,
     PromptInputBody,
+    PromptInputButton,
     PromptInputSubmit,
     PromptInputTextarea,
     PromptInputToolbar,
     PromptInputTools,
 } from "../ai-elements/prompt-input"
 import { UIMessage, UseChatHelpers } from "@ai-sdk/react"
-import { Attachment } from "@/lib/types"
 import { useWindowSize } from "usehooks-ts"
 import { Button } from "../ui/button"
 import { StopIcon } from "@radix-ui/react-icons"
+import { PlusIcon } from "lucide-react"
 
 interface ChatInputProps {
     chatId?: string
     input: string
     setInput: Dispatch<SetStateAction<string>>
-    attachments: Attachment[]
-    stop: () => void
-    setAttachments: Dispatch<SetStateAction<Attachment[]>>
-    messages: UIMessage[]
     sendMessage: UseChatHelpers<UIMessage>["sendMessage"]
-    setMessages: UseChatHelpers<UIMessage>["setMessages"]
     status: UseChatHelpers<UIMessage>["status"]
 }
 
@@ -39,68 +31,36 @@ export function ChatInput({
     input,
     setInput,
     status,
-    attachments,
-    stop,
-    setAttachments,
-    messages,
     sendMessage,
-    setMessages,
 }: ChatInputProps) {
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const { width } = useWindowSize()
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [files, setFiles] = useState<FileList | undefined>(undefined)
 
     const handleSubmit = useCallback(() => {
         window.history.replaceState({}, "", `/chat/${chatId}`)
 
         sendMessage({
-            role: "user",
-            parts: [
-                ...attachments.map((attachment) => ({
-                    type: "file" as const,
-                    url: attachment.url,
-                    name: attachment.name,
-                    mediaType: attachment.contentType,
-                })),
-                {
-                    type: "text",
-                    text: input,
-                },
-            ],
+            text: input,
+            files: files,
         })
         setInput("")
-        setAttachments([])
+        setFiles(undefined)
 
         if (width && width > 768) {
             textareaRef.current?.focus()
         }
-    }, [
-        chatId,
-        input,
-        setInput,
-        sendMessage,
-        attachments,
-        setAttachments,
-        width,
-    ])
-
-    const handleStop = () => {
-        stop()
-        setMessages((messages) => messages)
-    }
+    }, [chatId, input, setInput, sendMessage, width])
 
     return (
         <PromptInput
             onSubmit={handleSubmit}
-            className="mt-4"
             globalDrop
             multiple
+            className="max-w-3xl p-2 shadow-xs"
         >
             <PromptInputBody>
-                <PromptInputAttachments>
-                    {(attachment) => (
-                        <PromptInputAttachment data={attachment} />
-                    )}
-                </PromptInputAttachments>
                 <PromptInputTextarea
                     autoFocus
                     ref={textareaRef}
@@ -108,30 +68,35 @@ export function ChatInput({
                     onChange={(e) => setInput(e.target.value)}
                     value={input}
                     placeholder="Hỏi một câu nào đó..."
+                    className="!text-[15px] !leading-relaxed"
                 />
             </PromptInputBody>
             <PromptInputToolbar>
                 <PromptInputTools>
-                    <PromptInputActionMenu>
-                        <PromptInputActionMenuTrigger />
-                        <PromptInputActionMenuContent>
-                            <PromptInputActionAddAttachments label="Thêm tài liệu" />
-                        </PromptInputActionMenuContent>
-                    </PromptInputActionMenu>
-                </PromptInputTools>
-                {status === "submitted" ? (
-                    <Button
-                        className="bg-foreground text-background hover:bg-foreground/80 disabled:bg-muted disabled:text-muted-foreground size-7 rounded-full p-1 transition-colors duration-200"
-                        onClick={handleStop}
+                    <PromptInputButton
+                        onClick={() => fileInputRef.current?.click()}
+                        aria-label="Thêm tệp đính kèm"
                     >
-                        <StopIcon className="size-4" />
-                    </Button>
-                ) : (
-                    <PromptInputSubmit
-                        disabled={!input && !status}
-                        status={status}
+                        <PlusIcon />
+                    </PromptInputButton>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        onChange={(e) => {
+                            if (e.target.files) {
+                                setFiles(e.target.files)
+                            }
+                        }}
+                        multiple
+                        accept="application/pdf, image/*"
                     />
-                )}
+                </PromptInputTools>
+
+                <PromptInputSubmit
+                    disabled={!input && !status}
+                    status={status}
+                />
             </PromptInputToolbar>
         </PromptInput>
     )
