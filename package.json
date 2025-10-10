@@ -46,6 +46,7 @@
         "mongodb": "^6.20.0",
         "nanoid": "^5.1.6",
         "next": "^15.5.4",
+        "openai": "^6.3.0",
         "pnpm": "^10.18.0",
         "react": "19.1.0",
         "react-day-picker": "^9.11.0",
