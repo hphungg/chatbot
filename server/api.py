@@ -1,10 +1,10 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 
-from chatbot.server.rag import RAG
+from server.rag import RAG
 
 
 app = FastAPI()
@@ -29,8 +29,8 @@ class SearchRequest(BaseModel):
 @app.post("/search")
 async def search(req: SearchRequest):
     rag.index(req.file_paths)
+    print("INDEX OK")
     results = rag.search(req.query, req.top_k)
-    
     return {
         'status': 'success',
         'query': req.query,

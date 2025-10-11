@@ -51,16 +51,18 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
     })
 
     return (
-        <div className="relative mx-auto size-full h-[calc(100vh-4rem)] max-w-3xl rounded-lg">
+        <div className="relative mx-auto h-[calc(100vh-4rem)] rounded-lg">
             <div className="flex h-full flex-col p-2">
                 <ChatConversation messages={messages} status={status} />
-                <ChatInput
-                    chatId={id}
-                    input={input}
-                    setInput={setInput}
-                    sendMessage={sendMessage}
-                    status={status}
-                />
+                <div className="w-full flex items-center justify-center bg-transparent pt-2">
+                    <ChatInput
+                        chatId={id}
+                        input={input}
+                        setInput={setInput}
+                        sendMessage={sendMessage}
+                        status={status}
+                    />
+                </div>
             </div>
         </div>
     )

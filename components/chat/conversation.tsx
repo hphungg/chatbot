@@ -40,7 +40,7 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                                     : "contained"
                             }
                             className={cn(
-                                "text-[15px] leading-relaxed",
+                                "text-[16px] leading-relaxed",
                                 message.role === "assistant" ? "p-1" : "p-2",
                             )}
                         >

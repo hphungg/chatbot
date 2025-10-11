@@ -11,6 +11,7 @@ from google.genai import types
 from sklearn.metrics.pairwise import cosine_similarity
 
 
+
 def extract_pdf_text(pdf_path: str) -> str:
     doc = fitz.open(pdf_path)
     text = "\n\n".join([doc[i].get_text() for i in range(len(doc))])
@@ -62,7 +63,7 @@ class RAG:
     def __init__(self, api_key: str, workers: int = 8, batch_size: int = 50):
         self.client = genai.Client(api_key=api_key)
         self.model = "gemini-embedding-001"
-        self.workers = workers
+        self.workers = 8
         self.batch_size = batch_size
         self.chunks = []
         self.embeddings = None
@@ -95,8 +96,8 @@ class RAG:
     
     def index(self, file_paths: List[str]):
         valid_paths = [p for p in file_paths if os.path.exists(p) and p.endswith('.pdf')]
-        
-        with ThreadPoolExecutor(max_workers=min(self.workers, len(valid_paths))) as executor:
+        print("VALID", valid_paths)
+        with ThreadPoolExecutor(max_workers=self.workers) as executor:
             futures = [executor.submit(self._process_file, path) for path in valid_paths]
             
             for future in as_completed(futures):

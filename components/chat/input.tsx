@@ -3,8 +3,6 @@
 import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react"
 import {
     PromptInput,
-    PromptInputAttachment,
-    PromptInputAttachments,
     PromptInputBody,
     PromptInputButton,
     PromptInputSubmit,
@@ -14,8 +12,6 @@ import {
 } from "../ai-elements/prompt-input"
 import { UIMessage, UseChatHelpers } from "@ai-sdk/react"
 import { useWindowSize } from "usehooks-ts"
-import { Button } from "../ui/button"
-import { StopIcon } from "@radix-ui/react-icons"
 import { PlusIcon } from "lucide-react"
 
 interface ChatInputProps {
@@ -58,7 +54,7 @@ export function ChatInput({
             onSubmit={handleSubmit}
             globalDrop
             multiple
-            className="max-w-3xl p-2 shadow-xs"
+            className="max-w-3xl shadow-md"
         >
             <PromptInputBody>
                 <PromptInputTextarea
@@ -68,7 +64,7 @@ export function ChatInput({
                     onChange={(e) => setInput(e.target.value)}
                     value={input}
                     placeholder="Hỏi một câu nào đó..."
-                    className="!text-[15px] !leading-relaxed"
+                    className="!text-[16px] !leading-relaxed p-4"
                 />
             </PromptInputBody>
             <PromptInputToolbar>
