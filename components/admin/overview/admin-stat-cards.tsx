@@ -4,34 +4,15 @@ import { Badge } from "@/components/ui/badge"
 interface StatCard {
     title: string
     value: string
-    trend: string
-    trendLabel: string
-    badge?: string
+    helperText: string
+    badge?: string | null
 }
 
-const stats: StatCard[] = [
-    {
-        title: "Lời mời đang xử lý",
-        value: "12",
-        trend: "+3",
-        trendLabel: "so với tuần trước",
-    },
-    {
-        title: "Yêu cầu xác minh",
-        value: "5",
-        trend: "-2",
-        trendLabel: "so với tuần trước",
-        badge: "Ưu tiên",
-    },
-    {
-        title: "Tài khoản bị khóa",
-        value: "2",
-        trend: "0",
-        trendLabel: "7 ngày qua",
-    },
-]
+interface AdminStatCardsProps {
+    stats: StatCard[]
+}
 
-export function AdminStatCards() {
+export function AdminStatCards({ stats }: AdminStatCardsProps) {
     return (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {stats.map((item) => (
@@ -51,10 +32,7 @@ export function AdminStatCards() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground text-sm">
-                            <span className="font-medium text-green-600 dark:text-green-400">
-                                {item.trend}
-                            </span>{" "}
-                            {item.trendLabel}
+                            {item.helperText}
                         </p>
                     </CardContent>
                 </Card>

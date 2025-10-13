@@ -20,6 +20,7 @@ model User {
     departmentId  String?
     userVerified  Boolean @default(false)
     role          String  @default("employee")
+    banned        Boolean @default(false)
 
     department Department?    @relation(fields: [departmentId], references: [id])
     sessions   Session[]
@@ -145,6 +146,8 @@ model Project {
 
     name         String
     departmentId String?
+    startDate    DateTime?
+    endDate      DateTime?
 
     department Department?    @relation(fields: [departmentId], references: [id])
     users      UserProjects[]

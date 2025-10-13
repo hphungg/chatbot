@@ -3,8 +3,83 @@ import { AdminSearch } from "@/components/admin/search"
 import { AdminStatCards } from "@/components/admin/overview/admin-stat-cards"
 import { AdminActivityList } from "@/components/admin/overview/admin-activity-list"
 import { AdminReviewQueue } from "@/components/admin/overview/admin-review-queue"
+import { prisma } from "@/lib/db/prisma"
+import { formatDistanceToNow } from "date-fns"
+import { vi } from "date-fns/locale"
 
-export default function AdminPage() {
+export default async function AdminPage() {
+    const [pendingVerificationCount, departmentCount, lockedAccountsCount, recentUsers, unverifiedUsers] =
+        await Promise.all([
+            prisma.user.count({ where: { userVerified: false } }),
+            prisma.department.count(),
+            prisma.user.count({ where: { banned: true } }),
+            prisma.user.findMany({
+                orderBy: { updatedAt: "desc" },
+                take: 6,
+                select: {
+                    id: true,
+                    name: true,
+                    displayName: true,
+                    email: true,
+                    updatedAt: true,
+                    userVerified: true,
+                    banned: true,
+                },
+            }),
+            prisma.user.findMany({
+                where: { userVerified: false },
+                orderBy: { createdAt: "asc" },
+                take: 5,
+                select: {
+                    id: true,
+                    email: true,
+                    createdAt: true,
+                    department: {
+                        select: { name: true },
+                    },
+                },
+            }),
+        ])
+
+    const stats = [
+        {
+            title: "Người dùng chưa xác minh",
+            value: pendingVerificationCount.toString(),
+            helperText: "Chờ phê duyệt tài khoản.",
+            badge: pendingVerificationCount > 10 ? "Ưu tiên" : null,
+        },
+        {
+            title: "Phòng ban đang hoạt động",
+            value: departmentCount.toString(),
+            helperText: "Tổng số phòng ban trong hệ thống.",
+        },
+        {
+            title: "Tài khoản bị khóa",
+            value: lockedAccountsCount.toString(),
+            helperText: "Cần xem xét kích hoạt lại.",
+            badge: lockedAccountsCount > 0 ? "Cảnh báo" : null,
+        },
+    ]
+
+    const reviewQueue = unverifiedUsers.map((user) => ({
+        id: user.id,
+        email: user.email,
+        department: user.department?.name ?? null,
+        submittedAt: formatDistanceToNow(user.createdAt, { addSuffix: true, locale: vi }),
+    }))
+
+    const activities = recentUsers.map((user) => {
+        const status = user.banned ? "Tạm khóa" : user.userVerified ? "Đã duyệt" : "Đang chờ"
+        const title = user.displayName ?? user.name ?? user.email
+        return {
+            id: user.id,
+            title,
+            description: user.email,
+            time: formatDistanceToNow(user.updatedAt, { addSuffix: true, locale: vi }),
+            status,
+        }
+    })
+
     return (
         <div>
             <DashboardHeader fixed>
@@ -23,10 +98,10 @@ export default function AdminPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <AdminStatCards />
+                    <AdminStatCards stats={stats} />
                     <div className="grid gap-6 lg:grid-cols-2">
-                        <AdminReviewQueue />
-                        <AdminActivityList />
+                        <AdminReviewQueue requests={reviewQueue} />
+                        <AdminActivityList activities={activities} />
                     </div>
                 </div>
             </div>

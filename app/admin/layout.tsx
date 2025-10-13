@@ -2,16 +2,56 @@ import { AdminSidebar } from "@/components/admin/sidebar/admin-sidebar"
 import { AdminSearchProvider } from "@/context/admin-context"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+import { redirect } from "next/navigation"
+import { prisma } from "@/lib/db/prisma"
 
-export default function AdminLayout({
+export default async function AdminLayout({
     children,
 }: Readonly<{
     children: React.ReactNode
 }>) {
+    const session = await auth.api
+        .getSession({
+            headers: await headers(),
+        })
+        .catch(() => null)
+
+    if (!session) {
+        redirect("/sign-in")
+    }
+
+    if (session.user.role !== "admin") {
+        redirect("/")
+    }
+
+    const adminUser = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+            id: true,
+            name: true,
+            displayName: true,
+            email: true,
+            image: true,
+        },
+    })
+
+    if (!adminUser) {
+        redirect("/sign-in")
+    }
+
+    const sidebarUser = {
+        name: adminUser.name,
+        displayName: adminUser.displayName,
+        email: adminUser.email,
+        image: adminUser.image ?? session.user.image ?? null,
+    }
+
     return (
         <AdminSearchProvider>
             <SidebarProvider defaultOpen>
-                <AdminSidebar />
+                <AdminSidebar user={sidebarUser} />
                 <SidebarInset
                     className={cn(
                         "@container/content",

@@ -28,7 +28,7 @@ export default function RootLayout({
                 suppressHydrationWarning
                 className={`${inter.className} antialiased`}
             >
-                <Toaster position="top-center" />
+                <Toaster position="top-right" />
                 {children}
             </body>
         </html>

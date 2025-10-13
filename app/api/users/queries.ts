@@ -45,3 +45,29 @@ export const deleteUsers = async (userIds: string[]) => {
     }
     return true
 }
+
+export const updateCurrentUserDisplayName = async (
+    displayName: string,
+) => {
+    const user = await authenticate()
+
+    if (!user) throw new Error("Unauthorized")
+
+    const nextDisplayName = displayName.trim()
+
+    if (!nextDisplayName) {
+        throw new Error("Display name is required")
+    }
+
+    try {
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { displayName: nextDisplayName },
+        })
+    } catch (error) {
+        console.error(error)
+        throw new Error("Failed to update display name")
+    }
+
+    return nextDisplayName
+}

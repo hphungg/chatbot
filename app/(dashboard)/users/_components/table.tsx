@@ -63,10 +63,10 @@ export function UsersTable({ users }: Readonly<UsersTableProps>) {
             <Input
                 placeholder="Tìm kiếm nhân viên..."
                 value={
-                    (table.getColumn("name")?.getFilterValue() as string) ?? ""
+                    (table.getColumn("displayName")?.getFilterValue() as string) ?? ""
                 }
                 onChange={(event) =>
-                    table.getColumn("name")?.setFilterValue(event.target.value)
+                    table.getColumn("displayName")?.setFilterValue(event.target.value)
                 }
                 className="mb-4 max-w-sm"
             />
