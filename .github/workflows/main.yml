@@ -1,0 +1,47 @@
+name: Deploy FastAPI App with Kaniko
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Image with Kaniko
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker auth for DockerHub
+        run: |
+          mkdir -p /kaniko/.docker
+          echo "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"${{ secrets.DOCKERHUB_AUTH }}\"}}}" > /kaniko/.docker/config.json
+
+      - name: Build and push Docker image with Kaniko
+        uses: aevea/action-kaniko@v1.4.0
+        with:
+          image: tiendat02/chatbot
+          tag: latest
+          cache: false
+          dockerfile: Dockerfile
+          context: .
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+  deploy:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    name: Deploy via SSH
+    steps:
+      - name: SSH to server and redeploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /path/to/your/project
+            docker compose -f docker-compose.dev.deploy.yml pull api
+            docker compose -f docker-compose.dev.deploy.yml up -d api
