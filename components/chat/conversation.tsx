@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils"
 import { Spinner } from "../ui/spinner"
 import { Avatar, AvatarFallback } from "../ui/avatar"
 import { useChatContext } from "@/context/chat-context"
+import { TextShimmer } from "../ui/text-shimmer"
 
 interface ChatConversationProps {
     messages: UIMessage[]
@@ -82,8 +83,11 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                     </Message>
                 ))}
                 {status === "submitted" && (
-                    <div className="flex flex-row items-center gap-2">
-                        <Spinner /> Đang nghĩ...
+                    <div className="flex flex-row items-center gap-4">
+                        <Spinner />
+                        <TextShimmer className="text-lg" duration={1}>
+                            Đang nghĩ...
+                        </TextShimmer>
                     </div>
                 )}
             </ConversationContent>
