@@ -55,7 +55,9 @@ export const projectsColumns: ColumnDef<ProjectRow>[] = [
         header: "Trạng thái",
         cell: ({ row }) => (
             <Badge
-                variant={row.original.status === "active" ? "outline" : "secondary"}
+                variant={
+                    row.original.status === "active" ? "outline" : "secondary"
+                }
             >
                 {statusLabel(row.original.status)}
             </Badge>

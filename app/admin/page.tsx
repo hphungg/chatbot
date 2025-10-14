@@ -8,38 +8,43 @@ import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
 
 export default async function AdminPage() {
-    const [pendingVerificationCount, departmentCount, lockedAccountsCount, recentUsers, unverifiedUsers] =
-        await Promise.all([
-            prisma.user.count({ where: { userVerified: false } }),
-            prisma.department.count(),
-            prisma.user.count({ where: { banned: true } }),
-            prisma.user.findMany({
-                orderBy: { updatedAt: "desc" },
-                take: 6,
-                select: {
-                    id: true,
-                    name: true,
-                    displayName: true,
-                    email: true,
-                    updatedAt: true,
-                    userVerified: true,
-                    banned: true,
+    const [
+        pendingVerificationCount,
+        departmentCount,
+        lockedAccountsCount,
+        recentUsers,
+        unverifiedUsers,
+    ] = await Promise.all([
+        prisma.user.count({ where: { userVerified: false } }),
+        prisma.department.count(),
+        prisma.user.count({ where: { banned: true } }),
+        prisma.user.findMany({
+            orderBy: { updatedAt: "desc" },
+            take: 6,
+            select: {
+                id: true,
+                name: true,
+                displayName: true,
+                email: true,
+                updatedAt: true,
+                userVerified: true,
+                banned: true,
+            },
+        }),
+        prisma.user.findMany({
+            where: { userVerified: false },
+            orderBy: { createdAt: "asc" },
+            take: 5,
+            select: {
+                id: true,
+                email: true,
+                createdAt: true,
+                department: {
+                    select: { name: true },
                 },
-            }),
-            prisma.user.findMany({
-                where: { userVerified: false },
-                orderBy: { createdAt: "asc" },
-                take: 5,
-                select: {
-                    id: true,
-                    email: true,
-                    createdAt: true,
-                    department: {
-                        select: { name: true },
-                    },
-                },
-            }),
-        ])
+            },
+        }),
+    ])
 
     const stats = [
         {
@@ -65,17 +70,27 @@ export default async function AdminPage() {
         id: user.id,
         email: user.email,
         department: user.department?.name ?? null,
-        submittedAt: formatDistanceToNow(user.createdAt, { addSuffix: true, locale: vi }),
+        submittedAt: formatDistanceToNow(user.createdAt, {
+            addSuffix: true,
+            locale: vi,
+        }),
     }))
 
     const activities = recentUsers.map((user) => {
-        const status = user.banned ? "Tạm khóa" : user.userVerified ? "Đã duyệt" : "Đang chờ"
+        const status = user.banned
+            ? "Tạm khóa"
+            : user.userVerified
+              ? "Đã duyệt"
+              : "Đang chờ"
         const title = user.displayName ?? user.name ?? user.email
         return {
             id: user.id,
             title,
             description: user.email,
-            time: formatDistanceToNow(user.updatedAt, { addSuffix: true, locale: vi }),
+            time: formatDistanceToNow(user.updatedAt, {
+                addSuffix: true,
+                locale: vi,
+            }),
             status,
         }
     })

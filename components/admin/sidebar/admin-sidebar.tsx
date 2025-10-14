@@ -33,7 +33,9 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
     const pathname = usePathname()
     const [signOutOpen, setSignOutOpen] = useDialogState<boolean>(false)
     const displayName = user.displayName ?? user.name ?? user.email
-    const avatarFallback = displayName ? displayName.charAt(0).toUpperCase() : "A"
+    const avatarFallback = displayName
+        ? displayName.charAt(0).toUpperCase()
+        : "A"
 
     return (
         <>
@@ -76,10 +78,12 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                                     src={user.image ?? undefined}
                                     alt={displayName ?? "Admin"}
                                 />
-                                <AvatarFallback>{avatarFallback}</AvatarFallback>
+                                <AvatarFallback>
+                                    {avatarFallback}
+                                </AvatarFallback>
                             </Avatar>
                             <div className="min-w-0">
-                                <p className="text-sm font-semibold leading-tight">
+                                <p className="text-sm leading-tight font-semibold">
                                     {displayName}
                                 </p>
                                 <p className="text-muted-foreground truncate text-xs">

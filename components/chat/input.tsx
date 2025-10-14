@@ -64,7 +64,7 @@ export function ChatInput({
                     onChange={(e) => setInput(e.target.value)}
                     value={input}
                     placeholder="Hỏi một câu nào đó..."
-                    className="!text-[16px] !leading-relaxed p-4"
+                    className="p-4 !text-[16px] !leading-relaxed"
                 />
             </PromptInputBody>
             <PromptInputToolbar>

@@ -58,69 +58,89 @@ export default function SignInForm() {
     const adminDisabled = adminLoading || !email || !password
 
     return (
-        <div className="flex flex-col gap-6">
-            <Card>
-                <CardHeader className="text-center">
-                    <CardTitle className="text-xl">Xin chào!</CardTitle>
-                    <CardDescription>
-                        Đăng nhập bằng tài khoản Google của bạn.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={handleGoogleSignIn}
-                        disabled={googleLoading}
-                    >
-                        <IconBrandGoogle />
-                        Đăng nhập bằng Google
-                    </Button>
-                </CardContent>
-            </Card>
+        <div className="flex flex-col gap-4">
             {!showAdminForm && (
-                <div className="text-center">
-                    <button
-                        type="button"
-                        className="text-muted-foreground text-sm underline-offset-4 hover:text-foreground hover:underline"
-                        onClick={() => setShowAdminForm(true)}
-                    >
-                        Đăng nhập với tư cách quản trị viên
-                    </button>
-                </div>
+                <>
+                    <Card>
+                        <CardHeader className="text-center">
+                            <CardTitle className="text-xl">Xin chào!</CardTitle>
+                            <CardDescription>
+                                Đăng nhập bằng tài khoản Google của bạn.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button
+                                variant="outline"
+                                className="w-full"
+                                onClick={handleGoogleSignIn}
+                                disabled={googleLoading}
+                            >
+                                <IconBrandGoogle />
+                                Đăng nhập bằng Google
+                            </Button>
+                        </CardContent>
+                    </Card>
+                    <div className="text-center">
+                        <a className="text-muted-foreground text-sm">hoặc </a>
+                        <a
+                            className="text-muted-foreground hover:text-foreground cursor-pointer text-sm underline-offset-4 hover:underline"
+                            onClick={() => setShowAdminForm(true)}
+                        >
+                            đăng nhập với tư cách quản lý.
+                        </a>
+                    </div>
+                </>
             )}
             {showAdminForm && (
-                <Card>
-                    <CardHeader className="text-center">
-                        <CardTitle className="text-xl">
-                            Đăng nhập
-                        </CardTitle>
-                        <CardDescription>
-                            Sử dụng email và mật khẩu của quản trị viên.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form className="flex flex-col gap-3" onSubmit={handleAdminSignIn}>
-                            <Input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(event) => setEmail(event.target.value)}
-                                required
-                            />
-                            <Input
-                                type="password"
-                                placeholder="Mật khẩu"
-                                value={password}
-                                onChange={(event) => setPassword(event.target.value)}
-                                required
-                            />
-                            <Button type="submit" disabled={adminDisabled}>
-                                {adminLoading ? "Đang xử lý..." : "Đăng nhập"}
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
+                <>
+                    <Card>
+                        <CardHeader className="text-center">
+                            <CardTitle className="text-xl">Xin chào!</CardTitle>
+                            <CardDescription>
+                                Đăng nhập bằng tài khoản quản lý.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <form
+                                className="flex flex-col gap-3"
+                                onSubmit={handleAdminSignIn}
+                            >
+                                <Input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(event) =>
+                                        setEmail(event.target.value)
+                                    }
+                                    required
+                                />
+                                <Input
+                                    type="password"
+                                    placeholder="Mật khẩu"
+                                    value={password}
+                                    onChange={(event) =>
+                                        setPassword(event.target.value)
+                                    }
+                                    required
+                                />
+                                <Button type="submit" disabled={adminDisabled}>
+                                    {adminLoading
+                                        ? "Đang xử lý..."
+                                        : "Đăng nhập"}
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                    <div className="text-center">
+                        <a className="text-muted-foreground text-sm">hoặc </a>
+                        <a
+                            className="text-muted-foreground hover:text-foreground cursor-pointer text-sm underline-offset-4 hover:underline"
+                            onClick={() => setShowAdminForm(false)}
+                        >
+                            đăng nhập với tư cách nhân viên.
+                        </a>
+                    </div>
+                </>
             )}
         </div>
     )

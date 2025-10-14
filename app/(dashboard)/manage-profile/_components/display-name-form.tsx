@@ -13,13 +13,24 @@ interface DisplayNameFormProps {
     fallbackName: string
 }
 
-export function DisplayNameForm({ initialDisplayName, fallbackName }: DisplayNameFormProps) {
+export function DisplayNameForm({
+    initialDisplayName,
+    fallbackName,
+}: DisplayNameFormProps) {
     const router = useRouter()
-    const [displayName, setDisplayName] = useState(initialDisplayName ?? fallbackName)
+    const [displayName, setDisplayName] = useState(
+        initialDisplayName ?? fallbackName,
+    )
     const [isPending, startTransition] = useTransition()
 
-    const baseline = useMemo(() => initialDisplayName ?? fallbackName, [fallbackName, initialDisplayName])
-    const isDirty = useMemo(() => displayName.trim() !== baseline.trim(), [baseline, displayName])
+    const baseline = useMemo(
+        () => initialDisplayName ?? fallbackName,
+        [fallbackName, initialDisplayName],
+    )
+    const isDirty = useMemo(
+        () => displayName.trim() !== baseline.trim(),
+        [baseline, displayName],
+    )
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -54,8 +65,8 @@ export function DisplayNameForm({ initialDisplayName, fallbackName }: DisplayNam
                     placeholder="Nhập tên hiển thị"
                     maxLength={120}
                 />
-                <p className="text-sm text-muted-foreground">
-                    Tên hiển thị sẽ được sử dụng trong các bảng nhân viên, dự án và hội thoại.
+                <p className="text-muted-foreground text-sm">
+                    Tên hiển thị sẽ hiển thị với các người dùng khác.
                 </p>
             </div>
             <div className="flex items-center gap-3">

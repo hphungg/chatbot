@@ -1,7 +1,5 @@
 import "dotenv/config"
 
-process.env.ALLOW_EMAIL_SIGN_UP = "true"
-
 async function main() {
     const adminEmail = process.env.ADMIN_EMAIL
     const adminPassword = process.env.ADMIN_PASSWORD
@@ -11,15 +9,18 @@ async function main() {
         throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD must be set")
     }
 
-    const { auth } = await import("../lib/auth")
-    const { prisma } = await import("../lib/db/prisma")
+    const { auth } = await import("@/lib/auth")
+    const { prisma } = await import("@/lib/db/prisma")
 
     const existing = await prisma.user.findUnique({
         where: { email: adminEmail },
     })
 
     if (existing) {
-        if (existing.role !== "admin" || existing.displayName !== existing.name) {
+        if (
+            existing.role !== "admin" ||
+            existing.displayName !== existing.name
+        ) {
             await prisma.user.update({
                 where: { id: existing.id },
                 data: {
@@ -55,7 +56,7 @@ async function main() {
 
 main().catch(async (error) => {
     console.error(error)
-    const { prisma } = await import("../lib/db/prisma")
+    const { prisma } = await import("@/lib/db/prisma")
     await prisma.$disconnect()
     process.exit(1)
 })

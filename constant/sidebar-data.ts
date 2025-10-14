@@ -1,4 +1,9 @@
-import { IconDashboard, IconFolder, IconHome, IconUser } from "@tabler/icons-react"
+import {
+    IconDashboard,
+    IconFolder,
+    IconHome,
+    IconUser,
+} from "@tabler/icons-react"
 import { Users } from "lucide-react"
 
 export const sidebarData = [

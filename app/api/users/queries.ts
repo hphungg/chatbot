@@ -46,9 +46,7 @@ export const deleteUsers = async (userIds: string[]) => {
     return true
 }
 
-export const updateCurrentUserDisplayName = async (
-    displayName: string,
-) => {
+export const updateCurrentUserDisplayName = async (displayName: string) => {
     const user = await authenticate()
 
     if (!user) throw new Error("Unauthorized")

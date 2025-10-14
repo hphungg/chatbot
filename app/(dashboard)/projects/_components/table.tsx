@@ -38,8 +38,11 @@ export function ProjectsTable({ type, emptyMessage }: ProjectsTableProps) {
         const now = Date.now()
         return projects
             .map((project) => {
-                const endTime = project.endDate ? new Date(project.endDate).getTime() : null
-                const status: ProjectRow["status"] = endTime !== null && endTime < now ? "ended" : "active"
+                const endTime = project.endDate
+                    ? new Date(project.endDate).getTime()
+                    : null
+                const status: ProjectRow["status"] =
+                    endTime !== null && endTime < now ? "ended" : "active"
                 return {
                     id: project.id,
                     name: project.name,
@@ -98,13 +101,18 @@ export function ProjectsTable({ type, emptyMessage }: ProjectsTableProps) {
                     <TableBody>
                         {table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row) => {
-                                const isSelected = row.original.id === selectedProjectId
+                                const isSelected =
+                                    row.original.id === selectedProjectId
                                 return (
                                     <TableRow
                                         key={row.id}
-                                        data-state={isSelected ? "selected" : undefined}
+                                        data-state={
+                                            isSelected ? "selected" : undefined
+                                        }
                                         className="cursor-pointer"
-                                        onClick={() => openMembers(row.original.id)}
+                                        onClick={() =>
+                                            openMembers(row.original.id)
+                                        }
                                     >
                                         {row.getAllCells().map((cell) => (
                                             <TableCell key={cell.id}>
@@ -131,10 +139,8 @@ export function ProjectsTable({ type, emptyMessage }: ProjectsTableProps) {
                 </Table>
             </div>
 
-            <div className="flex items-center justify-between space-y-2 py-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:space-y-0">
-                <div>
-                    {table.getFilteredRowModel().rows.length} kết quả
-                </div>
+            <div className="text-muted-foreground flex items-center justify-between space-y-2 py-4 text-sm sm:flex-row sm:items-center sm:space-y-0">
+                <div>{table.getFilteredRowModel().rows.length} kết quả</div>
                 <div className="flex items-center space-x-2">
                     <Button
                         variant="outline"

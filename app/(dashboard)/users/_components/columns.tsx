@@ -57,7 +57,9 @@ export const usersColumns: ColumnDef<User>[] = [
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="ml-3">{row.getValue("displayName")}</div>,
+        cell: ({ row }) => (
+            <div className="ml-3">{row.getValue("displayName")}</div>
+        ),
     },
     {
         accessorKey: "email",

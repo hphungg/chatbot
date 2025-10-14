@@ -14,7 +14,9 @@ async function authenticate() {
     return session.user
 }
 
-export const getProjectsWithMembers = async (): Promise<ProjectWithMembers[]> => {
+export const getProjectsWithMembers = async (): Promise<
+    ProjectWithMembers[]
+> => {
     const user = await authenticate()
     if (!user) throw new Error("Unauthorized")
 
@@ -40,11 +42,19 @@ export const getProjectsWithMembers = async (): Promise<ProjectWithMembers[]> =>
         })
 
         return projects.map((project) => {
-            const startDate = "startDate" in project ? (project as { startDate: Date | null }).startDate : null
-            const endDate = "endDate" in project ? (project as { endDate: Date | null }).endDate : null
+            const startDate =
+                "startDate" in project
+                    ? (project as { startDate: Date | null }).startDate
+                    : null
+            const endDate =
+                "endDate" in project
+                    ? (project as { endDate: Date | null }).endDate
+                    : null
             const members: ProjectMemberSummary[] = project.users
                 .map((link) => link.user)
-                .filter((member): member is NonNullable<typeof member> => Boolean(member))
+                .filter((member): member is NonNullable<typeof member> =>
+                    Boolean(member),
+                )
                 .map((member) => ({
                     id: member.id,
                     name: member.name,

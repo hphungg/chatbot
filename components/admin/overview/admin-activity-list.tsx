@@ -52,11 +52,14 @@ export function AdminActivityList({ activities }: AdminActivityListProps) {
                                         </div>
                                         <Badge
                                             variant={
-                                                (statusVariant[activity.status] as
+                                                (statusVariant[
+                                                    activity.status
+                                                ] as
                                                     | "default"
                                                     | "secondary"
                                                     | "outline"
-                                                    | "destructive") ?? "outline"
+                                                    | "destructive") ??
+                                                "outline"
                                             }
                                         >
                                             {activity.status}

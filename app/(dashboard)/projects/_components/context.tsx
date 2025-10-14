@@ -1,6 +1,12 @@
 "use client"
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react"
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useMemo,
+    useState,
+} from "react"
 import type { ProjectWithMembers } from "@/lib/types"
 
 interface ProjectsContextValue {
@@ -19,8 +25,13 @@ interface ProjectsProviderProps {
     projects: ProjectWithMembers[]
 }
 
-export function ProjectsProvider({ children, projects }: ProjectsProviderProps) {
-    const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
+export function ProjectsProvider({
+    children,
+    projects,
+}: ProjectsProviderProps) {
+    const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+        null,
+    )
     const [isMembersDialogOpen, setIsMembersDialogOpen] = useState(false)
 
     const openMembers = useCallback((projectId: string) => {
@@ -35,7 +46,9 @@ export function ProjectsProvider({ children, projects }: ProjectsProviderProps) 
 
     const selectedProject = useMemo(() => {
         if (!selectedProjectId) return null
-        return projects.find((project) => project.id === selectedProjectId) ?? null
+        return (
+            projects.find((project) => project.id === selectedProjectId) ?? null
+        )
     }, [projects, selectedProjectId])
 
     const value = useMemo<ProjectsContextValue>(
@@ -47,14 +60,28 @@ export function ProjectsProvider({ children, projects }: ProjectsProviderProps) 
             openMembers,
             closeMembers,
         }),
-        [closeMembers, isMembersDialogOpen, openMembers, projects, selectedProject, selectedProjectId],
+        [
+            closeMembers,
+            isMembersDialogOpen,
+            openMembers,
+            projects,
+            selectedProject,
+            selectedProjectId,
+        ],
     )
 
-    return <ProjectsContext.Provider value={value}>{children}</ProjectsContext.Provider>
+    return (
+        <ProjectsContext.Provider value={value}>
+            {children}
+        </ProjectsContext.Provider>
+    )
 }
 
 export function useProjectsContext() {
     const context = useContext(ProjectsContext)
-    if (!context) throw new Error("useProjectsContext must be used within ProjectsProvider")
+    if (!context)
+        throw new Error(
+            "useProjectsContext must be used within ProjectsProvider",
+        )
     return context
 }
