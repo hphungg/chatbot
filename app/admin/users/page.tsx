@@ -1,13 +1,12 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
 import { AdminSearch } from "@/components/admin/search"
 import { AdminUsersSection } from "@/components/admin/users/admin-users-section"
-import { getAllUsers } from "@/app/api/users/queries"
-import { getAllDepartments } from "@/app/api/departments/queries"
+import { getAdminUsers, getAdminDepartments } from "@/app/api/admin/queries"
 
 export default async function AdminUsersPage() {
     const [users, departments] = await Promise.all([
-        getAllUsers(),
-        getAllDepartments(),
+        getAdminUsers(),
+        getAdminDepartments(),
     ])
 
     return (

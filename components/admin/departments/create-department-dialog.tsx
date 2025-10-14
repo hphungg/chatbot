@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import {
     Dialog,
     DialogContent,
@@ -14,36 +15,56 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { createDepartmentAction } from "@/app/api/admin/departments/actions"
+import { type EditableDepartment } from "@/components/admin/departments/edit-department-dialog"
 
 interface CreateDepartmentDialogProps {
-    onCreate: (department: { id: string; name: string; code: string }) => void
+    onCreate: (department: EditableDepartment) => void
 }
 
 export function CreateDepartmentDialog({
     onCreate,
 }: CreateDepartmentDialogProps) {
+    const router = useRouter()
     const [open, setOpen] = useState(false)
     const [name, setName] = useState("")
     const [code, setCode] = useState("")
     const [loading, setLoading] = useState(false)
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
+        if (loading) return
         if (!name || !code) return
+        const formattedCode = code.toUpperCase()
         setLoading(true)
-        setTimeout(() => {
-            const newDepartment = {
-                id: `tmp-${Date.now()}`,
+        try {
+            const result = await createDepartmentAction({
                 name,
-                code: code.toUpperCase(),
+                code: formattedCode,
+            })
+            if (result?.department) {
+                onCreate({
+                    id: result.department.id,
+                    name: result.department.name,
+                    code: result.department.code,
+                    employeeCount: result.department.employeeCount,
+                    projectCount: result.department.projectCount,
+                })
+                toast.success("Đã tạo phòng ban mới")
+                setName("")
+                setCode("")
+                setOpen(false)
+                router.refresh()
             }
-            onCreate(newDepartment)
-            toast.success("Đã tạo phòng ban mới")
-            setName("")
-            setCode("")
+        } catch (error) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Không thể tạo phòng ban. Vui lòng thử lại."
+            toast.error(message)
+        } finally {
             setLoading(false)
-            setOpen(false)
-        }, 500)
+        }
     }
 
     return (
@@ -84,7 +105,7 @@ export function CreateDepartmentDialog({
                                 placeholder="Ví dụ: SALES"
                                 value={code}
                                 onChange={(event) =>
-                                    setCode(event.target.value)
+                                    setCode(event.target.value.toUpperCase())
                                 }
                                 className="uppercase"
                                 required

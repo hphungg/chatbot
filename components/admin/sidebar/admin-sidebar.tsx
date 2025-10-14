@@ -12,11 +12,19 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from "@/components/ui/sidebar"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { adminSidebarData } from "@/constant/admin-sidebar-data"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { LogOut } from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Bot, ChevronDown, LogOut } from "lucide-react"
 import { SignOutDialog } from "@/components/auth/sign-out-dialog"
 import useDialogState from "@/hooks/use-dialog-state"
 
@@ -31,11 +39,9 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ user }: AdminSidebarProps) {
     const pathname = usePathname()
+    const { isMobile } = useSidebar()
     const [signOutOpen, setSignOutOpen] = useDialogState<boolean>(false)
     const displayName = user.displayName ?? user.name ?? user.email
-    const avatarFallback = displayName
-        ? displayName.charAt(0).toUpperCase()
-        : "A"
 
     return (
         <>
@@ -71,36 +77,61 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                     </SidebarGroup>
                 </SidebarContent>
                 <SidebarFooter>
-                    <div className="bg-muted/40 flex items-center justify-between gap-3 rounded-lg border p-3">
-                        <div className="flex items-center gap-3">
-                            <Avatar className="h-9 w-9">
-                                <AvatarImage
-                                    src={user.image ?? undefined}
-                                    alt={displayName ?? "Admin"}
-                                />
-                                <AvatarFallback>
-                                    {avatarFallback}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0">
-                                <p className="text-sm leading-tight font-semibold">
-                                    {displayName}
-                                </p>
-                                <p className="text-muted-foreground truncate text-xs">
-                                    {user.email}
-                                </p>
-                            </div>
-                        </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSignOutOpen(true)}
-                            className="shrink-0"
-                        >
-                            <LogOut className="size-4" />
-                            <span className="ml-2">Đăng xuất</span>
-                        </Button>
-                    </div>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <SidebarMenuButton size="lg">
+                                        <Avatar className="h-8 w-8 rounded-full">
+                                            <AvatarFallback className="rounded-lg bg-transparent">
+                                                <Bot className="size-6" />
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="ml-1 grid flex-1 text-start text-base">
+                                            <span className="truncate font-semibold">
+                                                {displayName}
+                                            </span>
+                                            <span className="truncate text-xs">
+                                                {user.email}
+                                            </span>
+                                        </div>
+                                        <ChevronDown className="ms-auto size-4" />
+                                    </SidebarMenuButton>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                                    side={isMobile ? "bottom" : "right"}
+                                    align="end"
+                                    sideOffset={4}
+                                >
+                                    <DropdownMenuLabel className="p-0 font-normal">
+                                        <div className="flex items-center gap-2 px-1 py-1.5 text-base">
+                                            <Avatar className="h-9 w-9 rounded-full">
+                                                <AvatarFallback className="rounded-lg bg-transparent">
+                                                    <Bot className="size-6" />
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="ml-1 grid flex-1">
+                                                <span className="truncate font-semibold">
+                                                    {displayName}
+                                                </span>
+                                                <span className="truncate text-xs">
+                                                    {user.email}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={() => setSignOutOpen(true)}
+                                    >
+                                        <LogOut className="size-4" />
+                                        <span className="ml-2">Đăng xuất</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
                 </SidebarFooter>
             </Sidebar>
             <SignOutDialog open={!!signOutOpen} onOpenChange={setSignOutOpen} />

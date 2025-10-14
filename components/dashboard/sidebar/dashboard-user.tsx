@@ -31,7 +31,7 @@ export function DashboardUser({ user }: { user: any }) {
                                 <Avatar className="h-8 w-8 rounded-full">
                                     <AvatarImage
                                         src={user.image as string}
-                                        alt={user?.name}
+                                        alt={user?.displayName}
                                     />
                                     <AvatarFallback className="rounded-lg">
                                         U
@@ -39,7 +39,7 @@ export function DashboardUser({ user }: { user: any }) {
                                 </Avatar>
                                 <div className="ml-1 grid flex-1 text-start text-base">
                                     <span className="truncate font-semibold">
-                                        {user?.name}
+                                        {user?.displayName}
                                     </span>
                                     <span className="truncate text-xs">
                                         {user?.email}
@@ -59,7 +59,7 @@ export function DashboardUser({ user }: { user: any }) {
                                     <Avatar className="h-8 w-8 rounded-full">
                                         <AvatarImage
                                             src={user.image as string}
-                                            alt={user.name}
+                                            alt={user.displayName}
                                         />
                                         <AvatarFallback className="rounded-lg">
                                             U
@@ -67,7 +67,7 @@ export function DashboardUser({ user }: { user: any }) {
                                     </Avatar>
                                     <div className="ml-1 grid flex-1">
                                         <span className="truncate font-semibold">
-                                            {user.name}
+                                            {user.displayName}
                                         </span>
                                         <span className="truncate text-xs">
                                             {user.email}

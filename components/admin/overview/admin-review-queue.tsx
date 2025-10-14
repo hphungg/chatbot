@@ -8,10 +8,15 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
+import {
+    verifyUserAction,
+    deleteUserAction,
+} from "@/app/api/admin/users/actions"
 
 interface ReviewRequest {
     id: string
     email: string
+    name: string
     department: string | null
     submittedAt: string
 }
@@ -30,13 +35,11 @@ export function AdminReviewQueue({ requests }: AdminReviewQueueProps) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Mã yêu cầu</TableHead>
                             <TableHead>Email</TableHead>
+                            <TableHead>Tên</TableHead>
                             <TableHead>Phòng ban</TableHead>
-                            <TableHead>Gửi lúc</TableHead>
-                            <TableHead className="text-right">
-                                Thao tác
-                            </TableHead>
+                            <TableHead>Thời gian</TableHead>
+                            <TableHead />
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -52,17 +55,43 @@ export function AdminReviewQueue({ requests }: AdminReviewQueueProps) {
                         ) : (
                             requests.map((request) => (
                                 <TableRow key={request.id}>
-                                    <TableCell>{request.id}</TableCell>
                                     <TableCell>{request.email}</TableCell>
+                                    <TableCell>{request.name}</TableCell>
                                     <TableCell>
                                         {request.department ?? "Chưa phân bổ"}
                                     </TableCell>
                                     <TableCell>{request.submittedAt}</TableCell>
                                     <TableCell className="flex items-center justify-end gap-2">
-                                        <Button variant="outline" size="sm">
-                                            Từ chối
-                                        </Button>
-                                        <Button size="sm">Duyệt</Button>
+                                        <form
+                                            action={deleteUserAction}
+                                            className="inline-flex"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="userId"
+                                                value={request.id}
+                                            />
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                type="submit"
+                                            >
+                                                Xóa
+                                            </Button>
+                                        </form>
+                                        <form
+                                            action={verifyUserAction}
+                                            className="inline-flex"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="userId"
+                                                value={request.id}
+                                            />
+                                            <Button size="sm" type="submit">
+                                                Duyệt
+                                            </Button>
+                                        </form>
                                     </TableCell>
                                 </TableRow>
                             ))

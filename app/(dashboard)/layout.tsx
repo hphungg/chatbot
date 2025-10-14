@@ -26,6 +26,14 @@ export default async function DashboardLayout({
 
     const user = session.user
 
+    if (user.role === "admin") {
+        return redirect("/admin")
+    }
+
+    if (!user.userVerified) {
+        return redirect("/unverified")
+    }
+
     return (
         <DashboardSearchProvider>
             <SidebarProvider defaultOpen={true}>

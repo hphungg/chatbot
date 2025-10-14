@@ -21,6 +21,7 @@ export interface ProjectWithMembers {
     id: string
     name: string
     departmentId: string | null
+    departmentName: string | null
     startDate: string | null
     endDate: string | null
     createdAt: string

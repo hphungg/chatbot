@@ -67,16 +67,9 @@ export function AdminDepartmentsTable({
                                 filtered.map((department) => (
                                     <TableRow key={department.id}>
                                         <TableCell>
-                                            <div className="flex flex-col">
-                                                <span className="font-medium">
-                                                    {department.name}
-                                                </span>
-                                                <span className="text-muted-foreground text-xs">
-                                                    ID:{" "}
-                                                    {department.id.slice(0, 6)}
-                                                    ...
-                                                </span>
-                                            </div>
+                                            <span className="font-medium">
+                                                {department.name}
+                                            </span>
                                         </TableCell>
                                         <TableCell>
                                             <Badge>{department.code}</Badge>
@@ -95,8 +88,7 @@ export function AdminDepartmentsTable({
                                                     onEdit(department)
                                                 }
                                             >
-                                                <Pencil className="mr-1 h-4 w-4" />{" "}
-                                                Cập nhật
+                                                <Pencil className="h-4 w-4" />
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -114,10 +106,6 @@ export function AdminDepartmentsTable({
                         </TableBody>
                     </Table>
                 </div>
-                <p className="text-muted-foreground text-xs">
-                    Các thao tác hiện chỉ mang tính minh họa và chưa kết nối với
-                    dữ liệu thực tế.
-                </p>
             </CardContent>
         </Card>
     )

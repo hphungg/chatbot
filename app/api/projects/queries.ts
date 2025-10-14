@@ -23,6 +23,12 @@ export const getProjectsWithMembers = async (): Promise<
     try {
         const projects = await prisma.project.findMany({
             include: {
+                department: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
                 users: {
                     include: {
                         user: {
@@ -68,6 +74,7 @@ export const getProjectsWithMembers = async (): Promise<
                 id: project.id,
                 name: project.name,
                 departmentId: project.departmentId ?? null,
+                departmentName: project.department?.name ?? null,
                 startDate: startDate ? startDate.toISOString() : null,
                 endDate: endDate ? endDate.toISOString() : null,
                 createdAt: project.createdAt.toISOString(),

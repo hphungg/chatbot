@@ -39,6 +39,8 @@ async function main() {
             email: adminEmail,
             password: adminPassword,
             name: adminName,
+            displayName: adminName,
+            userVerified: true,
         },
     })
 

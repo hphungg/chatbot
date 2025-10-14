@@ -7,7 +7,6 @@ import {
 } from "@/components/admin/departments/edit-department-dialog"
 import { CreateDepartmentDialog } from "@/components/admin/departments/create-department-dialog"
 import { AdminDepartmentsTable } from "@/components/admin/departments/admin-departments-table"
-import { toast } from "sonner"
 
 interface AdminDepartmentsSectionProps {
     departments: EditableDepartment[]
@@ -30,18 +29,14 @@ export function AdminDepartmentsSection({
         [items],
     )
 
-    const handleCreate = (department: {
-        id: string
-        name: string
-        code: string
-    }) => {
+    const handleCreate = (department: EditableDepartment) => {
         setItems((prev) => [
             {
                 id: department.id,
                 name: department.name,
                 code: department.code,
-                employeeCount: 0,
-                projectCount: 0,
+                employeeCount: department.employeeCount ?? 0,
+                projectCount: department.projectCount ?? 0,
             },
             ...prev,
         ])
@@ -58,7 +53,7 @@ export function AdminDepartmentsSection({
                 item.id === department.id ? { ...item, ...department } : item,
             ),
         )
-        toast.success("Đã cập nhật thông tin phòng ban")
+        setSelected(department)
     }
 
     return (
@@ -82,7 +77,12 @@ export function AdminDepartmentsSection({
             <EditDepartmentDialog
                 department={selected}
                 open={open}
-                onOpenChange={setOpen}
+                onOpenChange={(value) => {
+                    setOpen(value)
+                    if (!value) {
+                        setSelected(null)
+                    }
+                }}
                 onSave={handleSave}
             />
         </div>

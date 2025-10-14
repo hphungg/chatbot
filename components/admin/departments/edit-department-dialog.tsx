@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import {
     Dialog,
     DialogContent,
@@ -12,6 +13,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { updateDepartmentAction } from "@/app/api/admin/departments/actions"
 
 export interface EditableDepartment {
     id: string
@@ -34,8 +37,10 @@ export function EditDepartmentDialog({
     onOpenChange,
     onSave,
 }: EditDepartmentDialogProps) {
+    const router = useRouter()
     const [name, setName] = useState("")
     const [code, setCode] = useState("")
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         if (department) {
@@ -44,15 +49,31 @@ export function EditDepartmentDialog({
         }
     }, [department])
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        if (!department) return
-        onSave({
-            ...department,
-            name,
-            code: code.toUpperCase(),
-        })
-        onOpenChange(false)
+        if (loading || !department) return
+        setLoading(true)
+        try {
+            const result = await updateDepartmentAction({
+                departmentId: department.id,
+                name,
+                code: code.toUpperCase(),
+            })
+            if (result?.department) {
+                onSave(result.department)
+                toast.success("Đã cập nhật thông tin phòng ban")
+                onOpenChange(false)
+                router.refresh()
+            }
+        } catch (error) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Không thể cập nhật phòng ban. Vui lòng thử lại."
+            toast.error(message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -88,7 +109,7 @@ export function EditDepartmentDialog({
                                 id="admin-edit-dept-code"
                                 value={code}
                                 onChange={(event) =>
-                                    setCode(event.target.value)
+                                    setCode(event.target.value.toUpperCase())
                                 }
                                 className="uppercase"
                                 required
@@ -100,10 +121,13 @@ export function EditDepartmentDialog({
                             type="button"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
+                            disabled={loading}
                         >
                             Hủy
                         </Button>
-                        <Button type="submit">Lưu thay đổi</Button>
+                        <Button type="submit" disabled={loading}>
+                            {loading ? "Đang lưu..." : "Lưu thay đổi"}
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

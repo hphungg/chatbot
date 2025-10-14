@@ -1,12 +1,15 @@
 "use client"
 
-import { User, Department } from "@prisma/client"
 import { InviteUserDialog } from "@/components/admin/users/invite-user-dialog"
 import { AdminUsersTable } from "@/components/admin/users/admin-users-table"
+import type {
+    AdminUserRecord,
+    AdminDepartmentRecord,
+} from "@/app/api/admin/queries"
 
 interface AdminUsersSectionProps {
-    users: User[]
-    departments: Department[]
+    users: AdminUserRecord[]
+    departments: AdminDepartmentRecord[]
 }
 
 export function AdminUsersSection({
@@ -21,8 +24,7 @@ export function AdminUsersSection({
                         Quản lý người dùng
                     </h1>
                     <p className="text-muted-foreground">
-                        Xem và điều chỉnh thông tin người dùng trong toàn bộ tổ
-                        chức.
+                        Xem và điều chỉnh thông tin người dùng.
                     </p>
                 </div>
                 <InviteUserDialog />

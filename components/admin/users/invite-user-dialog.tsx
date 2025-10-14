@@ -11,6 +11,8 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import {
     Select,
     SelectContent,
@@ -18,8 +20,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
 interface InviteUserDialogProps {
@@ -38,20 +38,36 @@ export function InviteUserDialog({
 }: InviteUserDialogProps) {
     const [open, setOpen] = useState(false)
     const [email, setEmail] = useState("")
-    const [role, setRole] = useState("employee")
+    const [role, setRole] = useState(roles[0].value)
     const [loading, setLoading] = useState(false)
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        if (!email) return
+        const trimmedEmail = email.trim().toLowerCase()
+        if (!trimmedEmail) return
         setLoading(true)
-        setTimeout(() => {
-            toast.success("Đã tạo lời mời gửi tới " + email)
+        try {
+            const response = await fetch("/api/admin/invite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: trimmedEmail, role }),
+            })
+            const result = await response.json().catch(() => null)
+            if (!response.ok) {
+                const message = result?.error ?? "Không thể gửi lời mời"
+                throw new Error(message)
+            }
+            toast.success(`Đã gửi lời mời tới ${trimmedEmail}`)
             setEmail("")
-            setRole("employee")
-            setLoading(false)
+            setRole(roles[0].value)
             setOpen(false)
-        }, 600)
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : "Không thể gửi lời mời"
+            toast.error(message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -64,44 +80,44 @@ export function InviteUserDialog({
                     <DialogHeader>
                         <DialogTitle>Mời người dùng mới</DialogTitle>
                         <DialogDescription>
-                            Nhập địa chỉ email và vai trò để gửi lời mời tham
-                            gia.
+                            Gửi lời mời tới email của người dùng mới.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3">
-                        <div className="space-y-2">
-                            <Label htmlFor="admin-invite-email">Email</Label>
-                            <Input
-                                id="admin-invite-email"
-                                type="email"
-                                placeholder="example@company.com"
-                                value={email}
-                                onChange={(event) =>
-                                    setEmail(event.target.value)
-                                }
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Vai trò</Label>
-                            <Select value={role} onValueChange={setRole}>
-                                <SelectTrigger id="admin-invite-role">
-                                    <SelectValue placeholder="Chọn vai trò" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {roles.map((item) => (
-                                        <SelectItem
-                                            key={item.value}
-                                            value={item.value}
-                                        >
-                                            {item.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        <Label htmlFor="invite-email">Email</Label>
+                        <Input
+                            id="invite-email"
+                            type="email"
+                            placeholder="example@company.com"
+                            value={email}
+                            onChange={(event) => setEmail(event.target.value)}
+                            required
+                            disabled={loading}
+                        />
                     </div>
-                    <DialogFooter className="gap-2 sm:gap-0">
+                    <div className="space-y-3">
+                        <Label htmlFor="invite-role">Vai trò</Label>
+                        <Select
+                            value={role}
+                            onValueChange={setRole}
+                            disabled={loading}
+                        >
+                            <SelectTrigger id="invite-role">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {roles.map((option) => (
+                                    <SelectItem
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <DialogFooter className="gap-2">
                         <Button
                             type="button"
                             variant="outline"
