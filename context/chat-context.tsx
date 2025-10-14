@@ -1,7 +1,7 @@
 "use client"
 
-import { Chat, Group } from "@prisma/client"
-import { createContext, useContext, ReactNode, useState } from "react"
+import { Chat, Group, User } from "@prisma/client"
+import { createContext, useContext, ReactNode, useMemo, useState } from "react"
 
 interface ChatContextType {
     chatHistory: Chat[]
@@ -14,13 +14,24 @@ interface ChatContextType {
     removeGroups: (groupId: string) => void
     open: GroupDialogType | null
     setOpen: (str: GroupDialogType | null) => void
+    currentUser: ChatContextUser | null
+}
+
+type ChatContextUser = Pick<User, "id" | "displayName" | "name"> & {
+    image?: string | null
 }
 
 type GroupDialogType = "create-group" | "edit" | "delete" | "view"
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
 
-export function ChatProvider({ children }: { children: ReactNode }) {
+export function ChatProvider({
+    children,
+    user,
+}: {
+    children: ReactNode
+    user: ChatContextUser
+}) {
     const [chatHistory, setChatHistory] = useState<Chat[]>([])
     const [groups, setGroups] = useState<Group[]>([])
     const [open, setOpen] = useState<GroupDialogType | null>(null)
@@ -61,6 +72,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         )
     }
 
+    const contextUser = useMemo(() => user ?? null, [user])
+
     return (
         <ChatContext.Provider
             value={{
@@ -74,6 +87,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                 removeGroups,
                 open,
                 setOpen,
+                currentUser: contextUser,
             }}
         >
             {children}

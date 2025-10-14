@@ -50,7 +50,10 @@ export function ChatInput({
     }, [chatId, input, setInput, sendMessage, width])
 
     return (
-        <PromptInput onSubmit={handleSubmit} className="max-w-3xl shadow-md">
+        <PromptInput
+            onSubmit={handleSubmit}
+            className="max-w-3xl border-2 shadow-md"
+        >
             <PromptInputBody>
                 <PromptInputTextarea
                     autoFocus
@@ -59,7 +62,7 @@ export function ChatInput({
                     onChange={(e) => setInput(e.target.value)}
                     value={input}
                     placeholder="Hỏi một câu nào đó..."
-                    className="p-4 !text-[16px] !leading-relaxed"
+                    className="p-4 !text-lg !leading-relaxed"
                 />
             </PromptInputBody>
             <PromptInputToolbar>

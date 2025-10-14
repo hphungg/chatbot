@@ -1,3 +1,5 @@
+"use client"
+
 import { UIMessage } from "ai"
 import { UseChatHelpers } from "@ai-sdk/react"
 import {
@@ -6,11 +8,17 @@ import {
     ConversationEmptyState,
     ConversationScrollButton,
 } from "@/components/ai-elements/conversation"
-import { MessageSquare } from "lucide-react"
-import { Message, MessageContent } from "@/components/ai-elements/message"
+import { BotIcon, MessageSquare } from "lucide-react"
+import {
+    Message,
+    MessageAvatar,
+    MessageContent,
+} from "@/components/ai-elements/message"
 import { Response } from "@/components/ai-elements/response"
 import { cn } from "@/lib/utils"
 import { Spinner } from "../ui/spinner"
+import { Avatar, AvatarFallback } from "../ui/avatar"
+import { useChatContext } from "@/context/chat-context"
 
 interface ChatConversationProps {
     messages: UIMessage[]
@@ -18,7 +26,10 @@ interface ChatConversationProps {
 }
 
 export function ChatConversation({ messages, status }: ChatConversationProps) {
+    const { currentUser } = useChatContext()
     const hasMessages = messages.length > 0
+    const userAvatarSrc = currentUser?.image ?? ""
+    const userAvatarName = currentUser?.displayName ?? currentUser?.name ?? ""
 
     return (
         <Conversation className="h-full">
@@ -40,10 +51,10 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                                     : "contained"
                             }
                             className={cn(
-                                "text-[16px] leading-relaxed",
+                                "leading-relaxed md:text-lg",
                                 message.role === "assistant"
-                                    ? "p-1"
-                                    : "px-3 py-2",
+                                    ? "p-2"
+                                    : "rounded-full px-4 py-2",
                             )}
                         >
                             {message.parts.map((part, i) => {
@@ -61,6 +72,13 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                                 }
                             })}
                         </MessageContent>
+                        {message.role === "user" && (
+                            <MessageAvatar
+                                src={userAvatarSrc}
+                                name={userAvatarName}
+                                className="size-8 md:size-10"
+                            />
+                        )}
                     </Message>
                 ))}
                 {status === "submitted" && (
@@ -69,7 +87,7 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                     </div>
                 )}
             </ConversationContent>
-            <ConversationScrollButton />
+            <ConversationScrollButton className="border-2 border-gray-500" />
         </Conversation>
     )
 }

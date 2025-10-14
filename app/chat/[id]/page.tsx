@@ -18,7 +18,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
     return (
         <div>
-            <ChatHeader />
+            <ChatHeader title={chat.title ?? "Cuộc trò chuyện mới"} />
             <Chat id={id} initialMessages={uiMessages} />
         </div>
     )

@@ -2,20 +2,21 @@
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
 
 type ChatHeaderProps = React.HTMLAttributes<HTMLElement> & {
     fixed?: boolean
-    ref?: React.Ref<HTMLElement>
+    title?: string
 }
 
 export function ChatHeader({
     className,
     fixed,
     children,
+    title,
     ...props
 }: ChatHeaderProps) {
-    const [offset, setOffset] = useState(0)
+    const heading =
+        title && title.trim().length > 0 ? title : "Cuộc trò chuyện mới"
     return (
         <header
             className={cn(
@@ -27,6 +28,10 @@ export function ChatHeader({
         >
             <div className="relative flex h-full items-center gap-3 border-b p-4 sm:gap-4">
                 <SidebarTrigger variant="outline" />
+                <span className="text-lg leading-none font-bold">
+                    {heading}
+                </span>
+                {children}
             </div>
         </header>
     )

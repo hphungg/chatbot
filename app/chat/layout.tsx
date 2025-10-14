@@ -26,9 +26,15 @@ export default async function ChatLayout({
     }
 
     const user = session.user
+    const chatUser = {
+        id: user.id,
+        displayName: user.displayName,
+        name: user.name,
+        image: user.image ?? null,
+    }
     return (
         <SidebarProvider defaultOpen={true}>
-            <ChatProvider>
+            <ChatProvider user={chatUser}>
                 <ChatSidebar user={user} />
                 <SidebarInset
                     className={cn(

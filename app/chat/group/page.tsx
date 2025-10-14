@@ -7,7 +7,7 @@ export default async function Page() {
 
     return (
         <div>
-            <ChatHeader />
+            <ChatHeader title="Nhóm chat" />
             <Group id={id} />
         </div>
     )

@@ -7,7 +7,7 @@ export default async function Page() {
 
     return (
         <div>
-            <ChatHeader />
+            <ChatHeader title="Cuộc trò chuyện mới" />
             <Chat id={id} />
         </div>
     )
