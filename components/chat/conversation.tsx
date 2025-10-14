@@ -55,7 +55,7 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                                 "leading-relaxed md:text-lg",
                                 message.role === "assistant"
                                     ? "p-2"
-                                    : "rounded-full px-4 py-2",
+                                    : "px-4 py-2",
                             )}
                         >
                             {message.parts.map((part, i) => {
