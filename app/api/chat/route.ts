@@ -1,22 +1,9 @@
 import { auth } from "@/lib/auth"
 import { openai } from "@ai-sdk/openai"
-import {
-    streamText,
-    convertToModelMessages,
-    UIMessage,
-    createUIMessageStream,
-    smoothStream,
-    createUIMessageStreamResponse,
-} from "ai"
+import { streamText, convertToModelMessages, UIMessage, smoothStream } from "ai"
 import { headers } from "next/headers"
-import {
-    deleteChatById,
-    getChatById,
-    getMessagesByChatId,
-    saveChat,
-    saveMessages,
-} from "./queries"
-import { convertToUIMessages, generateTitle } from "@/lib/ai/actions"
+import { deleteChatById, getChatById, saveChat, saveMessages } from "./queries"
+import { generateTitle } from "@/lib/ai/actions"
 import { generateUUID } from "@/lib/utils"
 
 export const maxDuration = 30
@@ -36,10 +23,10 @@ export async function POST(request: Request) {
 
     const {
         chatId,
-        message,
+        messages,
     }: {
         chatId: string
-        message: UIMessage
+        messages: UIMessage[]
     } = await request.json()
 
     const chat = await getChatById(chatId)
@@ -49,66 +36,36 @@ export async function POST(request: Request) {
             return new Response("Chat not found", { status: 404 })
         }
     } else {
+        const message = messages.at(0)
         const title = await generateTitle({ message })
         await saveChat(chatId, title, user.id)
     }
 
-    const prevMessages = await getMessagesByChatId(chatId)
-    const uiMessages = [
-        ...convertToUIMessages({ messages: prevMessages }),
-        message,
-    ]
-
-    await saveMessages({
-        messages: [
-            {
-                id: message.id,
-                chatId: chatId,
-                role: "user",
-                parts: JSON.parse(JSON.stringify(message.parts)),
-                attachments: [],
-                createdAt: new Date(),
-            },
-        ],
+    const result = streamText({
+        model: openai("gpt-4o"),
+        messages: convertToModelMessages(messages),
+        experimental_transform: smoothStream({
+            chunking: "word",
+            delayInMs: 10,
+        }),
     })
 
-    const stream = createUIMessageStream({
-        execute: ({ writer: dataStream }) => {
-            const result = streamText({
-                model: openai("gpt-4o"),
-                messages: convertToModelMessages(uiMessages),
-                experimental_transform: smoothStream({
-                    delayInMs: 10,
-                    chunking: "word",
-                }),
-            })
-
-            result.consumeStream()
-
-            dataStream.merge(
-                result.toUIMessageStream({
-                    sendReasoning: true,
-                }),
-            )
-        },
-        generateId: generateUUID,
-        onFinish: async ({ messages }) => {
-            await saveMessages({
-                messages: messages.map((currentMessage) => ({
-                    id: currentMessage.id,
-                    role: currentMessage.role,
+    return result.toUIMessageStreamResponse({
+        sendReasoning: true,
+        originalMessages: messages,
+        onFinish: ({ messages }) => {
+            saveMessages({
+                messages: messages.slice(-2).map((msg) => ({
+                    id: msg.id === "" ? generateUUID() : msg.id,
+                    role: msg.role,
                     chatId: chatId,
-                    parts: JSON.parse(JSON.stringify(currentMessage.parts)),
+                    parts: JSON.parse(JSON.stringify(msg.parts)),
                     attachments: [],
                     createdAt: new Date(),
                 })),
             })
         },
-        onError: () => {
-            return "Oops, something went wrong. Please try again."
-        },
     })
-    return createUIMessageStreamResponse({ stream })
 }
 
 export async function DELETE(request: Request) {

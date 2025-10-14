@@ -40,8 +40,8 @@ import { getGroupsByUserId } from "@/app/api/group/queries"
 
 export function ChatSidebar({ user }: { user: any }) {
     const {
-        chats,
-        setChats,
+        chatHistory,
+        setChatHistory,
         removeChat,
         groups,
         setGroups,
@@ -56,7 +56,7 @@ export function ChatSidebar({ user }: { user: any }) {
         async function fetchChats() {
             try {
                 const response = await getChatsByUserId(user.id)
-                setChats(response)
+                setChatHistory(response)
             } catch (error) {
                 console.error("Error fetching chats:", error)
             }
@@ -71,7 +71,7 @@ export function ChatSidebar({ user }: { user: any }) {
         }
         fetchGroups()
         fetchChats()
-    }, [user.id, setChats])
+    }, [user.id, setChatHistory])
 
     useEffect(() => {
         async function fetchGroups() {
@@ -190,7 +190,7 @@ export function ChatSidebar({ user }: { user: any }) {
                     <SidebarGroupLabel>Cuộc trò chuyện</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {chats.map((chat) => {
+                            {chatHistory.map((chat) => {
                                 const isActive = pathname === `/chat/${chat.id}`
                                 return (
                                     <SidebarMenuItem key={chat.id}>

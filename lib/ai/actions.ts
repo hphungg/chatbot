@@ -3,7 +3,12 @@ import { Message } from "@prisma/client"
 import { generateText, UIDataTypes, UIMessage, UIMessagePart } from "ai"
 import { formatISO } from "date-fns"
 
-export async function generateTitle({ message }: { message: UIMessage }) {
+export async function generateTitle({
+    message,
+}: {
+    message: UIMessage | undefined
+}) {
+    if (!message) return "Cuộc trò chuyện mới"
     const { text: title } = await generateText({
         model: openai("gpt-3.5-turbo"),
         system: `\n

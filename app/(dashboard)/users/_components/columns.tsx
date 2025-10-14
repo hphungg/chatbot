@@ -7,11 +7,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 const getRoleText = (role: string) => {
     switch (role) {
         case "admin":
-            return "Quản trị viên"
+            return "Quản lý"
         case "employee":
             return "Nhân viên"
-        case "director":
-            return "Giám đốc"
         default:
             return "Không xác định"
     }
@@ -86,11 +84,11 @@ export const usersColumns: ColumnDef<User>[] = [
         cell: ({ row }) => <div>{getRoleText(row.getValue("role"))}</div>,
     },
     {
-        accessorKey: "isVerified",
+        accessorKey: "userVerified",
         header: "Trạng thái",
         cell: ({ row }) => (
             <div>
-                {row.getValue("isVerified") ? "Đã duyệt" : "Chưa được duyệt"}
+                {row.getValue("userVerified") ? "Đã duyệt" : "Chưa duyệt"}
             </div>
         ),
     },

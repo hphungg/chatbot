@@ -50,12 +50,7 @@ export function ChatInput({
     }, [chatId, input, setInput, sendMessage, width])
 
     return (
-        <PromptInput
-            onSubmit={handleSubmit}
-            globalDrop
-            multiple
-            className="max-w-3xl shadow-md"
-        >
+        <PromptInput onSubmit={handleSubmit} className="max-w-3xl shadow-md">
             <PromptInputBody>
                 <PromptInputTextarea
                     autoFocus

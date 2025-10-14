@@ -128,14 +128,16 @@ export async function saveMessages({ messages }: { messages: Message[] }) {
     if (!user) throw new Error("Unauthorized")
 
     try {
-        const result = await prisma.message.createMany({
-            data: messages.map((msg) => ({
-                ...msg,
-                parts: msg.parts ?? {},
-                attachments: msg.attachments ?? [],
-            })),
-        })
-        return result
+        for (const msg of messages) {
+            await prisma.message.create({
+                data: {
+                    ...msg,
+                    parts: msg.parts ?? {},
+                    attachments: msg.attachments ?? [],
+                },
+            })
+        }
+        return true
     } catch (error) {
         console.error("Error saving messages:", error)
         throw new Error("Failed to save messages")

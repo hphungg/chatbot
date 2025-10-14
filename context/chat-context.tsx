@@ -4,8 +4,8 @@ import { Chat, Group } from "@prisma/client"
 import { createContext, useContext, ReactNode, useState } from "react"
 
 interface ChatContextType {
-    chats: Chat[]
-    setChats: React.Dispatch<React.SetStateAction<Chat[]>>
+    chatHistory: Chat[]
+    setChatHistory: React.Dispatch<React.SetStateAction<Chat[]>>
     addChat: (chat: Chat) => void
     removeChat: (chatId: string) => void
     groups: Group[]
@@ -21,12 +21,12 @@ type GroupDialogType = "create-group" | "edit" | "delete" | "view"
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
 
 export function ChatProvider({ children }: { children: ReactNode }) {
-    const [chats, setChats] = useState<Chat[]>([])
+    const [chatHistory, setChatHistory] = useState<Chat[]>([])
     const [groups, setGroups] = useState<Group[]>([])
     const [open, setOpen] = useState<GroupDialogType | null>(null)
 
     const addChat = (chat: Chat) => {
-        setChats((prevChats) => {
+        setChatHistory((prevChats) => {
             const exists = prevChats.some(
                 (existingChat) => existingChat.id === chat.id,
             )
@@ -50,7 +50,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
 
     const removeChat = (chatId: string) => {
-        setChats((prevChats) => prevChats.filter((chat) => chat.id !== chatId))
+        setChatHistory((prevChats) =>
+            prevChats.filter((chat) => chat.id !== chatId),
+        )
     }
 
     const removeGroups = (groupId: string) => {
@@ -62,8 +64,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     return (
         <ChatContext.Provider
             value={{
-                chats,
-                setChats,
+                chatHistory,
+                setChatHistory,
                 addChat,
                 removeChat,
                 groups,

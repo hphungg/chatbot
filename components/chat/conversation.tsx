@@ -9,8 +9,8 @@ import {
 import { MessageSquare } from "lucide-react"
 import { Message, MessageContent } from "@/components/ai-elements/message"
 import { Response } from "@/components/ai-elements/response"
-import { Loader } from "@/components/ai-elements/loader"
 import { cn } from "@/lib/utils"
+import { Spinner } from "../ui/spinner"
 
 interface ChatConversationProps {
     messages: UIMessage[]
@@ -41,7 +41,9 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                             }
                             className={cn(
                                 "text-[16px] leading-relaxed",
-                                message.role === "assistant" ? "p-1" : "p-2",
+                                message.role === "assistant"
+                                    ? "p-1"
+                                    : "px-3 py-2",
                             )}
                         >
                             {message.parts.map((part, i) => {
@@ -61,7 +63,11 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                         </MessageContent>
                     </Message>
                 ))}
-                {status === "submitted" && <Loader className="mt-4" />}
+                {status === "submitted" && (
+                    <div className="flex flex-row items-center gap-2">
+                        <Spinner /> Đang nghĩ...
+                    </div>
+                )}
             </ConversationContent>
             <ConversationScrollButton />
         </Conversation>

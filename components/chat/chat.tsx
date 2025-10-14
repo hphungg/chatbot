@@ -17,7 +17,7 @@ interface ChatProps {
 export function Chat({ id, initialMessages = [] }: ChatProps) {
     const { addChat } = useChatContext()
     const [input, setInput] = useState<string>("")
-    const [chatCreated, setChatCreated] = useState(initialMessages.length > 0)
+    const [hasChat, setHasChat] = useState(initialMessages.length > 0)
 
     const { messages, sendMessage, status } = useChat({
         id,
@@ -29,22 +29,18 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
                 return {
                     body: {
                         chatId: request.id,
-                        message: request.messages.at(-1),
+                        messages: [...request.messages],
                         ...request.body,
                     },
                 }
             },
         }),
         onFinish: async () => {
-            if (!chatCreated && initialMessages.length === 0) {
-                try {
-                    const newChat = await getChatById(id)
-                    if (newChat) {
-                        addChat(newChat)
-                        setChatCreated(true)
-                    }
-                } catch (error) {
-                    console.error("Error fetching new chat:", error)
+            if (!hasChat) {
+                const newChat = await getChatById(id)
+                if (newChat) {
+                    addChat(newChat)
+                    setHasChat(true)
                 }
             }
         },
