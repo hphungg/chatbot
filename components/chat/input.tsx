@@ -1,6 +1,13 @@
 "use client"
 
-import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react"
+import {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+} from "react"
 import {
     PromptInput,
     PromptInputBody,
@@ -12,7 +19,7 @@ import {
 } from "../ai-elements/prompt-input"
 import { UIMessage, UseChatHelpers } from "@ai-sdk/react"
 import { useWindowSize } from "usehooks-ts"
-import { PlusIcon } from "lucide-react"
+import { FileIcon, ImageIcon, PlusIcon } from "lucide-react"
 
 interface ChatInputProps {
     chatId?: string
@@ -20,6 +27,16 @@ interface ChatInputProps {
     setInput: Dispatch<SetStateAction<string>>
     sendMessage: UseChatHelpers<UIMessage>["sendMessage"]
     status: UseChatHelpers<UIMessage>["status"]
+}
+
+const formatFileSize = (size: number): string => {
+    if (size >= 1024 * 1024) {
+        return `${(size / (1024 * 1024)).toFixed(1)} MB`
+    }
+    if (size >= 1024) {
+        return `${Math.round(size / 1024)} KB`
+    }
+    return `${size} B`
 }
 
 export function ChatInput({
@@ -33,8 +50,19 @@ export function ChatInput({
     const { width } = useWindowSize()
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [files, setFiles] = useState<FileList | undefined>(undefined)
+    const selectedFiles = useMemo(
+        () => (files ? Array.from(files) : []),
+        [files],
+    )
 
     const handleSubmit = useCallback(() => {
+        const hasMessage = input.trim().length > 0
+        const hasFiles = Boolean(files && files.length > 0)
+
+        if (!hasMessage && !hasFiles) {
+            return
+        }
+
         window.history.replaceState({}, "", `/chat/${chatId}`)
 
         sendMessage({
@@ -43,18 +71,45 @@ export function ChatInput({
         })
         setInput("")
         setFiles(undefined)
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""
+        }
 
         if (width && width > 768) {
             textareaRef.current?.focus()
         }
-    }, [chatId, input, setInput, sendMessage, width])
+    }, [chatId, files, input, sendMessage, setInput, width])
 
     return (
         <PromptInput
             onSubmit={handleSubmit}
             className="max-w-3xl border-2 shadow-md"
         >
-            <PromptInputBody>
+            <PromptInputBody className="gap-2">
+                {selectedFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-3 px-6 pt-4">
+                        {selectedFiles.map((file) => (
+                            <div
+                                key={`${file.name}-${file.lastModified}`}
+                                className="flex min-w-0 items-center gap-3 rounded-lg border px-3 py-2 text-sm"
+                            >
+                                {file.type.startsWith("image/") ? (
+                                    <ImageIcon className="size-4 shrink-0" />
+                                ) : (
+                                    <FileIcon className="size-4 shrink-0" />
+                                )}
+                                <div className="flex min-w-0 flex-col">
+                                    <span className="truncate font-medium">
+                                        {file.name}
+                                    </span>
+                                    <span className="text-muted-foreground text-xs">
+                                        {formatFileSize(file.size)}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
                 <PromptInputTextarea
                     autoFocus
                     ref={textareaRef}
