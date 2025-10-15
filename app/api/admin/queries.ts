@@ -148,11 +148,7 @@ export async function inviteUser(payload: unknown): Promise<void> {
     if (existing) {
         throw new Error("Email already registered")
     }
-    const baseUrl =
-        process.env.APP_URL ||
-        process.env.NEXT_PUBLIC_APP_URL ||
-        process.env.VERCEL_URL ||
-        "http://localhost:3000"
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     const inviteLink = new URL(
         "/sign-in",
         baseUrl.startsWith("http") ? baseUrl : `https://${baseUrl}`,
