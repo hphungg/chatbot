@@ -1,6 +1,6 @@
 "use client"
 
-import { UIMessage } from "ai"
+import { FileUIPart, UIMessage } from "ai"
 import { UseChatHelpers } from "@ai-sdk/react"
 import {
     Conversation,
@@ -8,7 +8,7 @@ import {
     ConversationEmptyState,
     ConversationScrollButton,
 } from "@/components/ai-elements/conversation"
-import { MessageSquare } from "lucide-react"
+import { MessageSquare, Paperclip } from "lucide-react"
 import {
     Message,
     MessageAvatar,
@@ -42,45 +42,69 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                         icon={<MessageSquare className="size-12" />}
                     />
                 )}
-                {messages.map((message) => (
-                    <Message from={message.role} key={message.id}>
-                        <MessageContent
-                            variant={
-                                message.role === "assistant"
-                                    ? "flat"
-                                    : "contained"
+                {messages.map((message) => {
+                    const fileFromMessage = message.parts.filter(
+                        (part) => part.type === "file",
+                    )
+                    return (
+                        <div
+                            key={message.id}
+                            className={
+                                message.role === "user"
+                                    ? "flex flex-col items-end"
+                                    : "items-start"
                             }
-                            className={cn(
-                                "leading-relaxed md:text-lg",
-                                message.role === "assistant"
-                                    ? "p-2"
-                                    : "px-4 py-2",
-                            )}
                         >
-                            {message.parts.map((part, i) => {
-                                switch (part.type) {
-                                    case "text":
-                                        return (
-                                            <Response
-                                                key={`${message.id}-${i}`}
-                                            >
-                                                {part.text}
-                                            </Response>
-                                        )
-                                    default:
-                                        return null
-                                }
-                            })}
-                        </MessageContent>
-                        {message.role === "user" && (
-                            <MessageAvatar
-                                src={userAvatarSrc}
-                                name={userAvatarName}
-                                className="size-8 md:size-10"
-                            />
-                        )}
-                    </Message>
-                ))}
+                            {fileFromMessage.length > 0 && (
+                                <div className="mr-10 mb-[-10] w-fit md:mr-12">
+                                    {fileFromMessage.map((part, i) => (
+                                        <FileAttachmentPreview
+                                            key={`${message.id}-file-${i}`}
+                                            part={part as FileUIPart}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                            <Message from={message.role} key={message.id}>
+                                <MessageContent
+                                    variant={
+                                        message.role === "assistant"
+                                            ? "flat"
+                                            : "contained"
+                                    }
+                                    className={cn(
+                                        "leading-relaxed md:text-lg",
+                                        message.role === "assistant"
+                                            ? "p-2"
+                                            : "px-4 py-2",
+                                    )}
+                                >
+                                    {message.parts.map((part, i) => {
+                                        switch (part.type) {
+                                            case "text":
+                                                return (
+                                                    <Response
+                                                        key={`${message.id}-${i}`}
+                                                    >
+                                                        {part.text}
+                                                    </Response>
+                                                )
+                                            default:
+                                                return null
+                                        }
+                                    })}
+                                </MessageContent>
+                                {message.role === "user" && (
+                                    <MessageAvatar
+                                        src={userAvatarSrc}
+                                        name={userAvatarName}
+                                        className="size-8 md:size-10"
+                                    />
+                                )}
+                            </Message>
+                        </div>
+                    )
+                })}
                 {status === "submitted" && (
                     <div className="flex flex-row items-center">
                         <Spinner className="mr-2" />
@@ -92,5 +116,18 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
             </ConversationContent>
             <ConversationScrollButton className="border-2 border-gray-500" />
         </Conversation>
+    )
+}
+
+const FileAttachmentPreview = ({ part }: { part: FileUIPart }) => {
+    const candidateName = (part as Record<string, unknown>).name
+    const extraName =
+        typeof candidateName === "string" ? candidateName : undefined
+    const fileName = part.filename ?? extraName ?? "Tệp đính kèm"
+    return (
+        <div className="border-border bg-muted flex w-full max-w-64 items-center gap-2 rounded-md border px-3 py-2 text-sm md:max-w-none">
+            <Paperclip className="text-muted-foreground size-4" />
+            <span className="text-foreground flex-1 truncate">{fileName}</span>
+        </div>
     )
 }
