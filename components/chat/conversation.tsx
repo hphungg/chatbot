@@ -8,7 +8,7 @@ import {
     ConversationEmptyState,
     ConversationScrollButton,
 } from "@/components/ai-elements/conversation"
-import { BotIcon, MessageSquare } from "lucide-react"
+import { MessageSquare } from "lucide-react"
 import {
     Message,
     MessageAvatar,
@@ -17,7 +17,6 @@ import {
 import { Response } from "@/components/ai-elements/response"
 import { cn } from "@/lib/utils"
 import { Spinner } from "../ui/spinner"
-import { Avatar, AvatarFallback } from "../ui/avatar"
 import { useChatContext } from "@/context/chat-context"
 import { TextShimmer } from "../ui/text-shimmer"
 

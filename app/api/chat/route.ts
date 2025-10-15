@@ -36,7 +36,7 @@ export async function POST(request: Request) {
             return new Response("Chat not found", { status: 404 })
         }
     } else {
-        const message = messages.at(0)
+        const message = messages.at(-1)
         const title = await generateTitle({ message })
         await saveChat(chatId, title, user.id)
     }

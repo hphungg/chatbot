@@ -51,9 +51,9 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
 
     return (
         <div className="relative mx-auto h-[calc(100vh-4rem)] rounded-lg">
-            <div className="flex h-full flex-col p-2 pt-0">
+            <div className="flex h-full flex-col pb-2">
                 <ChatConversation messages={messages} status={status} />
-                <div className="flex w-full items-center justify-center bg-transparent pt-2">
+                <div className="flex w-full items-center justify-center bg-transparent pt-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                     <ChatInput
                         chatId={id}
                         input={input}
