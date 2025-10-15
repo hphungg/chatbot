@@ -22,6 +22,7 @@ import { DashboardIcon } from "@radix-ui/react-icons"
 export function SidebarUser({ user }: { user: any }) {
     const { isMobile } = useSidebar()
     const [open, setOpen] = useDialogState()
+    const triggerId = `trigger-${user?.id ?? "unknown"}`
 
     return (
         <>
@@ -29,7 +30,7 @@ export function SidebarUser({ user }: { user: any }) {
                 <SidebarMenuItem>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <SidebarMenuButton size="lg">
+                            <SidebarMenuButton size="lg" id={triggerId}>
                                 <Avatar className="h-8 w-8 rounded-full">
                                     <AvatarImage
                                         src={user.image as string}
