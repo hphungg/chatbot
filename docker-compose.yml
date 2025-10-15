@@ -40,7 +40,7 @@ services:
       - chatbot-network
     volumes:
       - ./prisma:/app/prisma
-    command: sh -c "pnpm prisma generate && pnpm seed && node server.js"
+    command: sh -c "node server.js"
 
   # Nginx Reverse Proxy
   nginx:
