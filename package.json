@@ -6,8 +6,7 @@
         "dev": "next dev --turbopack",
         "build": "next build --turbopack",
         "start": "next start",
-        "seed": "tsx prisma/seed.ts",
-        "lint": "next lint"
+        "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
         "@ai-sdk/openai": "^2.0.38",

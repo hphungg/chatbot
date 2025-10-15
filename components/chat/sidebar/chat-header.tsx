@@ -26,7 +26,7 @@ export function ChatHeader({
             )}
             {...props}
         >
-            <div className="relative flex h-full items-center gap-3 border-b p-4 shadow-[0_5px_10px_-2px_rgba(0,0,0,0.1)] sm:gap-4">
+            <div className="relative flex h-full items-center gap-3 border-b p-4 sm:gap-4">
                 <SidebarTrigger variant="outline" />
                 <span className="text-lg leading-none font-bold">
                     {heading}
