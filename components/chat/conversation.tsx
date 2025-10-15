@@ -82,8 +82,8 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                     </Message>
                 ))}
                 {status === "submitted" && (
-                    <div className="flex flex-row items-center gap-4">
-                        <Spinner />
+                    <div className="flex flex-row items-center">
+                        <Spinner className="mr-2" />
                         <TextShimmer className="text-lg" duration={1}>
                             Đang nghĩ...
                         </TextShimmer>

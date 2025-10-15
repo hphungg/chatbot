@@ -8,7 +8,6 @@ import { ChatConversation } from "./conversation"
 import { DefaultChatTransport, UIMessage } from "ai"
 import { useChatContext } from "@/context/chat-context"
 import { getChatById } from "@/app/api/chat/queries"
-import { useRouter } from "next/navigation"
 
 interface ChatProps {
     id: string
@@ -19,7 +18,6 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
     const { addChat } = useChatContext()
     const [input, setInput] = useState<string>("")
     const [hasChat, setHasChat] = useState(initialMessages.length > 0)
-    const router = useRouter()
 
     const { messages, sendMessage, status } = useChat({
         id,
@@ -43,7 +41,6 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
                 if (newChat) {
                     addChat(newChat)
                     setHasChat(true)
-                    router.refresh()
                 }
             }
         },
