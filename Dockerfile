@@ -37,12 +37,18 @@ RUN mkdir -p public
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+RUN pnpm prisma generate
+
+RUN pnpm seed
+
 # Build the application
 RUN pnpm build
 
 # Stage 3: Runner
 FROM node:20-alpine AS runner
 WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
