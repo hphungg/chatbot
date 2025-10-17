@@ -31,3 +31,64 @@
     - (Optional) Publish app để mọi tài khoản Google có thể truy cập, vào tab `Audience`, chọn **Publish app** và thực hiện các thủ tục để verify app.
 
 10. Đặt giá trị cho biến `OPENAI_API_KEY` bằng API key của OpenAI. [Xem hướng dẫn lấy API key tại đây](https://platform.openai.com/docs/quickstart).
+
+## 🚀 Production Deployment với Load Balancing
+
+Dự án hiện đã được nâng cấp với khả năng **load balancing** để cải thiện hiệu suất và độ tin cậy:
+
+### Tính năng mới:
+- ✅ **Phân phối tải** tự động qua nhiều instance ứng dụng
+- ✅ **Health checks** tự động phát hiện và loại bỏ instance không hoạt động
+- ✅ **Failover** tự động chuyển traffic sang instance khỏe mạnh
+- ✅ **Scaling** dễ dàng tăng/giảm số lượng instance
+- ✅ **Rate limiting** và resource management
+- ✅ **Zero-downtime deployment** strategy
+
+### Triển khai nhanh:
+
+```bash
+# Deploy với 3 replicas (mặc định)
+./deploy.sh
+
+# Deploy với số lượng replicas tùy chỉnh
+./deploy.sh --replicas 5
+
+# Monitor hệ thống
+./monitor.sh
+```
+
+### Scaling operations:
+
+```bash
+# Scale up (tăng số instance)
+docker compose up -d --scale app=5 --no-recreate
+
+# Scale down (giảm số instance)
+docker compose up -d --scale app=2 --no-recreate
+
+# Xem trạng thái
+docker compose ps
+```
+
+### Tài liệu chi tiết:
+- **[QUICK_START.md](QUICK_START.md)** - ⚡ Bắt đầu trong 5 phút
+- **[SERVER_REQUIREMENTS.md](SERVER_REQUIREMENTS.md)** - 💻 Yêu cầu server và chi phí
+- [DEPLOYMENT.md](DEPLOYMENT.md) - 📖 Hướng dẫn deployment đầy đủ
+- [LOAD_BALANCING.md](LOAD_BALANCING.md) - 🔧 Chi tiết kỹ thuật load balancing
+- [UPGRADE_SUMMARY.md](UPGRADE_SUMMARY.md) - 📋 Tổng quan các thay đổi
+- `./monitor.sh` - 📊 Script giám sát hệ thống
+- `./deploy.sh --help` - ❓ Xem tất cả options
+
+### Environment Variables mới:
+
+Thêm vào `.env.production`:
+```bash
+# Số lượng app replicas (default: 3)
+APP_REPLICAS=3
+```
+
+### Khuyến nghị theo traffic:
+- Traffic thấp (< 100 req/min): 2-3 replicas
+- Traffic trung bình (100-500 req/min): 3-5 replicas  
+- Traffic cao (500-1000 req/min): 5-8 replicas
+- Traffic rất cao (> 1000 req/min): 8+ replicas
