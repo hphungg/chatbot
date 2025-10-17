@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -36,7 +36,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { getGroupsByUserId } from "@/app/api/group/queries"
+import { getGroupsByUserId, deleteGroupById } from "@/app/api/group/queries"
 
 export function ChatSidebar({ user }: { user: any }) {
     const {
@@ -46,44 +46,45 @@ export function ChatSidebar({ user }: { user: any }) {
         groups,
         setGroups,
         removeGroups,
-        open,
         setOpen,
     } = useChatContext()
     const pathname = usePathname()
     const router = useRouter()
 
     useEffect(() => {
-        async function fetchChats() {
+        async function fetchData() {
             try {
-                const response = await getChatsByUserId(user.id)
-                setChatHistory(response)
+                const [chatsResponse, groupsResponse] = await Promise.all([
+                    getChatsByUserId(user.id),
+                    getGroupsByUserId(user.id),
+                ])
+                setChatHistory(chatsResponse)
+                setGroups(groupsResponse)
             } catch (error) {
-                console.error("Error fetching chats:", error)
+                console.error("Error loading chat data:", error)
             }
         }
-        async function fetchGroups() {
-            try {
-                const response = await getGroupsByUserId(user.id)
-                setGroups(response)
-            } catch (error) {
-                console.error("Error fetching groups:", error)
-            }
-        }
-        fetchGroups()
-        fetchChats()
-    }, [user.id, setChatHistory])
+        fetchData()
+    }, [user.id, setChatHistory, setGroups])
 
-    useEffect(() => {
-        async function fetchGroups() {
-            try {
-                const response = await getGroupsByUserId(user.id)
-                setGroups(response)
-            } catch (error) {
-                console.error("Error fetching groups:", error)
+    const groupChatMap = useMemo(() => {
+        const map = new Map<string, typeof chatHistory>()
+        chatHistory.forEach((chat) => {
+            if (!chat.groupId) {
+                return
             }
-        }
-        fetchGroups()
-    }, [user.id, setGroups])
+            if (!map.has(chat.groupId)) {
+                map.set(chat.groupId, [])
+            }
+            map.get(chat.groupId)?.push(chat)
+        })
+        return map
+    }, [chatHistory])
+
+    const individualChats = useMemo(
+        () => chatHistory.filter((chat) => !chat.groupId),
+        [chatHistory],
+    )
 
     const handleDeleteChat = async (chatId: string) => {
         try {
@@ -101,6 +102,30 @@ export function ChatSidebar({ user }: { user: any }) {
 
     const handleCreateGroupChat = () => {
         setOpen("create-group")
+    }
+
+    const handleDeleteGroup = async (groupId: string) => {
+        try {
+            await deleteGroupById(groupId)
+            removeGroups(groupId)
+            setChatHistory((prevChats) =>
+                prevChats.map((chat) =>
+                    chat.groupId === groupId
+                        ? {
+                              ...chat,
+                              groupId: null,
+                          }
+                        : chat,
+                ),
+            )
+            toast.success("Xóa dự án thành công")
+            if (pathname.startsWith(`/chat/group/${groupId}`)) {
+                router.push("/chat")
+            }
+        } catch (error) {
+            console.error("Error deleting group:", error)
+            toast.error("Xóa dự án thất bại")
+        }
     }
 
     return (
@@ -124,59 +149,175 @@ export function ChatSidebar({ user }: { user: any }) {
                         onClick={handleCreateGroupChat}
                     >
                         <Folder className="mr-2 size-4" />
-                        Tạo nhóm chat mới
+                        Tạo dự án mới
                     </Button>
                 </div>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup className="mt-1">
-                    <SidebarGroupLabel>Nhóm chat</SidebarGroupLabel>
+                    <SidebarGroupLabel>Dự án</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {groups.map((group) => {
-                                const isActive =
-                                    pathname === `/chat/${group.id}`
+                                const isActive = pathname.startsWith(
+                                    `/chat/group/${group.id}`,
+                                )
+                                const chatsInGroup =
+                                    groupChatMap.get(group.id) ?? []
+
                                 return (
                                     <Collapsible
-                                        defaultOpen={false}
+                                        defaultOpen={isActive}
                                         key={group.id}
                                     >
                                         <SidebarMenuItem>
-                                            <CollapsibleTrigger asChild>
-                                                <SidebarMenuButton
-                                                    asChild
-                                                    className="cursor-pointer"
-                                                >
-                                                    <Link href={`/chat/group`}>
-                                                        <span>
-                                                            {group.title}
-                                                        </span>
-                                                    </Link>
-                                                </SidebarMenuButton>
-                                            </CollapsibleTrigger>
-                                            <CollapsibleContent>
-                                                <SidebarMenuSub>
-                                                    <SidebarMenuSubItem
-                                                        key={group.id}
+                                            <div className="flex items-center">
+                                                <CollapsibleTrigger asChild>
+                                                    <SidebarMenuButton
+                                                        asChild
+                                                        className={
+                                                            isActive
+                                                                ? "bg-gray-200 hover:bg-gray-200"
+                                                                : ""
+                                                        }
                                                     >
-                                                        <SidebarMenuButton
-                                                            asChild
-                                                            className={
-                                                                isActive
-                                                                    ? "bg-gray-200 hover:bg-gray-200"
-                                                                    : ""
+                                                        <Link
+                                                            href={`/chat/group/${group.id}`}
+                                                        >
+                                                            <span>
+                                                                {group.title ||
+                                                                    "Dự án không có tiêu đề"}
+                                                            </span>
+                                                        </Link>
+                                                    </SidebarMenuButton>
+                                                </CollapsibleTrigger>
+
+                                                <DropdownMenu
+                                                    modal={true}
+                                                    defaultOpen={true}
+                                                >
+                                                    <DropdownMenuTrigger
+                                                        asChild
+                                                    >
+                                                        <SidebarMenuAction
+                                                            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground ml-1"
+                                                            showOnHover={
+                                                                !isActive
                                                             }
                                                         >
-                                                            <Link
-                                                                href={`/chat/${group.id}`}
-                                                            >
-                                                                <span>
-                                                                    {group.title ||
-                                                                        "Untitled Group"}
-                                                                </span>
-                                                            </Link>
-                                                        </SidebarMenuButton>
-                                                    </SidebarMenuSubItem>
+                                                            <MoreHorizontalIcon />
+                                                            <span className="sr-only">
+                                                                Thêm
+                                                            </span>
+                                                        </SidebarMenuAction>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent
+                                                        align="end"
+                                                        side="bottom"
+                                                    >
+                                                        <DropdownMenuItem
+                                                            className="text-destructive focus:bg-destructive/15 focus:text-destructive cursor-pointer dark:text-red-500"
+                                                            onSelect={() =>
+                                                                handleDeleteGroup(
+                                                                    group.id,
+                                                                )
+                                                            }
+                                                        >
+                                                            <TrashIcon />
+                                                            <span>
+                                                                Xóa dự án
+                                                            </span>
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+
+                                            <CollapsibleContent>
+                                                <SidebarMenuSub>
+                                                    {chatsInGroup.length ===
+                                                    0 ? (
+                                                        <SidebarMenuSubItem>
+                                                            <span className="text-muted-foreground px-2 text-sm">
+                                                                Chưa có cuộc trò
+                                                                chuyện
+                                                            </span>
+                                                        </SidebarMenuSubItem>
+                                                    ) : (
+                                                        chatsInGroup.map(
+                                                            (chat) => {
+                                                                const chatActive =
+                                                                    pathname ===
+                                                                    `/chat/${chat.id}`
+
+                                                                return (
+                                                                    <SidebarMenuSubItem
+                                                                        key={
+                                                                            chat.id
+                                                                        }
+                                                                    >
+                                                                        <div className="flex w-full items-center">
+                                                                            <SidebarMenuButton
+                                                                                asChild
+                                                                                className={
+                                                                                    chatActive
+                                                                                        ? "bg-gray-200 hover:bg-gray-200"
+                                                                                        : ""
+                                                                                }
+                                                                            >
+                                                                                <Link
+                                                                                    href={`/chat/${chat.id}`}
+                                                                                >
+                                                                                    <span>
+                                                                                        {chat.title ||
+                                                                                            "Untitled Chat"}
+                                                                                    </span>
+                                                                                </Link>
+                                                                            </SidebarMenuButton>
+                                                                            <DropdownMenu
+                                                                                modal={
+                                                                                    true
+                                                                                }
+                                                                            >
+                                                                                <DropdownMenuTrigger
+                                                                                    asChild
+                                                                                >
+                                                                                    <SidebarMenuAction
+                                                                                        className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground ml-1"
+                                                                                        showOnHover={
+                                                                                            !chatActive
+                                                                                        }
+                                                                                    >
+                                                                                        <MoreHorizontalIcon />
+                                                                                        <span className="sr-only">
+                                                                                            More
+                                                                                        </span>
+                                                                                    </SidebarMenuAction>
+                                                                                </DropdownMenuTrigger>
+                                                                                <DropdownMenuContent
+                                                                                    align="end"
+                                                                                    side="bottom"
+                                                                                >
+                                                                                    <DropdownMenuItem
+                                                                                        className="text-destructive focus:bg-destructive/15 focus:text-destructive cursor-pointer dark:text-red-500"
+                                                                                        onSelect={() =>
+                                                                                            handleDeleteChat(
+                                                                                                chat.id,
+                                                                                            )
+                                                                                        }
+                                                                                    >
+                                                                                        <TrashIcon />
+                                                                                        <span>
+                                                                                            Xóa
+                                                                                        </span>
+                                                                                    </DropdownMenuItem>
+                                                                                </DropdownMenuContent>
+                                                                            </DropdownMenu>
+                                                                        </div>
+                                                                    </SidebarMenuSubItem>
+                                                                )
+                                                            },
+                                                        )
+                                                    )}
                                                 </SidebarMenuSub>
                                             </CollapsibleContent>
                                         </SidebarMenuItem>
@@ -190,7 +331,7 @@ export function ChatSidebar({ user }: { user: any }) {
                     <SidebarGroupLabel>Cuộc trò chuyện</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {chatHistory.map((chat) => {
+                            {individualChats.map((chat) => {
                                 const isActive = pathname === `/chat/${chat.id}`
                                 return (
                                     <SidebarMenuItem key={chat.id}>

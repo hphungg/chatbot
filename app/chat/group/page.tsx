@@ -1,14 +1,12 @@
 import { ChatHeader } from "@/components/chat/sidebar/chat-header"
-import { Group } from "@/components/group/group"
-import { generateUUID } from "@/lib/utils"
 
-export default async function Page() {
-    const id = generateUUID()
-
+export default function Page() {
     return (
-        <div>
-            <ChatHeader title="Nhóm chat" />
-            <Group id={id} />
+        <div className="space-y-6">
+            <ChatHeader title="Dự án" />
+            <div className="text-muted-foreground px-6 text-sm">
+                Chọn một dự án trên thanh điều hướng.
+            </div>
         </div>
     )
 }

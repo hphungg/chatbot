@@ -20,9 +20,9 @@ import {
 import { UIMessage, UseChatHelpers } from "@ai-sdk/react"
 import { useWindowSize } from "usehooks-ts"
 import { FileIcon, ImageIcon, PlusIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface ChatInputProps {
-    chatId?: string
     input: string
     setInput: Dispatch<SetStateAction<string>>
     sendMessage: UseChatHelpers<UIMessage>["sendMessage"]
@@ -40,7 +40,6 @@ const formatFileSize = (size: number): string => {
 }
 
 export function ChatInput({
-    chatId,
     input,
     setInput,
     status,
@@ -54,6 +53,7 @@ export function ChatInput({
         () => (files ? Array.from(files) : []),
         [files],
     )
+    const router = useRouter()
 
     const handleSubmit = useCallback(() => {
         const hasMessage = input.trim().length > 0
@@ -62,8 +62,6 @@ export function ChatInput({
         if (!hasMessage && !hasFiles) {
             return
         }
-
-        window.history.replaceState({}, "", `/chat/${chatId}`)
 
         sendMessage({
             text: input,
@@ -78,7 +76,7 @@ export function ChatInput({
         if (width && width > 768) {
             textareaRef.current?.focus()
         }
-    }, [chatId, files, input, sendMessage, setInput, width])
+    }, [files, input, router, sendMessage, setInput, width])
 
     return (
         <PromptInput

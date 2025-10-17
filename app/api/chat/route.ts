@@ -24,9 +24,11 @@ export async function POST(request: Request) {
     const {
         chatId,
         messages,
+        groupId,
     }: {
         chatId: string
         messages: UIMessage[]
+        groupId?: string
     } = await request.json()
 
     const chat = await getChatById(chatId)
@@ -38,13 +40,12 @@ export async function POST(request: Request) {
     } else {
         const message = messages.at(-1)
         const title = await generateTitle({ message })
-        await saveChat(chatId, title, user.id)
+        await saveChat(chatId, title, user.id, groupId)
     }
 
     const result = streamText({
         model: openai("gpt-4.1"),
-        system: `You are an assistant named MavenXCore, working for the company MavenXCore Your mission is to help employees manage and handle their work more efficiently.
-Whenever you receive a greeting, you must politely greet back and ask about the current work situation in the company.`,
+        system: `You are an assistant named MavenXCore, working for the company MavenXCore Your mission is to help employees manage and handle their work more efficiently.`,
         messages: convertToModelMessages(messages),
         experimental_transform: smoothStream({
             chunking: "word",

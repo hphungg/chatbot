@@ -3,7 +3,6 @@
 import { useChatContext } from "@/context/chat-context"
 import { ChatInput } from "../chat/input"
 import { useState } from "react"
-import { Attachment } from "@/lib/types"
 import { useChat } from "@ai-sdk/react"
 import { generateUUID } from "@/lib/utils"
 import { DefaultChatTransport } from "ai"
@@ -16,9 +15,8 @@ interface GroupProps {
 export function Group({ id }: GroupProps) {
     const { addChat } = useChatContext()
     const [input, setInput] = useState<string>("")
-    const [attachments, setAttachments] = useState<Attachment[]>([])
 
-    const { messages, setMessages, sendMessage, status, stop } = useChat({
+    const { sendMessage, status } = useChat({
         id,
         messages: [],
         generateId: generateUUID,
@@ -53,16 +51,10 @@ export function Group({ id }: GroupProps) {
                     Start creating new chat in this group
                 </span>
                 <ChatInput
-                    chatId={id}
                     input={input}
                     setInput={setInput}
-                    messages={messages}
-                    setMessages={setMessages}
                     sendMessage={sendMessage}
                     status={status}
-                    stop={stop}
-                    attachments={attachments}
-                    setAttachments={setAttachments}
                 />
             </div>
         </div>

@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { useChatContext } from "@/context/chat-context"
 import { createGroupChat } from "@/app/api/group/queries"
 import { useRouter } from "next/navigation"
@@ -48,7 +47,6 @@ export function CreateGroupDialog() {
             toast.success("Group chat created successfully!")
             handleClose()
             addGroups(group)
-            router.push(`/chat`)
         } catch (error) {
             console.error("Error creating group chat:", error)
             toast.error("Failed to create group chat")

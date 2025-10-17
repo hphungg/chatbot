@@ -12,9 +12,10 @@ import { getChatById } from "@/app/api/chat/queries"
 interface ChatProps {
     id: string
     initialMessages?: UIMessage[]
+    groupId?: string
 }
 
-export function Chat({ id, initialMessages = [] }: ChatProps) {
+export function Chat({ id, initialMessages = [], groupId }: ChatProps) {
     const { addChat } = useChatContext()
     const [input, setInput] = useState<string>("")
     const [hasChat, setHasChat] = useState(initialMessages.length > 0)
@@ -26,10 +27,14 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
         transport: new DefaultChatTransport({
             api: "/api/chat",
             prepareSendMessagesRequest(request) {
+                const baseBody = {
+                    chatId: request.id,
+                    messages: [...request.messages],
+                }
                 return {
                     body: {
-                        chatId: request.id,
-                        messages: [...request.messages],
+                        ...baseBody,
+                        ...(groupId ? { groupId } : {}),
                         ...request.body,
                     },
                 }
@@ -52,7 +57,6 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
                 <ChatConversation messages={messages} status={status} />
                 <div className="flex w-full items-center justify-center bg-transparent pt-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                     <ChatInput
-                        chatId={id}
                         input={input}
                         setInput={setInput}
                         sendMessage={sendMessage}

@@ -72,6 +72,24 @@ export async function getGroupsByUserId(userId: string) {
     }
 }
 
+export async function getGroupById(groupId: string) {
+    const user = await authenticate()
+    if (!user) throw new Error("Unauthorized")
+
+    try {
+        const group = await prisma.group.findFirst({
+            where: {
+                id: groupId,
+                userId: user.id,
+            },
+        })
+        return group
+    } catch (error) {
+        console.error("Error fetching group:", error)
+        throw new Error("Failed to fetch group")
+    }
+}
+
 export async function deleteGroupById(groupId: string) {
     const user = await authenticate()
     if (!user) throw new Error("Unauthorized")
