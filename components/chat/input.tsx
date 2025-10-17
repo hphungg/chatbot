@@ -144,7 +144,7 @@ export function ChatInput({
 
                 <PromptInputSubmit
                     disabled={!input && !status}
-                    status={status}
+                    status={status === "streaming" ? "streaming" : "ready"}
                 />
             </PromptInputToolbar>
         </PromptInput>

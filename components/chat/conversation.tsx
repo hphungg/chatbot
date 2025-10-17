@@ -19,6 +19,11 @@ import { cn } from "@/lib/utils"
 import { Spinner } from "../ui/spinner"
 import { useChatContext } from "@/context/chat-context"
 import { TextShimmer } from "../ui/text-shimmer"
+import {
+    Reasoning,
+    ReasoningContent,
+    ReasoningTrigger,
+} from "../ai-elements/reasoning"
 
 interface ChatConversationProps {
     messages: UIMessage[]
@@ -88,6 +93,29 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                                                     >
                                                         {part.text}
                                                     </Response>
+                                                )
+                                            case "reasoning":
+                                                return (
+                                                    <Reasoning
+                                                        key={`${message.id}-${i}`}
+                                                        className="w-full"
+                                                        isStreaming={
+                                                            status ===
+                                                                "streaming" &&
+                                                            i ===
+                                                                message.parts
+                                                                    .length -
+                                                                    1 &&
+                                                            message.id ===
+                                                                messages.at(-1)
+                                                                    ?.id
+                                                        }
+                                                    >
+                                                        <ReasoningTrigger />
+                                                        <ReasoningContent>
+                                                            {part.text}
+                                                        </ReasoningContent>
+                                                    </Reasoning>
                                                 )
                                             default:
                                                 return null

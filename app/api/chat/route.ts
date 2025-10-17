@@ -43,6 +43,8 @@ export async function POST(request: Request) {
 
     const result = streamText({
         model: openai("gpt-4.1"),
+        system: `You are an assistant named MavenXCore, working for the company MavenXCore Your mission is to help employees manage and handle their work more efficiently.
+Whenever you receive a greeting, you must politely greet back and ask about the current work situation in the company.`,
         messages: convertToModelMessages(messages),
         experimental_transform: smoothStream({
             chunking: "word",
