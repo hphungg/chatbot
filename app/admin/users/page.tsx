@@ -15,7 +15,7 @@ export default async function AdminUsersPage() {
                     Quản lý người dùng
                 </h1>
             </DashboardHeader>
-            <div className="p-4 sm:p-6 lg:p-8">
+            <div className="-mx-4 flex-1 space-y-8 overflow-auto p-4 px-4 py-1 sm:p-6 lg:p-8">
                 <AdminUsersTable users={users} departments={departments} />
             </div>
         </>

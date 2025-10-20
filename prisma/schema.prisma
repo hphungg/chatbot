@@ -22,12 +22,13 @@ model User {
     role          String  @default("employee")
     banned        Boolean @default(false)
 
-    department Department?    @relation(fields: [departmentId], references: [id])
-    sessions   Session[]
-    accounts   Account[]
-    chat       Chat[]
-    group      Group[]
-    projects   UserProjects[]
+    department         Department?    @relation("DepartmentEmployees", fields: [departmentId], references: [id])
+    managedDepartments Department[]   @relation("DepartmentManager")
+    sessions           Session[]
+    accounts           Account[]
+    chat               Chat[]
+    group              Group[]
+    projects           UserProjects[]
 
     @@unique([email])
     @@map("user")
@@ -38,10 +39,12 @@ model Department {
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
 
-    name String
-    code String
+    name      String
+    code      String
+    managerId String?
 
-    users    User[]
+    manager  User?               @relation("DepartmentManager", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    users    User[]              @relation("DepartmentEmployees")
     projects ProjectDepartment[]
 
     @@unique([code])

@@ -8,7 +8,11 @@ import { EditUserDialog } from "./edit-user-dialog"
 const getRoleText = (role: string) => {
     switch (role) {
         case "admin":
+            return "Quản trị viên"
+        case "manager":
             return "Quản lý"
+        case "director":
+            return "Giám đốc"
         case "employee":
             return "Nhân viên"
         default:

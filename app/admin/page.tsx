@@ -1,5 +1,4 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
-import { AdminSearch } from "@/components/admin/search"
 import { AdminStatCards } from "@/components/admin/overview/admin-stat-cards"
 import { AdminReviewQueue } from "@/components/admin/overview/admin-review-queue"
 import { prisma } from "@/lib/db/prisma"

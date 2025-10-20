@@ -3,6 +3,7 @@ import {
     IconFolder,
     IconHome,
     IconUser,
+    IconUsersGroup,
 } from "@tabler/icons-react"
 import { Users } from "lucide-react"
 
@@ -21,6 +22,12 @@ export const sidebarData = [
         title: "Nhân viên",
         url: "/users",
         icon: Users,
+    },
+    {
+        title: "Nhóm của tôi",
+        url: "/team",
+        icon: IconUsersGroup,
+        roles: ["manager"],
     },
     {
         title: "Dự án",

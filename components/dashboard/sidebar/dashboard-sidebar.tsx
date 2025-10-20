@@ -29,6 +29,13 @@ const DashboardUser = dynamic(
 export function DashboardSidebar({ user }: { user: any }) {
     const pathname = usePathname()
 
+    const filteredSidebarData = sidebarData.filter((item) => {
+        if (item.roles && item.roles.length > 0) {
+            return item.roles.includes(user.role)
+        }
+        return true
+    })
+
     return (
         <Sidebar collapsible="offcanvas" variant="inset">
             <SidebarHeader>
@@ -37,7 +44,7 @@ export function DashboardSidebar({ user }: { user: any }) {
             <SidebarContent>
                 <SidebarGroup className="mt-2">
                     <SidebarMenu className="p-2">
-                        {sidebarData.map((item) => {
+                        {filteredSidebarData.map((item) => {
                             const isActive = pathname === item.url
                             return (
                                 <SidebarMenuItem key={item.title}>
