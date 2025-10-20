@@ -24,6 +24,13 @@ import {
     ReasoningContent,
     ReasoningTrigger,
 } from "../ai-elements/reasoning"
+import {
+    Tool,
+    ToolContent,
+    ToolHeader,
+    ToolInput,
+    ToolOutput,
+} from "../ai-elements/tool"
 
 interface ChatConversationProps {
     messages: UIMessage[]
@@ -117,8 +124,50 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                                                         </ReasoningContent>
                                                     </Reasoning>
                                                 )
+                                            case "dynamic-tool":
+                                                const { toolCallId, state } =
+                                                    part
+
+                                                return (
+                                                    <Tool
+                                                        defaultOpen={true}
+                                                        key={toolCallId}
+                                                    >
+                                                        <ToolHeader
+                                                            state={state}
+                                                            type="tool-getWeather"
+                                                        />
+                                                        <ToolContent>
+                                                            {state ===
+                                                                "input-available" && (
+                                                                <ToolInput
+                                                                    input={
+                                                                        part.input
+                                                                    }
+                                                                />
+                                                            )}
+                                                            {state ===
+                                                                "output-available" && (
+                                                                <ToolOutput
+                                                                    errorText={
+                                                                        undefined
+                                                                    }
+                                                                    output={
+                                                                        part.output
+                                                                    }
+                                                                />
+                                                            )}
+                                                        </ToolContent>
+                                                    </Tool>
+                                                )
                                             default:
-                                                return null
+                                                return (
+                                                    <Response
+                                                        key={`${message.id}-${i}`}
+                                                    >
+                                                        Thực hiện thành công
+                                                    </Response>
+                                                )
                                         }
                                     })}
                                 </MessageContent>

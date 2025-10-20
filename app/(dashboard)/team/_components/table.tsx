@@ -24,7 +24,8 @@ import { teamColumns as columns } from "./columns"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { User } from "@prisma/client"
-import { InviteMemberDialog } from "./invite-member-dialog"
+import { AddEmployeeDialog } from "./invite-member-dialog"
+import { SendInvitationDialog } from "./send-invitation-dialog"
 
 declare module "@tanstack/react-table" {
     interface ColumnMeta<TData, TValue> {
@@ -34,9 +35,13 @@ declare module "@tanstack/react-table" {
 
 interface TeamTableProps {
     members: User[]
+    isManager?: boolean
 }
 
-export function TeamTable({ members }: Readonly<TeamTableProps>) {
+export function TeamTable({
+    members,
+    isManager = false,
+}: Readonly<TeamTableProps>) {
     const [rowSelection, setRowSelection] = useState({})
     const [sorting, setSorting] = useState<SortingState>([])
 
@@ -75,7 +80,12 @@ export function TeamTable({ members }: Readonly<TeamTableProps>) {
                     }
                     className="max-w-sm"
                 />
-                <InviteMemberDialog />
+                {isManager && (
+                    <div className="flex gap-2">
+                        <SendInvitationDialog />
+                        <AddEmployeeDialog />
+                    </div>
+                )}
             </div>
             <div className="overflow-hidden rounded-md border">
                 <Table>

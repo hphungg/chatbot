@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db/prisma"
+import { sendMail } from "@/lib/mail"
 import { User } from "@prisma/client"
 import { headers } from "next/headers"
 
@@ -18,28 +19,53 @@ export const getTeamMembers = async (): Promise<User[]> => {
     const user = await authenticate()
 
     if (!user) throw new Error("Unauthorized")
-    if (user.role !== "manager")
-        throw new Error("Only managers can access team members")
+    if (user.role !== "manager" && user.role !== "employee")
+        throw new Error("Only managers and employees can access team members")
 
     try {
-        const managedDepartment = await prisma.department.findFirst({
-            where: {
-                managerId: user.id,
-            },
-            include: {
-                users: {
-                    include: {
-                        department: true,
+        let department
+
+        if (user.role === "manager") {
+            department = await prisma.department.findFirst({
+                where: {
+                    managerId: user.id,
+                },
+                include: {
+                    users: {
+                        include: {
+                            department: true,
+                        },
                     },
                 },
-            },
-        })
+            })
+        } else {
+            const currentUser = await prisma.user.findUnique({
+                where: { id: user.id },
+            })
 
-        if (!managedDepartment) {
+            if (!currentUser?.departmentId) {
+                return []
+            }
+
+            department = await prisma.department.findFirst({
+                where: {
+                    id: currentUser.departmentId,
+                },
+                include: {
+                    users: {
+                        include: {
+                            department: true,
+                        },
+                    },
+                },
+            })
+        }
+
+        if (!department) {
             return []
         }
 
-        return managedDepartment.users
+        return department.users
     } catch (error) {
         console.error(error)
         throw new Error("Failed to fetch team members")
@@ -157,6 +183,51 @@ export const removeMemberFromDepartment = async (userId: string) => {
         await prisma.user.update({
             where: { id: userId },
             data: { departmentId: null },
+        })
+
+        return true
+    } catch (error) {
+        console.error(error)
+        throw error
+    }
+}
+
+export const sendInvitationEmail = async (email: string, message: string) => {
+    const user = await authenticate()
+
+    if (!user) throw new Error("Unauthorized")
+    if (user.role !== "manager")
+        throw new Error("Only managers can send invitations")
+
+    try {
+        const managedDepartment = await prisma.department.findFirst({
+            where: {
+                managerId: user.id,
+            },
+        })
+
+        if (!managedDepartment) {
+            throw new Error("You don't manage any department")
+        }
+
+        const emailBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #333;">Lời mời tham gia đội</h2>
+                <p>Xin chào,</p>
+                <p>${message}</p>
+                <p>Bạn được mời tham gia phòng ban: <strong>${managedDepartment.name}</strong></p>
+                <p>Người gửi: <strong>${user.displayName || user.name}</strong></p>
+                <br>
+                <p>Trân trọng,</p>
+                <p>Đội ngũ Chatbot</p>
+            </div>
+        `
+
+        await sendMail({
+            to: email,
+            name: "Team Invitation",
+            subject: `Lời mời tham gia phòng ban ${managedDepartment.name}`,
+            body: emailBody,
         })
 
         return true

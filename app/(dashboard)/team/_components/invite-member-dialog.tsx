@@ -19,7 +19,7 @@ import { User } from "@prisma/client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
-export function InviteMemberDialog() {
+export function AddEmployeeDialog() {
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
     const [availableUsers, setAvailableUsers] = useState<User[]>([])
@@ -46,11 +46,11 @@ export function InviteMemberDialog() {
         startTransition(async () => {
             try {
                 await inviteMemberToDepartment(userId)
-                toast.success("Đã mời thành viên vào phòng ban")
+                toast.success("Đã thêm nhân viên vào phòng ban")
                 setOpen(false)
                 router.refresh()
             } catch (error: any) {
-                toast.error(error.message || "Không thể mời thành viên")
+                toast.error(error.message || "Không thể thêm nhân viên")
             }
         })
     }
@@ -60,15 +60,14 @@ export function InviteMemberDialog() {
             <DialogTrigger asChild>
                 <Button>
                     <UserPlus className="mr-2 size-4" />
-                    Mời thành viên
+                    Thêm nhân viên
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>Mời thành viên vào phòng ban</DialogTitle>
+                    <DialogTitle>Thêm nhân viên</DialogTitle>
                     <DialogDescription>
-                        Chọn người dùng chưa có phòng ban để mời vào phòng ban
-                        của bạn
+                        Thêm nhân viên vào phòng ban của bạn.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="max-h-96 space-y-2 overflow-y-auto">
@@ -78,7 +77,7 @@ export function InviteMemberDialog() {
                         </div>
                     ) : availableUsers.length === 0 ? (
                         <div className="text-muted-foreground py-8 text-center text-sm">
-                            Không có người dùng nào khả dụng
+                            Không có nhân viên nào khả dụng
                         </div>
                     ) : (
                         availableUsers.map((user) => (
@@ -99,7 +98,7 @@ export function InviteMemberDialog() {
                                     onClick={() => handleInvite(user.id)}
                                     disabled={isPending}
                                 >
-                                    Mời
+                                    Thêm
                                 </Button>
                             </div>
                         ))

@@ -5,7 +5,7 @@ import { headers } from "next/headers"
 import { deleteChatById, getChatById, saveChat, saveMessages } from "./queries"
 import { generateTitle } from "@/lib/ai/actions"
 import { generateUUID } from "@/lib/utils"
-import { dbTools } from "@/lib/ai/tools/db-tools"
+import { dbTools, emailTools } from "@/lib/ai/tools"
 import { system_prompt } from "@/lib/ai/prompt"
 import { getAIConfigPublic } from "@/lib/ai/config"
 
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         model: openaiProvider(aiConfig.model),
         system: system_prompt,
         messages: convertToModelMessages(messages),
-        tools: dbTools,
+        tools: { ...dbTools, ...emailTools },
         experimental_transform: smoothStream({
             chunking: "word",
             delayInMs: 10,
