@@ -1,16 +1,14 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
-import { DepartmentsProvider } from "./_components/context"
 import { Search } from "@/components/search"
 import { DepartmentsTable } from "./_components/table"
 import { Department } from "@prisma/client"
 import { getAllDepartments } from "@/app/api/departments/queries"
-import { CreateDepartmentButton } from "./_components/create-department-button"
 
 export default async function Departments() {
     const departments: Department[] = await getAllDepartments()
 
     return (
-        <DepartmentsProvider>
+        <>
             <DashboardHeader fixed>
                 <Search />
             </DashboardHeader>
@@ -21,15 +19,14 @@ export default async function Departments() {
                             Phòng ban
                         </h2>
                         <p className="text-muted-foreground">
-                            Quản lý thông tin các phòng ban.
+                            Xem danh sách các phòng ban.
                         </p>
                     </div>
-                    <CreateDepartmentButton />
                 </div>
                 <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12">
                     <DepartmentsTable departments={departments} />
                 </div>
             </div>
-        </DepartmentsProvider>
+        </>
     )
 }

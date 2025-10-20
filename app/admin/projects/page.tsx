@@ -1,39 +1,24 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
-import { AdminSearch } from "@/components/admin/search"
-import { AdminProjectsSection } from "@/components/admin/projects/admin-projects-section"
 import { getProjectsWithMembers } from "@/app/api/projects/queries"
-import { prisma } from "@/lib/db/prisma"
+import { AdminProjectsTable } from "@/components/admin/projects/admin-projects-table"
+import { getAdminDepartments } from "@/app/api/admin/queries"
 
 export default async function AdminProjectsPage() {
     const [projects, departments] = await Promise.all([
         getProjectsWithMembers(),
-        prisma.department.findMany({
-            select: {
-                id: true,
-                name: true,
-            },
-            orderBy: { name: "asc" },
-        }),
+        getAdminDepartments(),
     ])
-
-    const adminProjects = projects.map((project) => ({
-        id: project.id,
-        name: project.name,
-        departmentId: project.departmentId,
-        departmentName: project.departmentName,
-        memberCount: project.members.length,
-        startDate: project.startDate,
-        endDate: project.endDate,
-    }))
 
     return (
         <div>
             <DashboardHeader fixed>
-                <AdminSearch placeholder="Tìm kiếm dự án" />
+                <h1 className="text-2xl font-bold tracking-tight">
+                    Quản lý dự án
+                </h1>
             </DashboardHeader>
             <div className="p-4 sm:p-6 lg:p-8">
-                <AdminProjectsSection
-                    projects={adminProjects}
+                <AdminProjectsTable
+                    projects={projects}
                     departments={departments}
                 />
             </div>

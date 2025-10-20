@@ -72,60 +72,48 @@ function revalidateProjectPaths() {
     revalidatePath("/dashboard/projects")
 }
 
-export async function createProjectAction(input: ProjectInput) {
+export async function createProjectAdmin({
+    name,
+    departmentId,
+    startDate,
+    endDate,
+}: {
+    name: string
+    departmentId: string[]
+    startDate: string | null
+    endDate: string | null
+}) {
     await requireAdminSession()
-    const normalized = normalizeInput(input)
-    if (!normalized.name) {
+    if (!name) {
         throw new Error("Tên dự án là bắt buộc")
     }
 
-    const project = await prisma.project.create({
-        data: {
-            name: normalized.name,
-            departmentId: normalized.departmentId,
-            startDate: parseDate(normalized.startDate),
-            endDate: parseDate(normalized.endDate),
-        },
-        include: {
-            department: { select: { name: true } },
-            _count: { select: { users: true } },
-        },
-    })
+    try {
+        const project = await prisma.project.create({
+            data: {
+                name,
+                startDate: parseDate(startDate),
+                endDate: parseDate(endDate),
+            },
+        })
 
-    const serialized = serializeProject(project)
-    revalidateProjectPaths()
+        if (departmentId && departmentId.length > 0) {
+            for (const depId of departmentId) {
+                await prisma.projectDepartment.create({
+                    data: {
+                        projectId: project.id,
+                        departmentId: depId,
+                    },
+                })
+            }
+        }
 
-    return { project: serialized }
-}
+        revalidateProjectPaths()
 
-export async function updateProjectAction(input: ProjectUpdateInput) {
-    await requireAdminSession()
-    if (!input.projectId) {
-        throw new Error("Thiếu mã dự án")
+        return project
+    } catch (error) {
+        throw new Error("Lỗi khi tạo dự án: " + (error as Error).message)
     }
-    const normalized = normalizeInput(input)
-    if (!normalized.name) {
-        throw new Error("Tên dự án là bắt buộc")
-    }
-
-    const project = await prisma.project.update({
-        where: { id: input.projectId },
-        data: {
-            name: normalized.name,
-            departmentId: normalized.departmentId,
-            startDate: parseDate(normalized.startDate),
-            endDate: parseDate(normalized.endDate),
-        },
-        include: {
-            department: { select: { name: true } },
-            _count: { select: { users: true } },
-        },
-    })
-
-    const serialized = serializeProject(project)
-    revalidateProjectPaths()
-
-    return { project: serialized }
 }
 
 export async function deleteProjectAction(projectId: string) {

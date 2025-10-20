@@ -1,7 +1,6 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
-import { AdminSearch } from "@/components/admin/search"
-import { AdminUsersSection } from "@/components/admin/users/admin-users-section"
 import { getAdminUsers, getAdminDepartments } from "@/app/api/admin/queries"
+import { AdminUsersTable } from "@/components/admin/users/admin-users-table"
 
 export default async function AdminUsersPage() {
     const [users, departments] = await Promise.all([
@@ -10,13 +9,15 @@ export default async function AdminUsersPage() {
     ])
 
     return (
-        <div>
+        <>
             <DashboardHeader fixed>
-                <AdminSearch placeholder="Tìm kiếm người dùng" />
+                <h1 className="text-2xl font-bold tracking-tight">
+                    Quản lý người dùng
+                </h1>
             </DashboardHeader>
             <div className="p-4 sm:p-6 lg:p-8">
-                <AdminUsersSection users={users} departments={departments} />
+                <AdminUsersTable users={users} departments={departments} />
             </div>
-        </div>
+        </>
     )
 }

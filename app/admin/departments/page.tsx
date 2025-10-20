@@ -1,15 +1,7 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
-import { AdminSearch } from "@/components/admin/search"
-import { AdminDepartmentsSection } from "@/components/admin/departments/admin-departments-section"
 import { getAllDepartments } from "@/app/api/departments/queries"
-
-interface DepartmentWithStats {
-    id: string
-    name: string
-    code: string
-    employeeCount?: number | null
-    projectCount?: number | null
-}
+import { AdminDepartmentsTable } from "@/components/admin/departments/admin-departments-table"
+import { DepartmentWithStats } from "@/lib/types"
 
 export default async function AdminDepartmentsPage() {
     const departments = await getAllDepartments()
@@ -30,10 +22,12 @@ export default async function AdminDepartmentsPage() {
     return (
         <div>
             <DashboardHeader fixed>
-                <AdminSearch placeholder="Tìm kiếm phòng ban" />
+                <h1 className="text-2xl font-bold tracking-tight">
+                    Quản lý phòng ban
+                </h1>
             </DashboardHeader>
             <div className="p-4 sm:p-6 lg:p-8">
-                <AdminDepartmentsSection departments={editableDepartments} />
+                <AdminDepartmentsTable departments={editableDepartments} />
             </div>
         </div>
     )

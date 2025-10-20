@@ -21,7 +21,6 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { usersColumns as columns } from "./columns"
-import { getAllUsers } from "@/app/api/users/queries"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { User } from "@prisma/client"

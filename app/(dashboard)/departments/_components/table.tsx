@@ -20,7 +20,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { DeleteDepartmentDialog } from "./delete-department-dialog"
 import { departmentsColumns as columns } from "./columns"
 import { Department } from "@prisma/client"
 import { Button } from "@/components/ui/button"
@@ -39,7 +38,6 @@ interface DepartmentsTableProps {
 export function DepartmentsTable({
     departments,
 }: Readonly<DepartmentsTableProps>) {
-    const [rowSelection, setRowSelection] = useState({})
     const [sorting, setSorting] = useState<SortingState>([])
 
     const table = useReactTable({
@@ -47,10 +45,7 @@ export function DepartmentsTable({
         columns,
         state: {
             sorting,
-            rowSelection,
         },
-        enableRowSelection: true,
-        onRowSelectionChange: setRowSelection,
         onSortingChange: setSorting,
         getPaginationRowModel: getPaginationRowModel(),
         getCoreRowModel: getCoreRowModel(),
@@ -96,12 +91,7 @@ export function DepartmentsTable({
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={
-                                        row.getIsSelected() && "selected"
-                                    }
-                                >
+                                <TableRow key={row.id}>
                                     {row.getAllCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(
@@ -126,30 +116,23 @@ export function DepartmentsTable({
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="text-muted-foreground flex-1 text-sm">
-                    {table.getFilteredSelectedRowModel().rows.length} trên{" "}
-                    {table.getFilteredRowModel().rows.length} kết quả được chọn.
-                </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Trang trước
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Trang sau
-                    </Button>
-                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                >
+                    Trang trước
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                >
+                    Trang sau
+                </Button>
             </div>
-            <DeleteDepartmentDialog table={table} />
         </div>
     )
 }

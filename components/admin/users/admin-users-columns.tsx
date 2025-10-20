@@ -1,8 +1,9 @@
 import { type ColumnDef } from "@tanstack/react-table"
-import { User } from "@prisma/client"
+import { Department, User } from "@prisma/client"
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { EditUserDialog } from "./edit-user-dialog"
 
 const getRoleText = (role: string) => {
     switch (role) {
@@ -23,7 +24,9 @@ type UserWithDepartment = User & {
     } | null
 }
 
-export const usersColumns: ColumnDef<UserWithDepartment>[] = [
+export const getAdminUserColumns = (
+    departments: Department[],
+): ColumnDef<UserWithDepartment>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -49,6 +52,23 @@ export const usersColumns: ColumnDef<UserWithDepartment>[] = [
         enableHiding: false,
     },
     {
+        accessorKey: "name",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
+                >
+                    Tên người dùng
+                    <ArrowUpDown />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="ml-3">{row.getValue("name")}</div>,
+    },
+    {
         accessorKey: "displayName",
         header: ({ column }) => {
             return (
@@ -58,7 +78,7 @@ export const usersColumns: ColumnDef<UserWithDepartment>[] = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Tên
+                    Tên hiển thị
                     <ArrowUpDown />
                 </Button>
             )
@@ -100,12 +120,14 @@ export const usersColumns: ColumnDef<UserWithDepartment>[] = [
         cell: ({ row }) => <div>{getRoleText(row.getValue("role"))}</div>,
     },
     {
-        accessorKey: "userVerified",
-        header: "Trạng thái",
-        cell: ({ row }) => (
-            <div>
-                {row.getValue("userVerified") ? "Đã duyệt" : "Chưa duyệt"}
-            </div>
-        ),
+        id: "actions",
+        header: "",
+        cell: ({ row }) => {
+            return (
+                <EditUserDialog user={row.original} departments={departments} />
+            )
+        },
     },
 ]
+
+export const adminUserColumns: ColumnDef<UserWithDepartment>[] = []

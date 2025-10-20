@@ -9,35 +9,26 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { updateDepartmentAction } from "@/app/api/admin/departments/actions"
-
-export interface EditableDepartment {
-    id: string
-    name: string
-    code: string
-    employeeCount?: number | null
-    projectCount?: number | null
-}
+import { DepartmentWithStats } from "@/lib/types"
 
 interface EditDepartmentDialogProps {
-    department: EditableDepartment | null
-    open: boolean
-    onOpenChange: (open: boolean) => void
-    onSave: (department: EditableDepartment) => void
+    department: DepartmentWithStats | null
+    triggerLabel?: string
 }
 
 export function EditDepartmentDialog({
     department,
-    open,
-    onOpenChange,
-    onSave,
+    triggerLabel = "Sửa",
 }: EditDepartmentDialogProps) {
     const router = useRouter()
+    const [open, setOpen] = useState(false)
     const [name, setName] = useState("")
     const [code, setCode] = useState("")
     const [loading, setLoading] = useState(false)
@@ -60,9 +51,8 @@ export function EditDepartmentDialog({
                 code: code.toUpperCase(),
             })
             if (result?.department) {
-                onSave(result.department)
-                toast.success("Đã cập nhật thông tin phòng ban")
-                onOpenChange(false)
+                toast.success("Cập nhật phòng ban thành công")
+                setOpen(false)
                 router.refresh()
             }
         } catch (error) {
@@ -77,14 +67,18 @@ export function EditDepartmentDialog({
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" className="cursor-pointer">
+                    {triggerLabel}
+                </Button>
+            </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <DialogHeader>
                         <DialogTitle>Cập nhật phòng ban</DialogTitle>
                         <DialogDescription>
-                            Điều chỉnh tên và mã phòng ban. Thay đổi này chỉ áp
-                            dụng trên giao diện minh họa.
+                            Thay đổi thông tin hoặc xóa phòng ban.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3">
@@ -116,11 +110,11 @@ export function EditDepartmentDialog({
                             />
                         </div>
                     </div>
-                    <DialogFooter className="gap-2 sm:gap-0">
+                    <DialogFooter className="gap-2">
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => onOpenChange(false)}
+                            onClick={() => setOpen(false)}
                             disabled={loading}
                         >
                             Hủy

@@ -20,7 +20,11 @@ export const getAllUsers = async (): Promise<User[]> => {
     if (!user) throw new Error("Unauthorized")
 
     try {
-        const users = await prisma.user.findMany()
+        const users = await prisma.user.findMany({
+            include: {
+                department: true,
+            },
+        })
         return users
     } catch (error) {
         console.error(error)

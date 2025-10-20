@@ -1,3 +1,5 @@
+import { User } from "@prisma/client"
+
 export type Events = {
     id: string
     title: string
@@ -8,23 +10,20 @@ export type Events = {
     colorId: number
 }
 
-export interface ProjectMemberSummary {
+export interface DepartmentWithStats {
     id: string
     name: string
-    displayName: string | null
-    email: string
-    image: string | null
-    role: string
+    code: string
+    employeeCount?: number | null
+    projectCount?: number | null
 }
 
-export interface ProjectWithMembers {
+export interface ProjectWithStats {
     id: string
     name: string
-    departmentId: string | null
-    departmentName: string | null
+    departmentNames: string[]
+    memberCount: number
     startDate: string | null
     endDate: string | null
-    createdAt: string
-    updatedAt: string
-    members: ProjectMemberSummary[]
+    members?: User[]
 }

@@ -27,6 +27,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Bot, ChevronDown, LogOut } from "lucide-react"
 import { SignOutDialog } from "@/components/auth/sign-out-dialog"
 import useDialogState from "@/hooks/use-dialog-state"
+import { cn } from "@/lib/utils"
 
 interface AdminSidebarProps {
     user: {
@@ -51,25 +52,25 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarGroup className="mt-2">
-                        <SidebarMenu>
+                        <SidebarMenu className="p-2">
                             {adminSidebarData.map((item) => {
                                 const isActive = pathname === item.url
 
                                 return (
                                     <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton
-                                            asChild
-                                            className={
-                                                isActive
-                                                    ? "bg-black text-white hover:bg-gray-800 hover:text-white"
-                                                    : ""
-                                            }
+                                        <Link
+                                            href={item.url}
+                                            className={cn(
+                                                "hover:bg-accent text-muted-foreground flex flex-row items-center rounded-lg py-2 text-base hover:text-black",
+                                                {
+                                                    "bg-sidebar-primary hover:bg-sidebar-primary text-white hover:text-white":
+                                                        isActive,
+                                                },
+                                            )}
                                         >
-                                            <Link href={item.url}>
-                                                <item.icon className="size-4" />
-                                                <span>{item.title}</span>
-                                            </Link>
-                                        </SidebarMenuButton>
+                                            <item.icon className="mx-3" />
+                                            <span>{item.title}</span>
+                                        </Link>
                                     </SidebarMenuItem>
                                 )
                             })}

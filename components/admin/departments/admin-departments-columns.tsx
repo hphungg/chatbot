@@ -2,10 +2,36 @@
 
 import { type ColumnDef } from "@tanstack/react-table"
 import { cn } from "@/lib/utils"
-import { Department } from "@prisma/client"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { EditDepartmentDialog } from "./edit-department-dialog"
+import { DepartmentWithStats } from "@/lib/types"
 
-export const departmentsColumns: ColumnDef<Department>[] = [
+export const departmentsColumns: ColumnDef<DepartmentWithStats>[] = [
+    {
+        id: "select",
+        header: ({ table }) => (
+            <Checkbox
+                checked={
+                    table.getIsAllPageRowsSelected() ||
+                    (table.getIsSomePageRowsSelected() && "indeterminate")
+                }
+                onCheckedChange={(value) =>
+                    table.toggleAllPageRowsSelected(!!value)
+                }
+                aria-label="Select all"
+            />
+        ),
+        cell: ({ row }) => (
+            <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                aria-label="Select row"
+            />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+    },
     {
         accessorKey: "name",
         header: "Tên phòng ban",
@@ -44,5 +70,12 @@ export const departmentsColumns: ColumnDef<Department>[] = [
                 {row.getValue("projectCount")}
             </div>
         ),
+    },
+    {
+        id: "actions",
+        header: "",
+        cell: ({ row }) => {
+            return <EditDepartmentDialog department={row.original} />
+        },
     },
 ]

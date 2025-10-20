@@ -1,5 +1,4 @@
 import { AdminSidebar } from "@/components/admin/sidebar/admin-sidebar"
-import { AdminSearchProvider } from "@/context/admin-context"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { auth } from "@/lib/auth"
@@ -49,19 +48,17 @@ export default async function AdminLayout({
     }
 
     return (
-        <AdminSearchProvider>
-            <SidebarProvider defaultOpen>
-                <AdminSidebar user={sidebarUser} />
-                <SidebarInset
-                    className={cn(
-                        "@container/content",
-                        "has-[[data-layout=fixed]]:h-svh",
-                        "peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]",
-                    )}
-                >
-                    {children}
-                </SidebarInset>
-            </SidebarProvider>
-        </AdminSearchProvider>
+        <SidebarProvider defaultOpen>
+            <AdminSidebar user={sidebarUser} />
+            <SidebarInset
+                className={cn(
+                    "@container/content",
+                    "has-[[data-layout=fixed]]:h-svh",
+                    "peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-(var(--spacing)*4))]",
+                )}
+            >
+                {children}
+            </SidebarInset>
+        </SidebarProvider>
     )
 }

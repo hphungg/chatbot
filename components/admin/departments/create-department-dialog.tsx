@@ -16,14 +16,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { createDepartmentAction } from "@/app/api/admin/departments/actions"
-import { type EditableDepartment } from "@/components/admin/departments/edit-department-dialog"
 
 interface CreateDepartmentDialogProps {
-    onCreate: (department: EditableDepartment) => void
+    triggerLabel?: string
 }
 
 export function CreateDepartmentDialog({
-    onCreate,
+    triggerLabel = "Tạo phòng ban",
 }: CreateDepartmentDialogProps) {
     const router = useRouter()
     const [open, setOpen] = useState(false)
@@ -43,17 +42,10 @@ export function CreateDepartmentDialog({
                 code: formattedCode,
             })
             if (result?.department) {
-                onCreate({
-                    id: result.department.id,
-                    name: result.department.name,
-                    code: result.department.code,
-                    employeeCount: result.department.employeeCount,
-                    projectCount: result.department.projectCount,
-                })
-                toast.success("Đã tạo phòng ban mới")
                 setName("")
                 setCode("")
                 setOpen(false)
+                toast.success("Đã tạo phòng ban mới")
                 router.refresh()
             }
         } catch (error) {
@@ -70,7 +62,7 @@ export function CreateDepartmentDialog({
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>Tạo phòng ban</Button>
+                <Button>{triggerLabel}</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit} className="space-y-4">

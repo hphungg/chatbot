@@ -42,7 +42,7 @@ model Department {
     code String
 
     users    User[]
-    projects Project[]
+    projects ProjectDepartment[]
 
     @@unique([code])
     @@map("department")
@@ -144,13 +144,12 @@ model Project {
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
 
-    name         String
-    departmentId String?
-    startDate    DateTime?
-    endDate      DateTime?
+    name      String
+    startDate DateTime?
+    endDate   DateTime?
 
-    department Department?    @relation(fields: [departmentId], references: [id])
-    users      UserProjects[]
+    users       UserProjects[]
+    departments ProjectDepartment[]
 
     @@map("project")
 }
@@ -165,4 +164,16 @@ model UserProjects {
 
     @@unique([userId, projectId])
     @@map("user_projects")
+}
+
+model ProjectDepartment {
+    id           String @id @default(uuid()) @map("_id")
+    projectId    String
+    departmentId String
+
+    project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+    @@unique([projectId, departmentId])
+    @@map("project_department")
 }

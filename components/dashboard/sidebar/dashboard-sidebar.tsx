@@ -10,13 +10,13 @@ import {
     SidebarGroup,
     SidebarHeader,
     SidebarMenu,
-    SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import AppLogo from "@/components/app-logo"
 import { sidebarData } from "@/constant/sidebar-data"
 import { buttonVariants } from "@/components/ui/button"
 import { BotIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const DashboardUser = dynamic(
     () =>
@@ -36,24 +36,24 @@ export function DashboardSidebar({ user }: { user: any }) {
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup className="mt-2">
-                    <SidebarMenu>
+                    <SidebarMenu className="p-2">
                         {sidebarData.map((item) => {
                             const isActive = pathname === item.url
                             return (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        className={
-                                            isActive
-                                                ? "bg-black text-white hover:bg-gray-800 hover:text-white"
-                                                : ""
-                                        }
+                                    <Link
+                                        href={item.url}
+                                        className={cn(
+                                            "hover:bg-accent text-muted-foreground flex flex-row items-center rounded-lg py-2 text-base hover:text-black",
+                                            {
+                                                "bg-sidebar-primary hover:bg-sidebar-primary text-white hover:text-white":
+                                                    isActive,
+                                            },
+                                        )}
                                     >
-                                        <Link href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
+                                        <item.icon className="mx-3" />
+                                        <span>{item.title}</span>
+                                    </Link>
                                 </SidebarMenuItem>
                             )
                         })}

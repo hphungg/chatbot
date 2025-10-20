@@ -74,27 +74,14 @@ export default async function AdminPage() {
     }))
 
     return (
-        <div>
+        <>
             <DashboardHeader fixed>
-                <AdminSearch placeholder="Tìm kiếm trong quản trị" />
+                <h1 className="text-2xl font-bold tracking-tight">Tổng quan</h1>
             </DashboardHeader>
-            <div className="p-4 sm:p-6 lg:p-8">
-                <div className="mb-4 flex flex-wrap items-center justify-between space-y-2">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">
-                            Tổng quan
-                        </h1>
-                        <p className="text-muted-foreground">
-                            Theo dõi hoạt động và xử lý yêu cầu của hệ thống.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="space-y-6">
-                    <AdminStatCards stats={stats} />
-                    <AdminReviewQueue requests={reviewQueue} />
-                </div>
+            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+                <AdminStatCards stats={stats} />
+                <AdminReviewQueue requests={reviewQueue} />
             </div>
-        </div>
+        </>
     )
 }

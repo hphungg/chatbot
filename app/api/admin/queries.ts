@@ -4,23 +4,7 @@ import { z } from "zod"
 import { prisma } from "@/lib/db/prisma"
 import { sendInviteEmail } from "@/lib/email/send-invite"
 import { requireAdminSession } from "@/app/api/admin/utils"
-
-export interface AdminUserRecord {
-    id: string
-    name: string
-    email: string
-    displayName: string | null
-    role: string
-    departmentId: string | null
-    departmentName: string | null
-    userVerified: boolean
-    emailVerified: boolean
-}
-
-export interface AdminDepartmentRecord {
-    id: string
-    name: string
-}
+import { Department, User } from "@prisma/client"
 
 const updateAdminUserSchema = z.object({
     id: z.string().min(1),
@@ -34,70 +18,26 @@ const inviteUserSchema = z.object({
     role: z.string().trim().min(1),
 })
 
-function mapUserRecord(user: {
-    id: string
-    name: string
-    email: string
-    displayName: string | null
-    role: string
-    userVerified: boolean
-    emailVerified: boolean
-    department: { id: string; name: string } | null
-}): AdminUserRecord {
-    return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        displayName: user.displayName,
-        role: user.role,
-        departmentId: user.department ? user.department.id : null,
-        departmentName: user.department ? user.department.name : null,
-        userVerified: user.userVerified,
-        emailVerified: user.emailVerified,
-    }
-}
-
-export async function getAdminUsers(): Promise<AdminUserRecord[]> {
+export async function getAdminUsers(): Promise<User[]> {
     await requireAdminSession()
     const users = await prisma.user.findMany({
         include: {
-            department: {
-                select: { id: true, name: true },
-            },
+            department: true,
         },
         orderBy: { createdAt: "desc" },
     })
-    return users.map((user) =>
-        mapUserRecord({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            displayName: user.displayName ?? null,
-            role: user.role,
-            userVerified: user.userVerified,
-            emailVerified: user.emailVerified,
-            department: user.department
-                ? { id: user.department.id, name: user.department.name }
-                : null,
-        }),
-    )
+    return users
 }
 
-export async function getAdminDepartments(): Promise<AdminDepartmentRecord[]> {
+export async function getAdminDepartments(): Promise<Department[]> {
     await requireAdminSession()
     const departments = await prisma.department.findMany({
-        select: { id: true, name: true },
         orderBy: { name: "asc" },
     })
-    return departments.map((department) => ({
-        id: department.id,
-        name: department.name,
-    }))
+    return departments
 }
 
-export async function updateAdminUser(
-    payload: unknown,
-): Promise<AdminUserRecord> {
+export async function updateAdminUser(payload: unknown): Promise<User> {
     await requireAdminSession()
     const parsed = updateAdminUserSchema.parse(payload)
     const departmentId = parsed.departmentId ?? null
@@ -123,18 +63,7 @@ export async function updateAdminUser(
             },
         },
     })
-    return mapUserRecord({
-        id: updated.id,
-        name: updated.name,
-        email: updated.email,
-        displayName: updated.displayName ?? null,
-        role: updated.role,
-        userVerified: updated.userVerified,
-        emailVerified: updated.emailVerified,
-        department: updated.department
-            ? { id: updated.department.id, name: updated.department.name }
-            : null,
-    })
+    return updated
 }
 
 export async function inviteUser(payload: unknown): Promise<void> {

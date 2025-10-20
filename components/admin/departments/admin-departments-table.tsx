@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import {
     Table,
     TableBody,
@@ -10,103 +10,152 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import {
+    type SortingState,
+    flexRender,
+    getCoreRowModel,
+    getFacetedRowModel,
+    getFacetedUniqueValues,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
+} from "@tanstack/react-table"
+import { CreateDepartmentDialog } from "./create-department-dialog"
+import { departmentsColumns as columns } from "./admin-departments-columns"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Pencil } from "lucide-react"
-import { EditableDepartment } from "@/components/admin/departments/edit-department-dialog"
+import { DepartmentWithStats } from "@/lib/types"
 
 interface AdminDepartmentsTableProps {
-    departments: EditableDepartment[]
-    onEdit: (department: EditableDepartment) => void
+    departments: DepartmentWithStats[]
+}
+
+declare module "@tanstack/react-table" {
+    interface ColumnMeta<TData, TValue> {
+        className: string
+    }
 }
 
 export function AdminDepartmentsTable({
     departments,
-    onEdit,
 }: AdminDepartmentsTableProps) {
-    const [searchTerm, setSearchTerm] = useState("")
+    const [rowSelection, setRowSelection] = useState({})
+    const [sorting, setSorting] = useState<SortingState>([])
 
-    const filtered = useMemo(() => {
-        if (!searchTerm.trim()) return departments
-        const term = searchTerm.toLowerCase()
-        return departments.filter((department) =>
-            [department.name, department.code].some((value) =>
-                value.toLowerCase().includes(term),
-            ),
-        )
-    }, [departments, searchTerm])
+    const table = useReactTable({
+        data: departments,
+        columns,
+        state: {
+            sorting,
+            rowSelection,
+        },
+        enableRowSelection: true,
+        onRowSelectionChange: setRowSelection,
+        onSortingChange: setSorting,
+        getPaginationRowModel: getPaginationRowModel(),
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFacetedRowModel: getFacetedRowModel(),
+        getFacetedUniqueValues: getFacetedUniqueValues(),
+    })
 
     return (
-        <Card>
-            <CardHeader className="gap-3">
+        <div className="w-full">
+            <div className="flex flex-col gap-2 md:flex-row md:justify-between">
                 <Input
                     id="admin-department-search"
                     placeholder="Tìm kiếm theo tên hoặc mã phòng ban..."
-                    value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)}
-                    className="sm:max-w-sm"
+                    value={
+                        (table.getColumn("name")?.getFilterValue() as string) ??
+                        ""
+                    }
+                    onChange={(event) =>
+                        table
+                            .getColumn("name")
+                            ?.setFilterValue(event.target.value)
+                    }
+                    className="mb-4 max-w-sm"
                 />
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="overflow-x-auto rounded-lg border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Tên phòng ban</TableHead>
-                                <TableHead>Mã</TableHead>
-                                <TableHead>Nhân viên</TableHead>
-                                <TableHead>Dự án</TableHead>
-                                <TableHead className="text-right">
-                                    Thao tác
-                                </TableHead>
+                <CreateDepartmentDialog triggerLabel="Tạo phòng ban" />
+            </div>
+            <div className="overflow-hidden rounded-md border">
+                <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => {
+                                    return (
+                                        <TableHead key={header.id}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                      header.column.columnDef
+                                                          .header,
+                                                      header.getContext(),
+                                                  )}
+                                        </TableHead>
+                                    )
+                                })}
                             </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filtered.length ? (
-                                filtered.map((department) => (
-                                    <TableRow key={department.id}>
-                                        <TableCell>
-                                            <span className="font-medium">
-                                                {department.name}
-                                            </span>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={
+                                        row.getIsSelected() && "selected"
+                                    }
+                                >
+                                    {row.getAllCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext(),
+                                            )}
                                         </TableCell>
-                                        <TableCell>
-                                            <Badge>{department.code}</Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            {department.employeeCount ?? 0}
-                                        </TableCell>
-                                        <TableCell>
-                                            {department.projectCount ?? 0}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() =>
-                                                    onEdit(department)
-                                                }
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={5}
-                                        className="h-14 text-center"
-                                    >
-                                        Không tìm thấy phòng ban phù hợp.
-                                    </TableCell>
+                                    ))}
                                 </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={columns.length}
+                                    className="h-12 text-center"
+                                >
+                                    Không có dữ liệu.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="text-muted-foreground flex-1 text-sm">
+                    {table.getFilteredSelectedRowModel().rows.length} trên{" "}
+                    {table.getFilteredRowModel().rows.length} dòng được chọn.
                 </div>
-            </CardContent>
-        </Card>
+                <div className="space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        Trang trước
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        Trang sau
+                    </Button>
+                </div>
+            </div>
+        </div>
     )
 }

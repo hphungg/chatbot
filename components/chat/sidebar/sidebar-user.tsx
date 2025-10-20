@@ -16,12 +16,13 @@ import {
 } from "../../ui/sidebar"
 import useDialogState from "@/hooks/use-dialog-state"
 import { SignOutDialog } from "../../auth/sign-out-dialog"
-import Link from "next/link"
 import { DashboardIcon } from "@radix-ui/react-icons"
+import { useRouter } from "next/navigation"
 
 export function SidebarUser({ user }: { user: any }) {
     const { isMobile } = useSidebar()
     const [open, setOpen] = useDialogState()
+    const router = useRouter()
     const triggerId = `trigger-${user?.id ?? "unknown"}`
 
     return (
@@ -70,7 +71,7 @@ export function SidebarUser({ user }: { user: any }) {
                                     </Avatar>
                                     <div className="ml-1 grid flex-1">
                                         <span className="truncate font-semibold">
-                                            {user.name}
+                                            {user.displayName}
                                         </span>
                                         <span className="truncate text-xs">
                                             {user.email}
@@ -79,11 +80,12 @@ export function SidebarUser({ user }: { user: any }) {
                                 </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="cursor-pointer">
+                            <DropdownMenuItem
+                                onClick={() => router.push("/")}
+                                className="cursor-pointer"
+                            >
                                 <DashboardIcon />
-                                <Link href="/" className="ml-2">
-                                    Hồ sơ
-                                </Link>
+                                <span className="ml-2">Hồ sơ</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onClick={() => setOpen(true)}
