@@ -39,17 +39,11 @@ export default async function ManageProfilePage() {
     return (
         <>
             <DashboardHeader fixed>
-                <Search />
+                <h1 className="text-2xl font-bold tracking-tight">
+                    Cập nhật thông tin cá nhân
+                </h1>
             </DashboardHeader>
             <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-                <div className="space-y-2">
-                    <h2 className="text-2xl font-bold tracking-tight">
-                        Thông tin cá nhân
-                    </h2>
-                    <p className="text-muted-foreground">
-                        Cập nhật thông tin cá nhân.
-                    </p>
-                </div>
                 <div className="bg-card rounded-lg border p-6 shadow-sm">
                     <div className="space-y-6">
                         <div className="space-y-1">

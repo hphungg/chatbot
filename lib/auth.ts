@@ -1,7 +1,8 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { createAuthMiddleware } from "better-auth/api"
-import { admin as adminPlugin, customSession } from "better-auth/plugins"
+import { admin, customSession } from "better-auth/plugins"
+import { ac, boss, manager, employee } from "./permission"
 import { prisma } from "./db/prisma"
 
 interface ExtendedUserFields {
@@ -27,8 +28,14 @@ const authOptions = {
         },
     },
     plugins: [
-        adminPlugin({
-            adminRoles: ["admin"],
+        admin({
+            ac,
+            adminRoles: ["boss"],
+            roles: {
+                boss,
+                manager,
+                employee,
+            },
             defaultRole: "employee",
         }),
     ],

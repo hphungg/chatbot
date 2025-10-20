@@ -2,11 +2,14 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { User } from "@prisma/client"
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from "lucide-react"
-import { Checkbox } from "@/components/ui/checkbox"
 
 const getRoleText = (role: string) => {
     switch (role) {
+        case "boss":
+            return "Admin"
         case "admin":
+            return "Quản trị viên"
+        case "manager":
             return "Quản lý"
         case "employee":
             return "Nhân viên"
@@ -24,30 +27,6 @@ type UserWithDepartment = User & {
 }
 
 export const usersColumns: ColumnDef<UserWithDepartment>[] = [
-    {
-        id: "select",
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) =>
-                    table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
     {
         accessorKey: "displayName",
         header: ({ column }) => {
@@ -86,6 +65,12 @@ export const usersColumns: ColumnDef<UserWithDepartment>[] = [
             <div className="ml-3 lowercase">{row.getValue("email")}</div>
         ),
     },
+
+    {
+        accessorKey: "role",
+        header: "Vai trò",
+        cell: ({ row }) => <div>{getRoleText(row.getValue("role"))}</div>,
+    },
     {
         accessorKey: "department",
         header: "Phòng ban",
@@ -93,11 +78,6 @@ export const usersColumns: ColumnDef<UserWithDepartment>[] = [
             const department = row.original.department
             return <div>{department?.name || "Chưa có phòng ban"}</div>
         },
-    },
-    {
-        accessorKey: "role",
-        header: "Vai trò",
-        cell: ({ row }) => <div>{getRoleText(row.getValue("role"))}</div>,
     },
     {
         accessorKey: "userVerified",
