@@ -1,15 +1,15 @@
 import { auth } from "@/lib/auth"
-import { openai } from "@ai-sdk/openai"
+import { createOpenAI } from "@ai-sdk/openai"
 import { streamText, convertToModelMessages, UIMessage, smoothStream } from "ai"
 import { headers } from "next/headers"
 import { deleteChatById, getChatById, saveChat, saveMessages } from "./queries"
 import { generateTitle } from "@/lib/ai/actions"
 import { generateUUID } from "@/lib/utils"
-import { employeeTools } from "@/lib/ai/tools/employee-tools"
+import { dbTools } from "@/lib/ai/tools/db-tools"
 import { system_prompt } from "@/lib/ai/prompt"
+import { getAIConfigPublic } from "@/lib/ai/config"
 
 export const maxDuration = 30
-
 async function getAuthenticatedUser() {
     const header = await headers()
     const session = await auth.api.getSession({
@@ -45,11 +45,16 @@ export async function POST(request: Request) {
         await saveChat(chatId, title, user.id, groupId)
     }
 
+    const aiConfig = await getAIConfigPublic()
+    const openaiProvider = createOpenAI({
+        apiKey: aiConfig.apiKey,
+    })
+
     const result = streamText({
-        model: openai("gpt-4.1"),
+        model: openaiProvider(aiConfig.model),
         system: system_prompt,
         messages: convertToModelMessages(messages),
-        tools: employeeTools,
+        tools: dbTools,
         experimental_transform: smoothStream({
             chunking: "word",
             delayInMs: 10,

@@ -1,7 +1,8 @@
-import { openai } from "@ai-sdk/openai"
+import { createOpenAI } from "@ai-sdk/openai"
 import { Message } from "@prisma/client"
 import { generateText, UIDataTypes, UIMessage, UIMessagePart } from "ai"
 import { formatISO } from "date-fns"
+import { getAIConfigPublic } from "./config"
 
 export async function generateTitle({
     message,
@@ -32,8 +33,13 @@ export async function generateTitle({
 
     prompt = prompt.slice(0, 2000) // Limit to 2000 characters
 
+    const aiConfig = await getAIConfigPublic()
+    const openaiProvider = createOpenAI({
+        apiKey: aiConfig.apiKey,
+    })
+
     const { text: title } = await generateText({
-        model: openai("gpt-3.5-turbo"),
+        model: openaiProvider("gpt-3.5-turbo"), // Keep gpt-3.5-turbo for title generation as it's cheaper
         system: `Tạo một tiêu đề ngắn gọn, khoảng 3-5 từ, truyền tải được nội dung cốt lõi của tin nhắn của người dùng. Tiêu đề phải thể hiện rõ chủ đề của cuộc trò chuyện. Viết tiêu đề bằng ngôn ngữ chính của cuộc trò chuyện; mặc định là tiếng Việt nếu không thể xác định.`,
         prompt,
     })

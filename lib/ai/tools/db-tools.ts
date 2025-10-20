@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db/prisma"
 
 export const getEmployeeByNameTool = tool({
     description:
-        "Tìm kiếm thông tin nhân viên theo tên. Hữu ích khi người dùng hỏi về một nhân viên cụ thể hoặc muốn biết thông tin chi tiết của ai đó trong công ty.",
+        "Tìm kiếm thông tin nhân viên theo tên. Dùng khi người dùng hỏi về một nhân viên cụ thể hoặc muốn biết thông tin chi tiết của ai đó trong công ty.",
     inputSchema: z.object({
         name: z.string().describe("Tên hoặc họ tên của nhân viên cần tìm"),
     }),
@@ -317,10 +317,30 @@ export const getEmployeeByEmailTool = tool({
     },
 })
 
-export const employeeTools = {
+export const getEmployeeCountTool = tool({
+    description:
+        "Lấy tổng số lượng nhân viên trong công ty. Hữu ích khi người dùng muốn biết quy mô công ty hoặc số lượng nhân sự/thành viên/nhân viên trong công ty.",
+    inputSchema: z.object({}),
+    execute: async () => {
+        const count = await prisma.user.count({
+            where: {
+                userVerified: true,
+                banned: false,
+            },
+        })
+        return {
+            success: true,
+            message: `Công ty có tổng cộng ${count} nhân viên.`,
+            count,
+        }
+    },
+})
+
+export const dbTools = {
     getEmployeeByName: getEmployeeByNameTool,
     getEmployeesByDepartment: getEmployeesByDepartmentTool,
     getEmployeesByProject: getEmployeesByProjectTool,
     getAllDepartments: getAllDepartmentsTool,
     getEmployeeByEmail: getEmployeeByEmailTool,
+    getEmployeeCount: getEmployeeCountTool,
 }
