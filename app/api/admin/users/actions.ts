@@ -93,6 +93,17 @@ export async function updateUserAction(formData: FormData) {
         throw new Error("Missing userId")
     }
 
+    const currentUser = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+            managedDepartments: true,
+        },
+    })
+
+    if (!currentUser) {
+        return { error: "User not found" }
+    }
+
     const updateData: {
         name?: string
         displayName?: string
@@ -110,13 +121,67 @@ export async function updateUserAction(formData: FormData) {
     if (typeof email === "string" && email.length > 0) {
         updateData.email = email
     }
-    if (typeof role === "string" && role.length > 0) {
-        updateData.role = role
+
+    const newDepartmentId =
+        departmentId === null || departmentId === ""
+            ? null
+            : typeof departmentId === "string" && departmentId.length > 0
+              ? departmentId
+              : currentUser.departmentId
+
+    const oldRole = currentUser.role
+    const newRole = typeof role === "string" && role.length > 0 ? role : oldRole
+
+    const isCurrentlyManager = currentUser.managedDepartments.length > 0
+
+    if (isCurrentlyManager && newDepartmentId !== currentUser.departmentId) {
+        return { error: "Quản lý không thể thay đổi phòng ban của mình" }
     }
-    if (departmentId === null || departmentId === "") {
-        updateData.departmentId = null
-    } else if (typeof departmentId === "string" && departmentId.length > 0) {
-        updateData.departmentId = departmentId
+
+    if (oldRole !== "manager" && newRole === "manager") {
+        if (!newDepartmentId) {
+            return { error: "Quản lý phải được chỉ định một phòng ban" }
+        }
+
+        const department = await prisma.department.findUnique({
+            where: { id: newDepartmentId },
+            select: { managerId: true },
+        })
+
+        if (!department) {
+            return { error: "Phòng ban không tồn tại" }
+        }
+
+        if (department.managerId && department.managerId !== userId) {
+            return { error: "Phòng ban đã có quản lý" }
+        }
+
+        await prisma.department.update({
+            where: { id: newDepartmentId },
+            data: { managerId: userId },
+        })
+
+        updateData.role = newRole
+        updateData.departmentId = newDepartmentId
+    } else if (oldRole === "manager" && newRole !== "manager") {
+        if (currentUser.managedDepartments.length > 0) {
+            await prisma.department.update({
+                where: { id: currentUser.managedDepartments[0].id },
+                data: { managerId: null },
+            })
+        }
+
+        updateData.role = newRole
+        if (newDepartmentId !== undefined) {
+            updateData.departmentId = newDepartmentId
+        }
+    } else {
+        if (typeof role === "string" && role.length > 0) {
+            updateData.role = role
+        }
+        if (newDepartmentId !== currentUser.departmentId) {
+            updateData.departmentId = newDepartmentId
+        }
     }
 
     await prisma.user.update({
@@ -127,4 +192,6 @@ export async function updateUserAction(formData: FormData) {
     revalidatePath("/admin")
     revalidatePath("/admin/users")
     revalidatePath("/admin/departments")
+
+    return { error: null }
 }

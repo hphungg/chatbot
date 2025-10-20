@@ -23,7 +23,11 @@ export const getProjectsWithMembers = async (): Promise<ProjectWithStats[]> => {
             include: {
                 departments: {
                     include: {
-                        department: true,
+                        department: {
+                            include: {
+                                users: true,
+                            },
+                        },
                     },
                 },
                 users: {
@@ -35,17 +39,28 @@ export const getProjectsWithMembers = async (): Promise<ProjectWithStats[]> => {
             orderBy: { createdAt: "desc" },
         })
 
-        return projects.map((project) => ({
-            id: project.id,
-            name: project.name,
-            departmentNames: project.departments.map((d) => d.department.name),
-            memberCount: project.users.length,
-            startDate: project.startDate
-                ? project.startDate.toISOString()
-                : null,
-            endDate: project.endDate ? project.endDate.toISOString() : null,
-            members: project.users.map((pu) => pu.user),
-        })) as ProjectWithStats[]
+        return projects.map((project) => {
+            const uniqueUserIds = new Set<string>()
+            project.departments.forEach((pd) => {
+                pd.department.users.forEach((user) => {
+                    uniqueUserIds.add(user.id)
+                })
+            })
+
+            return {
+                id: project.id,
+                name: project.name,
+                departmentNames: project.departments.map(
+                    (d) => d.department.name,
+                ),
+                memberCount: uniqueUserIds.size,
+                startDate: project.startDate
+                    ? project.startDate.toISOString()
+                    : null,
+                endDate: project.endDate ? project.endDate.toISOString() : null,
+                members: project.users.map((pu) => pu.user),
+            }
+        }) as ProjectWithStats[]
     } catch (error) {
         console.error(error)
         throw new Error("Failed to fetch projects")

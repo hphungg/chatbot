@@ -1,5 +1,5 @@
-import { AdminSidebar } from "@/components/admin/sidebar/admin-sidebar"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { AdminSidebarWrapper } from "@/components/admin/sidebar/admin-sidebar-wrapper"
+import { SidebarInset } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
@@ -48,8 +48,7 @@ export default async function AdminLayout({
     }
 
     return (
-        <SidebarProvider defaultOpen>
-            <AdminSidebar user={sidebarUser} />
+        <AdminSidebarWrapper user={sidebarUser}>
             <SidebarInset
                 className={cn(
                     "@container/content",
@@ -59,6 +58,6 @@ export default async function AdminLayout({
             >
                 {children}
             </SidebarInset>
-        </SidebarProvider>
+        </AdminSidebarWrapper>
     )
 }

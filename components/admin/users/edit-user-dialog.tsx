@@ -65,25 +65,27 @@ export function EditUserDialog({ user, departments }: EditUserDialogProps) {
         }
 
         setLoading(true)
-        try {
-            const formData = new FormData()
-            formData.append("userId", user.id)
-            formData.append("name", trimmedName)
-            formData.append("displayName", displayName.trim())
-            formData.append("email", trimmedEmail)
-            formData.append("role", role)
-            formData.append(
-                "departmentId",
-                departmentId === "none" ? "" : departmentId,
-            )
+        const formData = new FormData()
+        formData.append("userId", user.id)
+        formData.append("name", trimmedName)
+        formData.append("displayName", displayName.trim())
+        formData.append("email", trimmedEmail)
+        formData.append("role", role)
+        formData.append(
+            "departmentId",
+            departmentId === "none" ? "" : departmentId,
+        )
 
-            await updateUserAction(formData)
+        const { error } = await updateUserAction(formData)
+
+        if (error) {
+            toast.error(`Đã xảy ra lỗi: ${error}`)
+            setLoading(false)
+
+            return
+        } else {
             toast.success("Cập nhật thông tin người dùng thành công")
             setOpen(false)
-        } catch (error) {
-            console.error("Error updating user:", error)
-            toast.error("Đã xảy ra lỗi khi cập nhật thông tin người dùng")
-        } finally {
             setLoading(false)
         }
     }

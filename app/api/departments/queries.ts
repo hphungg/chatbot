@@ -25,6 +25,14 @@ export const getAllDepartments = async (): Promise<Department[]> => {
                 _count: {
                     select: { users: true, projects: true },
                 },
+                manager: {
+                    select: {
+                        id: true,
+                        name: true,
+                        displayName: true,
+                        email: true,
+                    },
+                },
             },
             orderBy: { createdAt: "desc" },
         })
@@ -33,10 +41,12 @@ export const getAllDepartments = async (): Promise<Department[]> => {
             id: dept.id,
             name: dept.name,
             code: dept.code,
+            managerId: dept.managerId,
             createdAt: dept.createdAt,
             updatedAt: dept.updatedAt,
             employeeCount: dept._count.users,
             projectCount: dept._count.projects,
+            manager: dept.manager,
         }))
 
         return departments

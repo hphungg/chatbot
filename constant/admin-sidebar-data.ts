@@ -1,5 +1,11 @@
 import { type ComponentType, type SVGProps } from "react"
-import { ShieldCheck, Users, Building2, Briefcase } from "lucide-react"
+import {
+    ShieldCheck,
+    Users,
+    Building2,
+    Briefcase,
+    Settings,
+} from "lucide-react"
 
 export interface AdminSidebarItem {
     title: string
@@ -27,5 +33,10 @@ export const adminSidebarData: AdminSidebarItem[] = [
         title: "Dự án",
         url: "/admin/projects",
         icon: Briefcase,
+    },
+    {
+        title: "Cấu hình",
+        url: "/admin/config",
+        icon: Settings,
     },
 ]

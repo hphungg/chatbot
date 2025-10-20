@@ -4,6 +4,7 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { ProjectWithStats } from "@/lib/types"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 
 function formatDate(value: string | null) {
     if (!value) return "-"
@@ -53,8 +54,18 @@ export const adminProjectColumns: ColumnDef<ProjectWithStats>[] = [
         cell: ({ row }) => {
             const names = row.getValue("departmentNames") as string[]
             return (
-                <div className="w-fit font-medium text-nowrap">
-                    {names?.length ? names.join(", ") : "Không"}
+                <div className="flex flex-wrap gap-1">
+                    {names?.length
+                        ? names.map((name, index) => (
+                              <Badge
+                                  key={index}
+                                  variant="outline"
+                                  className="whitespace-normal"
+                              >
+                                  {name}
+                              </Badge>
+                          ))
+                        : "Không"}
                 </div>
             )
         },

@@ -126,3 +126,46 @@ export async function updateDepartmentAction(input: DepartmentUpdateInput) {
         return handlePrismaError(error)
     }
 }
+
+export async function deleteDepartmentsAction(departmentIds: string[]) {
+    await requireAdminSession()
+
+    if (!departmentIds || departmentIds.length === 0) {
+        throw new Error("Không có phòng ban nào được chọn để xóa")
+    }
+
+    try {
+        const departments = await prisma.department.findMany({
+            where: { id: { in: departmentIds } },
+            include: {
+                _count: {
+                    select: { users: true, projects: true },
+                },
+            },
+        })
+
+        const departmentsWithData = departments.filter(
+            (dept) => dept._count.users > 0 || dept._count.projects > 0,
+        )
+
+        if (departmentsWithData.length > 0) {
+            const names = departmentsWithData.map((d) => d.name).join(", ")
+            throw new Error(
+                `Không thể xóa các phòng ban sau vì có nhân viên hoặc dự án: ${names}`,
+            )
+        }
+
+        await prisma.department.deleteMany({
+            where: { id: { in: departmentIds } },
+        })
+
+        revalidateDepartmentPaths()
+
+        return { success: true, deletedCount: departmentIds.length }
+    } catch (error) {
+        if (error instanceof Error) {
+            throw error
+        }
+        throw new Error("Không thể xóa phòng ban")
+    }
+}

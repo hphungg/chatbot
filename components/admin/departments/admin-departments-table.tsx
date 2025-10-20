@@ -25,6 +25,19 @@ import { CreateDepartmentDialog } from "./create-department-dialog"
 import { departmentsColumns as columns } from "./admin-departments-columns"
 import { Button } from "@/components/ui/button"
 import { DepartmentWithStats } from "@/lib/types"
+import { deleteDepartmentsAction } from "@/app/api/admin/departments/actions"
+import { toast } from "sonner"
+import { Trash2 } from "lucide-react"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface AdminDepartmentsTableProps {
     departments: DepartmentWithStats[]
@@ -41,6 +54,8 @@ export function AdminDepartmentsTable({
 }: AdminDepartmentsTableProps) {
     const [rowSelection, setRowSelection] = useState({})
     const [sorting, setSorting] = useState<SortingState>([])
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
     const table = useReactTable({
         data: departments,
@@ -60,6 +75,29 @@ export function AdminDepartmentsTable({
         getFacetedUniqueValues: getFacetedUniqueValues(),
     })
 
+    const selectedRows = table.getFilteredSelectedRowModel().rows
+    const selectedDepartmentIds = selectedRows.map((row) => row.original.id)
+
+    const handleDeleteDepartments = async () => {
+        setIsDeleting(true)
+        try {
+            await deleteDepartmentsAction(selectedDepartmentIds)
+            toast.success(
+                `Đã xóa ${selectedDepartmentIds.length} phòng ban thành công`,
+            )
+            setRowSelection({})
+        } catch (error) {
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Có lỗi xảy ra khi xóa phòng ban",
+            )
+        } finally {
+            setIsDeleting(false)
+            setShowDeleteDialog(false)
+        }
+    }
+
     return (
         <div className="w-full">
             <div className="flex flex-col gap-2 md:flex-row md:justify-between">
@@ -77,7 +115,19 @@ export function AdminDepartmentsTable({
                     }
                     className="mb-4 max-w-sm"
                 />
-                <CreateDepartmentDialog triggerLabel="Tạo phòng ban" />
+                <div className="flex gap-2">
+                    {selectedDepartmentIds.length > 0 && (
+                        <Button
+                            variant="destructive"
+                            onClick={() => setShowDeleteDialog(true)}
+                            disabled={isDeleting}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Xóa ({selectedDepartmentIds.length})
+                        </Button>
+                    )}
+                    <CreateDepartmentDialog triggerLabel="Tạo phòng ban" />
+                </div>
             </div>
             <div className="overflow-hidden rounded-md border">
                 <Table>
@@ -156,6 +206,36 @@ export function AdminDepartmentsTable({
                     </Button>
                 </div>
             </div>
+
+            <AlertDialog
+                open={showDeleteDialog}
+                onOpenChange={setShowDeleteDialog}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Xác nhận xóa phòng ban
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn có chắc chắn muốn xóa{" "}
+                            {selectedDepartmentIds.length} phòng ban đã chọn?
+                            Hành động này không thể hoàn tác.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>
+                            Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteDepartments}
+                            disabled={isDeleting}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {isDeleting ? "Đang xóa..." : "Xóa"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

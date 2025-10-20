@@ -16,6 +16,12 @@ export interface DepartmentWithStats {
     code: string
     employeeCount?: number | null
     projectCount?: number | null
+    manager?: {
+        id: string
+        name: string
+        displayName?: string | null
+        email: string
+    } | null
 }
 
 export interface ProjectWithStats {

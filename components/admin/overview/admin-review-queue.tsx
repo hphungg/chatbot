@@ -27,7 +27,7 @@ interface AdminReviewQueueProps {
 
 export function AdminReviewQueue({ requests }: AdminReviewQueueProps) {
     return (
-        <Card className="h-full">
+        <Card className="h-fit">
             <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Hàng chờ phê duyệt</CardTitle>
             </CardHeader>

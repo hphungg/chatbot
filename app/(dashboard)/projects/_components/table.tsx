@@ -41,18 +41,20 @@ export function ProjectsTable({ type, emptyMessage }: ProjectsTableProps) {
                 const endTime = project.endDate
                     ? new Date(project.endDate).getTime()
                     : null
-                const status: ProjectRow["status"] =
-                    endTime !== null && endTime < now ? "ended" : "active"
+                const isEnded = endTime !== null && endTime < now
                 return {
                     id: project.id,
                     name: project.name,
-                    memberCount: project.members.length,
+                    departmentNames: project.departmentNames,
+                    memberCount: project.memberCount,
                     startDate: project.startDate,
                     endDate: project.endDate,
-                    status,
+                    isEnded,
                 }
             })
-            .filter((project) => project.status === type)
+            .filter((project) =>
+                type === "active" ? !project.isEnded : project.isEnded,
+            )
     }, [projects, type])
 
     const table = useReactTable({

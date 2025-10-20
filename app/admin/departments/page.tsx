@@ -16,6 +16,17 @@ export default async function AdminDepartmentsPage() {
             projectCount:
                 (department as unknown as { projectCount?: number })
                     .projectCount ?? 0,
+            manager:
+                (
+                    department as unknown as {
+                        manager?: {
+                            id: string
+                            name: string
+                            displayName?: string | null
+                            email: string
+                        } | null
+                    }
+                ).manager ?? null,
         }),
     )
 

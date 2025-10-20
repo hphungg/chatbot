@@ -24,6 +24,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CreateProjectDialog } from "./create-project-dialog"
 import { Department } from "@prisma/client"
+import { deleteProjects } from "@/app/api/projects/actions"
+import { useTransition } from "react"
+import { toast } from "sonner"
 
 interface AdminProjectsTableProps {
     projects: ProjectWithStats[]
@@ -36,6 +39,7 @@ export function AdminProjectsTable({
 }: AdminProjectsTableProps) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [rowSelection, setRowSelection] = useState({})
+    const [isPending, startTransition] = useTransition()
 
     const table = useReactTable({
         data: projects,
@@ -52,6 +56,22 @@ export function AdminProjectsTable({
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
     })
+
+    const selectedRows = table.getFilteredSelectedRowModel().rows
+    const hasSelected = selectedRows.length > 0
+
+    const handleDelete = () => {
+        const projectIds = selectedRows.map((row) => row.original.id)
+        startTransition(async () => {
+            try {
+                await deleteProjects(projectIds)
+                toast.success("Đã xóa dự án thành công")
+                setRowSelection({})
+            } catch (error) {
+                toast.error((error as Error).message)
+            }
+        })
+    }
 
     return (
         <div className="w-full">
@@ -70,7 +90,18 @@ export function AdminProjectsTable({
                     }
                     className="mb-4 max-w-sm"
                 />
-                <CreateProjectDialog departments={departments} />
+                <div className="flex gap-2">
+                    {hasSelected && (
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={isPending}
+                        >
+                            {isPending ? "Đang xóa..." : "Xóa dự án"}
+                        </Button>
+                    )}
+                    <CreateProjectDialog departments={departments} />
+                </div>
             </div>
             <div className="overflow-hidden rounded-md border">
                 <Table>

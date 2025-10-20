@@ -54,6 +54,29 @@ export const departmentsColumns: ColumnDef<DepartmentWithStats>[] = [
         cell: ({ row }) => <Badge>{row.getValue("code")}</Badge>,
     },
     {
+        accessorKey: "manager",
+        header: "Quản lý",
+        cell: ({ row }) => {
+            const manager = row.original.manager
+            return (
+                <div className="w-fit">
+                    {manager ? (
+                        <div>
+                            <div className="font-medium">
+                                {manager.displayName || manager.name}
+                            </div>
+                            <div className="text-muted-foreground text-xs">
+                                {manager.email}
+                            </div>
+                        </div>
+                    ) : (
+                        <span className="text-muted-foreground">Chưa có</span>
+                    )}
+                </div>
+            )
+        },
+    },
+    {
         accessorKey: "employeeCount",
         header: "Tổng số nhân viên",
         cell: ({ row }) => (
