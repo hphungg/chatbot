@@ -5,6 +5,8 @@ import { headers } from "next/headers"
 import { deleteChatById, getChatById, saveChat, saveMessages } from "./queries"
 import { generateTitle } from "@/lib/ai/actions"
 import { generateUUID } from "@/lib/utils"
+import { employeeTools } from "@/lib/ai/tools/employee-tools"
+import { system_prompt } from "@/lib/ai/prompt"
 
 export const maxDuration = 30
 
@@ -45,8 +47,9 @@ export async function POST(request: Request) {
 
     const result = streamText({
         model: openai("gpt-4.1"),
-        system: `You are an assistant named MavenXCore, working for the company MavenXCore Your mission is to help employees manage and handle their work more efficiently.`,
+        system: system_prompt,
         messages: convertToModelMessages(messages),
+        tools: employeeTools,
         experimental_transform: smoothStream({
             chunking: "word",
             delayInMs: 10,
@@ -55,6 +58,7 @@ export async function POST(request: Request) {
 
     return result.toUIMessageStreamResponse({
         sendReasoning: true,
+        sendSources: true,
         originalMessages: messages,
         onFinish: ({ messages }) => {
             saveMessages({

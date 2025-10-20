@@ -166,10 +166,7 @@ export function ChatSidebar({ user }: { user: any }) {
                                     groupChatMap.get(group.id) ?? []
 
                                 return (
-                                    <Collapsible
-                                        defaultOpen={isActive}
-                                        key={group.id}
-                                    >
+                                    <Collapsible key={group.id}>
                                         <SidebarMenuItem>
                                             <div className="flex items-center">
                                                 <CollapsibleTrigger asChild>
@@ -192,10 +189,7 @@ export function ChatSidebar({ user }: { user: any }) {
                                                     </SidebarMenuButton>
                                                 </CollapsibleTrigger>
 
-                                                <DropdownMenu
-                                                    modal={true}
-                                                    defaultOpen={true}
-                                                >
+                                                <DropdownMenu modal={true}>
                                                     <DropdownMenuTrigger
                                                         asChild
                                                     >
