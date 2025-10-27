@@ -13,7 +13,13 @@ import { headers } from "next/headers"
 import { deleteChatById, getChatById, saveChat, saveMessages } from "./queries"
 import { generateTitle } from "@/lib/ai/actions"
 import { generateUUID } from "@/lib/utils"
-import { dbTools, emailTools } from "@/lib/ai/tools"
+import {
+    employeeTools,
+    departmentTools,
+    projectTools,
+    emailTools,
+    calendarTools,
+} from "@/lib/ai/tools"
 import { system_prompt } from "@/lib/ai/prompt"
 import { prisma } from "@/lib/db/prisma"
 
@@ -94,7 +100,13 @@ export async function POST(request: Request) {
         model: modelInstance,
         system: system_prompt,
         messages: convertToModelMessages(messages),
-        tools: { ...dbTools, ...emailTools },
+        tools: {
+            ...employeeTools,
+            ...departmentTools,
+            ...projectTools,
+            ...emailTools,
+            ...calendarTools,
+        },
         abortSignal: request.signal,
         experimental_transform: smoothStream({
             chunking: "word",

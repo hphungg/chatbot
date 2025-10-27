@@ -2,21 +2,146 @@ import { tool } from "ai"
 import { z } from "zod"
 import { prisma } from "@/lib/db/prisma"
 import { sendMail } from "@/lib/mail"
+import {
+    getTaskReminderTemplate,
+    getAnnouncementTemplate,
+} from "@/lib/email/templates"
 
-export const sendEmailToEmployeeTool = tool({
+export const sendTaskReminderToEmployeeTool = tool({
     description:
-        "Gửi email cho một nhân viên cụ thể trong công ty. Dùng khi người dùng muốn gửi email cho một người cụ thể.",
+        "Gửi email nhắc nhở về công việc cho một nhân viên cụ thể theo tên. Sử dụng khi cần nhắc nhở nhân viên về task, deadline hoặc công việc cần làm.",
     inputSchema: z.object({
-        email: z.string().email().describe("Địa chỉ email của nhân viên"),
-        subject: z.string().describe("Tiêu đề email"),
-        message: z.string().describe("Nội dung email"),
+        employeeName: z
+            .string()
+            .describe("Tên hoặc họ tên của nhân viên cần nhắc nhở"),
+        taskTitle: z.string().describe("Tiêu đề công việc cần nhắc nhở"),
+        taskDescription: z
+            .string()
+            .optional()
+            .describe("Mô tả chi tiết về công việc"),
+        dueDate: z.string().optional().describe("Hạn chót của công việc"),
+        priority: z
+            .enum(["HIGH", "MEDIUM", "LOW"])
+            .optional()
+            .describe("Mức độ ưu tiên của công việc"),
     }),
-    execute: async ({ email, subject, message }) => {
+    execute: async ({
+        employeeName,
+        taskTitle,
+        taskDescription,
+        dueDate,
+        priority,
+    }) => {
+        try {
+            const employees = await prisma.user.findMany({
+                where: {
+                    OR: [
+                        {
+                            name: {
+                                contains: employeeName,
+                                mode: "insensitive",
+                            },
+                        },
+                        {
+                            displayName: {
+                                contains: employeeName,
+                                mode: "insensitive",
+                            },
+                        },
+                    ],
+                    userVerified: true,
+                    banned: false,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    displayName: true,
+                    email: true,
+                },
+                take: 5,
+            })
+
+            if (employees.length === 0) {
+                return {
+                    success: false,
+                    message: `Không tìm thấy nhân viên nào với tên "${employeeName}"`,
+                }
+            }
+
+            if (employees.length > 1) {
+                return {
+                    success: false,
+                    message: `Tìm thấy ${employees.length} nhân viên với tên "${employeeName}". Vui lòng cung cấp tên cụ thể hơn hoặc sử dụng email.`,
+                    suggestions: employees.map((emp) => ({
+                        name: emp.displayName || emp.name,
+                        email: emp.email,
+                    })),
+                }
+            }
+
+            const employee = employees[0]
+            const htmlBody = getTaskReminderTemplate({
+                recipientName: employee.displayName || employee.name,
+                taskTitle,
+                taskDescription,
+                dueDate,
+                priority,
+            })
+
+            await sendMail({
+                to: employee.email,
+                name: employee.displayName || employee.name,
+                subject: `⚠️ Nhắc nhở: ${taskTitle}`,
+                body: htmlBody,
+            })
+
+            return {
+                success: true,
+                message: `Email nhắc nhở đã được gửi thành công đến ${employee.displayName || employee.name} (${employee.email})`,
+                recipient: {
+                    name: employee.displayName || employee.name,
+                    email: employee.email,
+                },
+            }
+        } catch (error) {
+            console.error("Error sending task reminder:", error)
+            return {
+                success: false,
+                message: `Có lỗi xảy ra khi gửi email: ${error instanceof Error ? error.message : "Unknown error"}`,
+            }
+        }
+    },
+})
+
+export const sendTaskReminderByEmailTool = tool({
+    description:
+        "Gửi email nhắc nhở về công việc cho một nhân viên cụ thể theo địa chỉ email. Sử dụng khi biết chính xác email của nhân viên.",
+    inputSchema: z.object({
+        email: z
+            .string()
+            .email()
+            .describe("Địa chỉ email của nhân viên cần nhắc nhở"),
+        taskTitle: z.string().describe("Tiêu đề công việc cần nhắc nhở"),
+        taskDescription: z
+            .string()
+            .optional()
+            .describe("Mô tả chi tiết về công việc"),
+        dueDate: z.string().optional().describe("Hạn chót của công việc"),
+        priority: z
+            .enum(["HIGH", "MEDIUM", "LOW"])
+            .optional()
+            .describe("Mức độ ưu tiên của công việc"),
+    }),
+    execute: async ({
+        email,
+        taskTitle,
+        taskDescription,
+        dueDate,
+        priority,
+    }) => {
         try {
             const employee = await prisma.user.findUnique({
-                where: {
-                    email,
-                },
+                where: { email },
                 select: {
                     id: true,
                     name: true,
@@ -41,48 +166,31 @@ export const sendEmailToEmployeeTool = tool({
                 }
             }
 
-            const htmlBody = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <style>
-                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                        .header { background-color: #f4f4f4; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-                        .content { padding: 20px; background-color: #ffffff; }
-                        .footer { margin-top: 20px; padding: 10px; font-size: 12px; color: #666; border-top: 1px solid #ddd; }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="header">
-                            <h2>Xin chào ${employee.displayName || employee.name},</h2>
-                        </div>
-                        <div class="content">
-                            ${message.replace(/\n/g, "<br>")}
-                        </div>
-                        <div class="footer">
-                            <p>Email này được gửi từ hệ thống Chatbot của công ty.</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-            `
+            const htmlBody = getTaskReminderTemplate({
+                recipientName: employee.displayName || employee.name,
+                taskTitle,
+                taskDescription,
+                dueDate,
+                priority,
+            })
 
             await sendMail({
                 to: employee.email,
                 name: employee.displayName || employee.name,
-                subject,
+                subject: `⚠️ Nhắc nhở: ${taskTitle}`,
                 body: htmlBody,
             })
 
             return {
                 success: true,
-                message: `Email đã được gửi thành công đến ${employee.displayName || employee.name} (${employee.email})`,
+                message: `Email nhắc nhở đã được gửi thành công đến ${employee.displayName || employee.name} (${employee.email})`,
+                recipient: {
+                    name: employee.displayName || employee.name,
+                    email: employee.email,
+                },
             }
         } catch (error) {
-            console.error("Error sending email:", error)
+            console.error("Error sending task reminder:", error)
             return {
                 success: false,
                 message: `Có lỗi xảy ra khi gửi email: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -91,15 +199,15 @@ export const sendEmailToEmployeeTool = tool({
     },
 })
 
-export const sendEmailToDepartmentTool = tool({
+export const sendAnnouncementToDepartmentTool = tool({
     description:
-        "Gửi email cho tất cả nhân viên trong một phòng ban cụ thể. Hữu ích khi người dùng muốn thông báo hoặc gửi thông tin cho cả phòng ban.",
+        "Gửi email thông báo cho tất cả nhân viên trong một phòng ban cụ thể. Sử dụng khi cần thông báo tin tức, chính sách, hoặc thông tin quan trọng cho cả phòng ban.",
     inputSchema: z.object({
         departmentName: z
             .string()
-            .describe("Tên hoặc mã phòng ban cần gửi email"),
-        subject: z.string().describe("Tiêu đề email"),
-        message: z.string().describe("Nội dung email"),
+            .describe("Tên hoặc mã phòng ban cần gửi thông báo"),
+        subject: z.string().describe("Tiêu đề thông báo"),
+        message: z.string().describe("Nội dung thông báo"),
     }),
     execute: async ({ departmentName, subject, message }) => {
         try {
@@ -151,42 +259,17 @@ export const sendEmailToDepartmentTool = tool({
             }
 
             const emailPromises = department.users.map((employee) => {
-                const htmlBody = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="utf-8">
-                        <style>
-                            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                            .header { background-color: #f4f4f4; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-                            .content { padding: 20px; background-color: #ffffff; }
-                            .footer { margin-top: 20px; padding: 10px; font-size: 12px; color: #666; border-top: 1px solid #ddd; }
-                            .department-badge { display: inline-block; background-color: #007bff; color: white; padding: 5px 10px; border-radius: 3px; font-size: 12px; margin-bottom: 10px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                            <div class="header">
-                                <div class="department-badge">Phòng ban: ${department.name}</div>
-                                <h2>Xin chào ${employee.displayName || employee.name},</h2>
-                            </div>
-                            <div class="content">
-                                ${message.replace(/\n/g, "<br>")}
-                            </div>
-                            <div class="footer">
-                                <p>Email này được gửi đến tất cả thành viên phòng ban ${department.name}.</p>
-                                <p>Email được gửi từ hệ thống Chatbot của công ty.</p>
-                            </div>
-                        </div>
-                    </body>
-                    </html>
-                `
+                const htmlBody = getAnnouncementTemplate({
+                    recipientName: employee.displayName || employee.name,
+                    subject,
+                    message,
+                    departmentName: department.name,
+                })
 
                 return sendMail({
                     to: employee.email,
                     name: employee.displayName || employee.name,
-                    subject,
+                    subject: `📢 ${subject}`,
                     body: htmlBody,
                 })
             })
@@ -195,39 +278,105 @@ export const sendEmailToDepartmentTool = tool({
 
             return {
                 success: true,
-                message: `Email đã được gửi thành công đến ${department.users.length} nhân viên trong phòng ban ${department.name}`,
-                recipients: department.users.map((emp) => ({
-                    name: emp.displayName || emp.name,
-                    email: emp.email,
-                })),
+                message: `Thông báo đã được gửi thành công đến ${department.users.length} nhân viên trong phòng ban ${department.name}`,
+                department: {
+                    name: department.name,
+                    code: department.code,
+                },
+                recipientCount: department.users.length,
             }
         } catch (error) {
-            console.error("Error sending emails to department:", error)
+            console.error("Error sending announcement to department:", error)
             return {
                 success: false,
-                message: `Có lỗi xảy ra khi gửi email: ${error instanceof Error ? error.message : "Unknown error"}`,
+                message: `Có lỗi xảy ra khi gửi thông báo: ${error instanceof Error ? error.message : "Unknown error"}`,
             }
         }
     },
 })
 
-export const sendEmailToMultipleEmployeesTool = tool({
+export const sendAnnouncementToCompanyTool = tool({
     description:
-        "Gửi email cho nhiều nhân viên cùng lúc bằng danh sách email. Hữu ích khi người dùng muốn gửi email cho một nhóm người cụ thể.",
+        "Gửi email thông báo cho toàn bộ nhân viên trong công ty. Sử dụng khi cần thông báo tin tức quan trọng, chính sách công ty, hoặc thông tin cấp công ty.",
+    inputSchema: z.object({
+        subject: z.string().describe("Tiêu đề thông báo"),
+        message: z.string().describe("Nội dung thông báo"),
+    }),
+    execute: async ({ subject, message }) => {
+        try {
+            const employees = await prisma.user.findMany({
+                where: {
+                    userVerified: true,
+                    banned: false,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    displayName: true,
+                    email: true,
+                    department: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                },
+            })
+
+            if (employees.length === 0) {
+                return {
+                    success: false,
+                    message: "Không tìm thấy nhân viên nào trong hệ thống",
+                }
+            }
+
+            const emailPromises = employees.map((employee) => {
+                const htmlBody = getAnnouncementTemplate({
+                    recipientName: employee.displayName || employee.name,
+                    subject,
+                    message,
+                    isCompanyWide: true,
+                })
+
+                return sendMail({
+                    to: employee.email,
+                    name: employee.displayName || employee.name,
+                    subject: `📢 [Toàn công ty] ${subject}`,
+                    body: htmlBody,
+                })
+            })
+
+            await Promise.all(emailPromises)
+
+            return {
+                success: true,
+                message: `Thông báo đã được gửi thành công đến ${employees.length} nhân viên trong công ty`,
+                recipientCount: employees.length,
+            }
+        } catch (error) {
+            console.error("Error sending announcement to company:", error)
+            return {
+                success: false,
+                message: `Có lỗi xảy ra khi gửi thông báo: ${error instanceof Error ? error.message : "Unknown error"}`,
+            }
+        }
+    },
+})
+
+export const sendAnnouncementToMultipleEmployeesTool = tool({
+    description:
+        "Gửi email thông báo cho nhiều nhân viên cùng lúc bằng danh sách email. Sử dụng khi cần gửi thông báo cho một nhóm nhân viên cụ thể.",
     inputSchema: z.object({
         emails: z
             .array(z.string().email())
             .describe("Danh sách địa chỉ email của các nhân viên"),
-        subject: z.string().describe("Tiêu đề email"),
-        message: z.string().describe("Nội dung email"),
+        subject: z.string().describe("Tiêu đề thông báo"),
+        message: z.string().describe("Nội dung thông báo"),
     }),
     execute: async ({ emails, subject, message }) => {
         try {
             const employees = await prisma.user.findMany({
                 where: {
-                    email: {
-                        in: emails,
-                    },
+                    email: { in: emails },
                     userVerified: true,
                     banned: false,
                 },
@@ -257,47 +406,23 @@ export const sendEmailToMultipleEmployeesTool = tool({
             )
 
             const emailPromises = employees.map((employee) => {
-                const htmlBody = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="utf-8">
-                        <style>
-                            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                            .header { background-color: #f4f4f4; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-                            .content { padding: 20px; background-color: #ffffff; }
-                            .footer { margin-top: 20px; padding: 10px; font-size: 12px; color: #666; border-top: 1px solid #ddd; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                            <div class="header">
-                                <h2>Xin chào ${employee.displayName || employee.name},</h2>
-                                ${employee.department ? `<p>Phòng ban: ${employee.department.name}</p>` : ""}
-                            </div>
-                            <div class="content">
-                                ${message.replace(/\n/g, "<br>")}
-                            </div>
-                            <div class="footer">
-                                <p>Email này được gửi từ hệ thống Chatbot của công ty.</p>
-                            </div>
-                        </div>
-                    </body>
-                    </html>
-                `
+                const htmlBody = getAnnouncementTemplate({
+                    recipientName: employee.displayName || employee.name,
+                    subject,
+                    message,
+                })
 
                 return sendMail({
                     to: employee.email,
                     name: employee.displayName || employee.name,
-                    subject,
+                    subject: `📢 ${subject}`,
                     body: htmlBody,
                 })
             })
 
             await Promise.all(emailPromises)
 
-            let resultMessage = `Email đã được gửi thành công đến ${employees.length} nhân viên`
+            let resultMessage = `Thông báo đã được gửi thành công đến ${employees.length} nhân viên`
             if (notFoundEmails.length > 0) {
                 resultMessage += `. Không tìm thấy hoặc không thể gửi đến ${notFoundEmails.length} email: ${notFoundEmails.join(", ")}`
             }
@@ -305,134 +430,27 @@ export const sendEmailToMultipleEmployeesTool = tool({
             return {
                 success: true,
                 message: resultMessage,
-                recipients: employees.map((emp) => ({
-                    name: emp.displayName || emp.name,
-                    email: emp.email,
-                    department: emp.department?.name,
-                })),
+                recipientCount: employees.length,
                 notFoundEmails,
             }
         } catch (error) {
-            console.error("Error sending emails to multiple employees:", error)
+            console.error(
+                "Error sending announcement to multiple employees:",
+                error,
+            )
             return {
                 success: false,
-                message: `Có lỗi xảy ra khi gửi email: ${error instanceof Error ? error.message : "Unknown error"}`,
-            }
-        }
-    },
-})
-
-export const sendEmailByEmployeeNameTool = tool({
-    description:
-        "Gửi email cho nhân viên bằng tên của họ. Hữu ích khi người dùng biết tên nhân viên nhưng không biết email.",
-    inputSchema: z.object({
-        name: z.string().describe("Tên hoặc họ tên của nhân viên"),
-        subject: z.string().describe("Tiêu đề email"),
-        message: z.string().describe("Nội dung email"),
-    }),
-    execute: async ({ name, subject, message }) => {
-        try {
-            const employees = await prisma.user.findMany({
-                where: {
-                    OR: [
-                        { name: { contains: name, mode: "insensitive" } },
-                        {
-                            displayName: {
-                                contains: name,
-                                mode: "insensitive",
-                            },
-                        },
-                    ],
-                    userVerified: true,
-                    banned: false,
-                },
-                select: {
-                    id: true,
-                    name: true,
-                    displayName: true,
-                    email: true,
-                    department: {
-                        select: {
-                            name: true,
-                        },
-                    },
-                },
-                take: 10,
-            })
-
-            if (employees.length === 0) {
-                return {
-                    success: false,
-                    message: `Không tìm thấy nhân viên nào với tên "${name}"`,
-                }
-            }
-
-            if (employees.length > 1) {
-                return {
-                    success: false,
-                    message: `Tìm thấy ${employees.length} nhân viên với tên "${name}". Vui lòng cung cấp tên cụ thể hơn hoặc sử dụng email để gửi.`,
-                    suggestions: employees.map((emp) => ({
-                        name: emp.displayName || emp.name,
-                        email: emp.email,
-                        department: emp.department?.name,
-                    })),
-                }
-            }
-
-            const employee = employees[0]
-            const htmlBody = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <style>
-                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                        .header { background-color: #f4f4f4; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-                        .content { padding: 20px; background-color: #ffffff; }
-                        .footer { margin-top: 20px; padding: 10px; font-size: 12px; color: #666; border-top: 1px solid #ddd; }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="header">
-                            <h2>Xin chào ${employee.displayName || employee.name},</h2>
-                        </div>
-                        <div class="content">
-                            ${message.replace(/\n/g, "<br>")}
-                        </div>
-                        <div class="footer">
-                            <p>Email này được gửi từ hệ thống Chatbot của công ty.</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-            `
-
-            await sendMail({
-                to: employee.email,
-                name: employee.displayName || employee.name,
-                subject,
-                body: htmlBody,
-            })
-
-            return {
-                success: true,
-                message: `Email đã được gửi thành công đến ${employee.displayName || employee.name} (${employee.email})`,
-            }
-        } catch (error) {
-            console.error("Error sending email by name:", error)
-            return {
-                success: false,
-                message: `Có lỗi xảy ra khi gửi email: ${error instanceof Error ? error.message : "Unknown error"}`,
+                message: `Có lỗi xảy ra khi gửi thông báo: ${error instanceof Error ? error.message : "Unknown error"}`,
             }
         }
     },
 })
 
 export const emailTools = {
-    sendEmailToEmployee: sendEmailToEmployeeTool,
-    sendEmailToDepartment: sendEmailToDepartmentTool,
-    sendEmailToMultipleEmployees: sendEmailToMultipleEmployeesTool,
-    sendEmailByEmployeeName: sendEmailByEmployeeNameTool,
+    sendTaskReminderToEmployee: sendTaskReminderToEmployeeTool,
+    sendTaskReminderByEmail: sendTaskReminderByEmailTool,
+    sendAnnouncementToDepartment: sendAnnouncementToDepartmentTool,
+    sendAnnouncementToCompany: sendAnnouncementToCompanyTool,
+    sendAnnouncementToMultipleEmployees:
+        sendAnnouncementToMultipleEmployeesTool,
 }
