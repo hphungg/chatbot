@@ -161,13 +161,7 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                                                     </Tool>
                                                 )
                                             default:
-                                                return (
-                                                    <Response
-                                                        key={`${message.id}-${i}`}
-                                                    >
-                                                        Thực hiện thành công
-                                                    </Response>
-                                                )
+                                                return null
                                         }
                                     })}
                                 </MessageContent>
