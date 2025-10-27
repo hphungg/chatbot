@@ -17,15 +17,14 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { updateDepartmentAction } from "@/app/api/admin/departments/actions"
 import { DepartmentWithStats } from "@/lib/types"
+import { Pencil } from "lucide-react"
 
 interface EditDepartmentDialogProps {
     department: DepartmentWithStats | null
-    triggerLabel?: string
 }
 
 export function EditDepartmentDialog({
     department,
-    triggerLabel = "Sửa",
 }: EditDepartmentDialogProps) {
     const router = useRouter()
     const [open, setOpen] = useState(false)
@@ -69,8 +68,8 @@ export function EditDepartmentDialog({
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="cursor-pointer">
-                    {triggerLabel}
+                <Button variant="ghost" size="icon" className="cursor-pointer">
+                    <Pencil className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">

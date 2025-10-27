@@ -37,11 +37,11 @@ export default async function ProjectsPage() {
                     </div>
                     <div className="space-y-4">
                         <h3 className="text-xl font-semibold">
-                            Dự án đã kết thúc hoặc hết hạn
+                            Dự án đã kết thúc
                         </h3>
                         <ProjectsTable
                             type="ended"
-                            emptyMessage="Không có dự án đã kết thúc hoặc hết hạn."
+                            emptyMessage="Không có dự án nào."
                         />
                     </div>
                 </div>

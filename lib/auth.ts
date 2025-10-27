@@ -47,15 +47,12 @@ const authOptions = {
     },
     hooks: {
         after: createAuthMiddleware(async (ctx) => {
-            if (!ctx.path.startsWith("/sign-in")) {
-                return
-            }
             const newSession = ctx.context.newSession
             if (!newSession) {
                 return
             }
             const { user } = newSession
-            if (user.displayName || !user.name) {
+            if (!user.name || user.displayName) {
                 return
             }
             await prisma.user.update({

@@ -79,13 +79,4 @@ export const usersColumns: ColumnDef<UserWithDepartment>[] = [
             return <div>{department?.name || "Chưa có phòng ban"}</div>
         },
     },
-    {
-        accessorKey: "userVerified",
-        header: "Trạng thái",
-        cell: ({ row }) => (
-            <div>
-                {row.getValue("userVerified") ? "Đã duyệt" : "Chưa duyệt"}
-            </div>
-        ),
-    },
 ]

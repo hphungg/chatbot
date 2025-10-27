@@ -45,7 +45,6 @@ const roles = [
 
 export function EditUserDialog({ user, departments }: EditUserDialogProps) {
     const [open, setOpen] = useState(false)
-    const [name, setName] = useState(user.name)
     const [displayName, setDisplayName] = useState(user.displayName || "")
     const [email, setEmail] = useState(user.email)
     const [role, setRole] = useState(user.role)
@@ -56,10 +55,9 @@ export function EditUserDialog({ user, departments }: EditUserDialogProps) {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        const trimmedName = name.trim()
         const trimmedEmail = email.trim().toLowerCase()
 
-        if (!trimmedName || !trimmedEmail) {
+        if (!trimmedEmail) {
             toast.error("Vui lòng điền đầy đủ thông tin")
             return
         }
@@ -67,7 +65,7 @@ export function EditUserDialog({ user, departments }: EditUserDialogProps) {
         setLoading(true)
         const formData = new FormData()
         formData.append("userId", user.id)
-        formData.append("name", trimmedName)
+        formData.append("name", user.name)
         formData.append("displayName", displayName.trim())
         formData.append("email", trimmedEmail)
         formData.append("role", role)
@@ -100,9 +98,6 @@ export function EditUserDialog({ user, departments }: EditUserDialogProps) {
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Chỉnh sửa thông tin người dùng</DialogTitle>
-                    <DialogDescription>
-                        Cập nhật thông tin người dùng trong hệ thống.
-                    </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
@@ -113,11 +108,8 @@ export function EditUserDialog({ user, departments }: EditUserDialogProps) {
                             <Input
                                 id="edit-user-name"
                                 type="text"
-                                placeholder="Nguyễn Văn A"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                disabled={loading}
-                                required
+                                value={user.name}
+                                disabled
                             />
                         </div>
                         <div className="grid gap-2">
@@ -145,55 +137,59 @@ export function EditUserDialog({ user, departments }: EditUserDialogProps) {
                                 required
                             />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="edit-user-role">Vai trò</Label>
-                            <Select
-                                value={role}
-                                onValueChange={setRole}
-                                disabled={loading}
-                            >
-                                <SelectTrigger id="edit-user-role">
-                                    <SelectValue placeholder="Chọn vai trò" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {roles.map((r) => (
-                                        <SelectItem
-                                            key={r.value}
-                                            value={r.value}
-                                        >
-                                            {r.label}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit-user-role">Vai trò</Label>
+                                <Select
+                                    value={role}
+                                    onValueChange={setRole}
+                                    disabled={loading}
+                                >
+                                    <SelectTrigger id="edit-user-role">
+                                        <SelectValue placeholder="Chọn vai trò" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {roles.map((r) => (
+                                            <SelectItem
+                                                key={r.value}
+                                                value={r.value}
+                                            >
+                                                {r.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit-user-department">
+                                    Phòng ban
+                                </Label>
+                                <Select
+                                    value={departmentId}
+                                    onValueChange={setDepartmentId}
+                                    disabled={loading}
+                                >
+                                    <SelectTrigger id="edit-user-department">
+                                        <SelectValue placeholder="Chọn phòng ban" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">
+                                            Không có phòng ban
                                         </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="edit-user-department">
-                                Phòng ban
-                            </Label>
-                            <Select
-                                value={departmentId}
-                                onValueChange={setDepartmentId}
-                                disabled={loading}
-                            >
-                                <SelectTrigger id="edit-user-department">
-                                    <SelectValue placeholder="Chọn phòng ban" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">
-                                        Không có phòng ban
-                                    </SelectItem>
-                                    {departments.map((dept) => (
-                                        <SelectItem
-                                            key={dept.id}
-                                            value={dept.id}
-                                        >
-                                            {dept.name}
-                                            {dept.code ? ` (${dept.code})` : ""}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                        {departments.map((dept) => (
+                                            <SelectItem
+                                                key={dept.id}
+                                                value={dept.id}
+                                            >
+                                                {dept.name}
+                                                {dept.code
+                                                    ? ` (${dept.code})`
+                                                    : ""}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
                     <DialogFooter>

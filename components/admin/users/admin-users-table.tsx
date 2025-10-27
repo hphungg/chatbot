@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import {
     Table,
     TableBody,
@@ -22,6 +22,13 @@ import {
 } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { getAdminUserColumns } from "./admin-users-columns"
 import { useRouter } from "next/navigation"
 import { InviteUserDialog } from "./invite-user-dialog"
@@ -43,11 +50,19 @@ export function AdminUsersTable({ users, departments }: AdminUsersTableProps) {
     const router = useRouter()
     const [rowSelection, setRowSelection] = useState({})
     const [sorting, setSorting] = useState<SortingState>([])
+    const [departmentFilter, setDepartmentFilter] = useState<string>("all")
+
+    const filteredUsers = useMemo(() => {
+        if (departmentFilter === "all") {
+            return users
+        }
+        return users.filter((user) => user.departmentId === departmentFilter)
+    }, [users, departmentFilter])
 
     const columns = getAdminUserColumns(departments)
 
     const table = useReactTable({
-        data: users,
+        data: filteredUsers,
         columns,
         state: {
             sorting,
@@ -76,21 +91,41 @@ export function AdminUsersTable({ users, departments }: AdminUsersTableProps) {
     return (
         <div className="flex w-full flex-col gap-4">
             <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center md:justify-between">
-                <Input
-                    id="admin-user-search"
-                    placeholder="Tìm kiếm theo tên, email, phòng ban..."
-                    value={
-                        (table
-                            .getColumn("displayName")
-                            ?.getFilterValue() as string) ?? ""
-                    }
-                    onChange={(event) =>
-                        table
-                            .getColumn("displayName")
-                            ?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Input
+                        id="admin-user-search"
+                        placeholder="Tìm kiếm theo tên nhân viên"
+                        value={
+                            (table
+                                .getColumn("displayName")
+                                ?.getFilterValue() as string) ?? ""
+                        }
+                        onChange={(event) =>
+                            table
+                                .getColumn("displayName")
+                                ?.setFilterValue(event.target.value)
+                        }
+                        className="max-w-sm"
+                    />
+                    <Select
+                        value={departmentFilter}
+                        onValueChange={setDepartmentFilter}
+                    >
+                        <SelectTrigger className="max-w-[200px]">
+                            <SelectValue placeholder="Lọc theo phòng ban" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">
+                                Tất cả phòng ban
+                            </SelectItem>
+                            {departments.map((dept) => (
+                                <SelectItem key={dept.id} value={dept.id}>
+                                    {dept.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
                 <div className="flex items-center gap-2">
                     <DeleteSelectedUsersButton
                         selectedUserIds={selectedUserIds}

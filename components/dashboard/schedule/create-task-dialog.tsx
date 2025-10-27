@@ -47,7 +47,7 @@ export function CreateTaskDialog({
     const [description, setDescription] = useState("")
     const [date, setDate] = useState<Date>(selectedDate || new Date())
     const [startTime, setStartTime] = useState("00:00:00")
-    const [endTime, setEndTime] = useState("00:00:00")
+    const [endTime, setEndTime] = useState("01:00:00")
     const [colorId, setColorId] = useState("7")
     const [loading, setLoading] = useState(false)
     const router = useRouter()
@@ -57,6 +57,15 @@ export function CreateTaskDialog({
             setDate(selectedDate)
         }
     }, [selectedDate])
+
+    const handleStartTimeChange = (newStartTime: string) => {
+        setStartTime(newStartTime)
+
+        const [hours, minutes, seconds] = newStartTime.split(":").map(Number)
+        const newEndHour = (hours + 1) % 24
+        const newEndTime = `${String(newEndHour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds || 0).padStart(2, "0")}`
+        setEndTime(newEndTime)
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -94,7 +103,7 @@ export function CreateTaskDialog({
             setTitle("")
             setDescription("")
             setStartTime("00:00:00")
-            setEndTime("00:00:00")
+            setEndTime("01:00:00")
             setColorId("7")
             onOpenChange(false)
         } catch (error) {
@@ -213,7 +222,9 @@ export function CreateTaskDialog({
                                 type="time"
                                 step="1"
                                 value={startTime}
-                                onChange={(e) => setStartTime(e.target.value)}
+                                onChange={(e) =>
+                                    handleStartTimeChange(e.target.value)
+                                }
                                 className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                                 required
                             />

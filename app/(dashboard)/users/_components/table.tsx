@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import {
     type SortingState,
     flexRender,
@@ -20,6 +20,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { usersColumns as columns } from "./columns"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,14 +40,23 @@ declare module "@tanstack/react-table" {
 
 interface UsersTableProps {
     users: User[]
+    departments: { id: string; name: string }[]
 }
 
-export function UsersTable({ users }: Readonly<UsersTableProps>) {
+export function UsersTable({ users, departments }: Readonly<UsersTableProps>) {
     const [rowSelection, setRowSelection] = useState({})
     const [sorting, setSorting] = useState<SortingState>([])
+    const [departmentFilter, setDepartmentFilter] = useState<string>("all")
+
+    const filteredUsers = useMemo(() => {
+        if (departmentFilter === "all") {
+            return users
+        }
+        return users.filter((user) => user.departmentId === departmentFilter)
+    }, [users, departmentFilter])
 
     const table = useReactTable({
-        data: users,
+        data: filteredUsers,
         columns,
         state: {
             sorting,
@@ -59,20 +75,38 @@ export function UsersTable({ users }: Readonly<UsersTableProps>) {
 
     return (
         <div className="w-full">
-            <Input
-                placeholder="Tìm kiếm nhân viên..."
-                value={
-                    (table
-                        .getColumn("displayName")
-                        ?.getFilterValue() as string) ?? ""
-                }
-                onChange={(event) =>
-                    table
-                        .getColumn("displayName")
-                        ?.setFilterValue(event.target.value)
-                }
-                className="mb-4 max-w-sm"
-            />
+            <div className="mb-4 flex gap-4">
+                <Input
+                    placeholder="Tìm kiếm nhân viên..."
+                    value={
+                        (table
+                            .getColumn("displayName")
+                            ?.getFilterValue() as string) ?? ""
+                    }
+                    onChange={(event) =>
+                        table
+                            .getColumn("displayName")
+                            ?.setFilterValue(event.target.value)
+                    }
+                    className="max-w-sm"
+                />
+                <Select
+                    value={departmentFilter}
+                    onValueChange={setDepartmentFilter}
+                >
+                    <SelectTrigger className="max-w-[200px]">
+                        <SelectValue placeholder="Lọc theo phòng ban" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Tất cả phòng ban</SelectItem>
+                        {departments.map((dept) => (
+                            <SelectItem key={dept.id} value={dept.id}>
+                                {dept.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
             <div className="overflow-hidden rounded-md border">
                 <Table>
                     <TableHeader>

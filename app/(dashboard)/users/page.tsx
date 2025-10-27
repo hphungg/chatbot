@@ -1,11 +1,19 @@
 import { DashboardHeader } from "@/components/dashboard/sidebar/dashboard-header"
-import { Search } from "@/components/search"
 import { UsersTable } from "./_components/table"
 import { getAllUsers } from "@/app/api/users/queries"
-import { User } from "@prisma/client"
+import { getAllDepartments } from "@/app/api/departments/queries"
 
 export default async function UsersPage() {
-    const users: User[] = await getAllUsers()
+    const [users, departments] = await Promise.all([
+        getAllUsers(),
+        getAllDepartments(),
+    ])
+
+    const departmentsForFilter = departments.map((dept) => ({
+        id: dept.id,
+        name: dept.name,
+    }))
+
     return (
         <>
             <DashboardHeader fixed>
@@ -14,7 +22,7 @@ export default async function UsersPage() {
                 </h1>
             </DashboardHeader>
             <div className="p-4 sm:p-6 lg:p-8">
-                <UsersTable users={users} />
+                <UsersTable users={users} departments={departmentsForFilter} />
             </div>
         </>
     )
