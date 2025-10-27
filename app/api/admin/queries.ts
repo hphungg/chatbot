@@ -15,7 +15,6 @@ const updateAdminUserSchema = z.object({
 
 const inviteUserSchema = z.object({
     email: z.string().trim().email(),
-    role: z.string().trim().min(1),
 })
 
 export async function getAdminUsers(): Promise<User[]> {
@@ -77,6 +76,16 @@ export async function inviteUser(payload: unknown): Promise<void> {
     if (existing) {
         throw new Error("Email already registered")
     }
+    await prisma.invitedUser.upsert({
+        where: { email: normalizedEmail },
+        update: {
+            invitedBy: adminSession.user.id,
+        },
+        create: {
+            email: normalizedEmail,
+            invitedBy: adminSession.user.id,
+        },
+    })
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     const inviteLink = new URL(
         "/sign-in",
@@ -85,7 +94,5 @@ export async function inviteUser(payload: unknown): Promise<void> {
     await sendInviteEmail({
         email: normalizedEmail,
         inviteLink: inviteLink.toString(),
-        inviterName: adminSession.user.name ?? "",
-        role: parsed.role,
     })
 }

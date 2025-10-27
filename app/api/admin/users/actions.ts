@@ -51,9 +51,18 @@ export async function deleteUserAction(formData: FormData) {
         throw new Error("Missing userId")
     }
 
-    await prisma.user.delete({
-        where: { id: userId },
-    })
+    try {
+        await prisma.user.delete({
+            where: { id: userId },
+        })
+    } catch (error: any) {
+        if (error.message?.includes("DepartmentManager")) {
+            throw new Error(
+                "Không thể xóa người dùng đang quản lý phòng ban. Vui lòng chuyển quyền quản lý cho người khác trước.",
+            )
+        }
+        throw error
+    }
 
     revalidatePath("/admin")
     revalidatePath("/admin/users")
@@ -67,13 +76,22 @@ export async function deleteMultipleUsersAction(userIds: string[]) {
         throw new Error("Missing userIds")
     }
 
-    await prisma.user.deleteMany({
-        where: {
-            id: {
-                in: userIds,
+    try {
+        await prisma.user.deleteMany({
+            where: {
+                id: {
+                    in: userIds,
+                },
             },
-        },
-    })
+        })
+    } catch (error: any) {
+        if (error.message?.includes("DepartmentManager")) {
+            throw new Error(
+                "Không thể xóa người dùng đang quản lý phòng ban. Vui lòng chuyển quyền quản lý cho người khác trước.",
+            )
+        }
+        throw error
+    }
 
     revalidatePath("/admin")
     revalidatePath("/admin/users")

@@ -52,13 +52,30 @@ const authOptions = {
                 return
             }
             const { user } = newSession
-            if (!user.name || user.displayName) {
-                return
-            }
-            await prisma.user.update({
-                where: { id: user.id },
-                data: { displayName: user.name },
+            const normalizedEmail = user.email.toLowerCase()
+            const invitedUser = await prisma.invitedUser.findUnique({
+                where: { email: normalizedEmail },
             })
+            const updates: {
+                displayName?: string
+                userVerified?: boolean
+                role?: string
+            } = {}
+            if (user.name && !user.displayName) {
+                updates.displayName = user.name
+            }
+            if (invitedUser && !user.userVerified) {
+                updates.userVerified = true
+                await prisma.invitedUser.delete({
+                    where: { email: normalizedEmail },
+                })
+            }
+            if (Object.keys(updates).length > 0) {
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: updates,
+                })
+            }
         }),
     },
 } satisfies BetterAuthOptions

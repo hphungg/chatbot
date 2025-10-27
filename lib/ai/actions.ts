@@ -40,7 +40,7 @@ export async function generateTitle({
 
     const { text: title } = await generateText({
         model: openaiProvider("gpt-3.5-turbo"), // Keep gpt-3.5-turbo for title generation as it's cheaper
-        system: `Tạo một tiêu đề ngắn gọn, khoảng 3-5 từ, truyền tải được nội dung cốt lõi của tin nhắn của người dùng. Tiêu đề phải thể hiện rõ chủ đề của cuộc trò chuyện. Viết tiêu đề bằng ngôn ngữ chính của cuộc trò chuyện; mặc định là tiếng Việt nếu không thể xác định.`,
+        system: `Tạo một bảm tóm tắt ngắn gọn (tối đa 5 từ) cho nội dung sau, sử dụng ngôn ngữ gốc của nội dung đó. Không sử dụng dấu câu hoặc các ký tự đặc biệt.`,
         prompt,
     })
 

@@ -13,32 +13,17 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { toast } from "sonner"
 
 interface InviteUserDialogProps {
     triggerLabel?: string
 }
 
-const roles = [
-    { value: "employee", label: "Nhân viên" },
-    { value: "manager", label: "Quản lý" },
-    { value: "director", label: "Giám đốc" },
-    { value: "admin", label: "Quản trị viên" },
-]
-
 export function InviteUserDialog({
     triggerLabel = "Mời người dùng",
 }: InviteUserDialogProps) {
     const [open, setOpen] = useState(false)
     const [email, setEmail] = useState("")
-    const [role, setRole] = useState(roles[0].value)
     const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -50,7 +35,7 @@ export function InviteUserDialog({
             const response = await fetch("/api/admin/invite", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: trimmedEmail, role }),
+                body: JSON.stringify({ email: trimmedEmail }),
             })
             const result = await response.json().catch(() => null)
             if (!response.ok) {
@@ -59,7 +44,6 @@ export function InviteUserDialog({
             }
             toast.success(`Đã gửi lời mời tới ${trimmedEmail}`)
             setEmail("")
-            setRole(roles[0].value)
             setOpen(false)
         } catch (error) {
             const message =
@@ -94,28 +78,6 @@ export function InviteUserDialog({
                             required
                             disabled={loading}
                         />
-                    </div>
-                    <div className="space-y-3">
-                        <Label htmlFor="invite-role">Vai trò</Label>
-                        <Select
-                            value={role}
-                            onValueChange={setRole}
-                            disabled={loading}
-                        >
-                            <SelectTrigger id="invite-role">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {roles.map((option) => (
-                                    <SelectItem
-                                        key={option.value}
-                                        value={option.value}
-                                    >
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
                     </div>
                     <DialogFooter className="gap-2">
                         <Button

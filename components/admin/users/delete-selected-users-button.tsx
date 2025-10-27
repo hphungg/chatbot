@@ -38,8 +38,11 @@ export function DeleteSelectedUsersButton({
             setOpen(false)
             onComplete?.()
         } catch (error) {
-            console.error("Error deleting users:", error)
-            toast.error("Đã xảy ra lỗi khi xóa người dùng")
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Đã xảy ra lỗi khi xóa người dùng"
+            toast.error(message)
         } finally {
             setLoading(false)
         }
@@ -65,8 +68,7 @@ export function DeleteSelectedUsersButton({
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                             Bạn có chắc chắn muốn xóa {selectedUserIds.length}{" "}
-                            người dùng đã chọn? Hành động này không thể hoàn
-                            tác.
+                            người dùng đã chọn?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -76,7 +78,7 @@ export function DeleteSelectedUsersButton({
                         <AlertDialogAction
                             onClick={handleDelete}
                             disabled={loading}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className="bg-destructive hover:bg-destructive/90 text-white"
                         >
                             {loading ? "Đang xóa..." : "Xóa"}
                         </AlertDialogAction>
