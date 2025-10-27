@@ -9,6 +9,8 @@
         "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
+        "@ai-sdk/deepseek": "^1.0.24",
+        "@ai-sdk/google": "^2.0.24",
         "@ai-sdk/openai": "^2.0.38",
         "@ai-sdk/react": "^2.0.48",
         "@anthropic-ai/claude-code": "^2.0.15",

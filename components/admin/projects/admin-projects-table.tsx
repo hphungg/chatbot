@@ -18,7 +18,7 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import { ProjectWithStats } from "@/lib/types"
-import { adminProjectColumns as columns } from "./admin-projects-columns"
+import { getAdminProjectColumns } from "./admin-projects-columns"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -40,6 +40,8 @@ export function AdminProjectsTable({
     const [sorting, setSorting] = useState<SortingState>([])
     const [rowSelection, setRowSelection] = useState({})
     const [isPending, startTransition] = useTransition()
+
+    const columns = getAdminProjectColumns(departments)
 
     const table = useReactTable({
         data: projects,

@@ -5,6 +5,8 @@ import { format } from "date-fns"
 import { ProjectWithStats } from "@/lib/types"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
+import { EditProjectDialog } from "./edit-project-dialog"
+import { Department } from "@prisma/client"
 
 function formatDate(value: string | null) {
     if (!value) return "-"
@@ -13,7 +15,9 @@ function formatDate(value: string | null) {
     return format(date, "dd/MM/yyyy")
 }
 
-export const adminProjectColumns: ColumnDef<ProjectWithStats>[] = [
+export const getAdminProjectColumns = (
+    departments: Department[],
+): ColumnDef<ProjectWithStats>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -85,5 +89,17 @@ export const adminProjectColumns: ColumnDef<ProjectWithStats>[] = [
         accessorKey: "endDate",
         header: "Ngày kết thúc",
         cell: ({ row }) => <div>{formatDate(row.getValue("endDate"))}</div>,
+    },
+    {
+        id: "actions",
+        header: "",
+        cell: ({ row }) => {
+            return (
+                <EditProjectDialog
+                    project={row.original}
+                    departments={departments}
+                />
+            )
+        },
     },
 ]

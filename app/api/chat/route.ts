@@ -1,13 +1,21 @@
 import { auth } from "@/lib/auth"
-import { createOpenAI } from "@ai-sdk/openai"
-import { streamText, convertToModelMessages, UIMessage, smoothStream } from "ai"
+import { createOpenAI, openai } from "@ai-sdk/openai"
+import { createDeepSeek } from "@ai-sdk/deepseek"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
+import {
+    streamText,
+    convertToModelMessages,
+    UIMessage,
+    smoothStream,
+    consumeStream,
+} from "ai"
 import { headers } from "next/headers"
 import { deleteChatById, getChatById, saveChat, saveMessages } from "./queries"
 import { generateTitle } from "@/lib/ai/actions"
 import { generateUUID } from "@/lib/utils"
 import { dbTools, emailTools } from "@/lib/ai/tools"
 import { system_prompt } from "@/lib/ai/prompt"
-import { getAIConfigPublic } from "@/lib/ai/config"
+import { prisma } from "@/lib/db/prisma"
 
 export const maxDuration = 30
 async function getAuthenticatedUser() {
@@ -27,10 +35,12 @@ export async function POST(request: Request) {
         chatId,
         messages,
         groupId,
+        model,
     }: {
         chatId: string
         messages: UIMessage[]
         groupId?: string
+        model?: string
     } = await request.json()
 
     const chat = await getChatById(chatId)
@@ -45,16 +55,47 @@ export async function POST(request: Request) {
         await saveChat(chatId, title, user.id, groupId)
     }
 
-    const aiConfig = await getAIConfigPublic()
-    const openaiProvider = createOpenAI({
-        apiKey: aiConfig.apiKey,
+    const configs = await prisma.config.findMany({
+        where: {
+            key: {
+                in: ["openai_api_key", "gemini_api_key", "deepseek_api_key"],
+            },
+        },
     })
 
+    const configMap = new Map(configs.map((c) => [c.key, c.value]))
+    const openaiApiKey = configMap.get("openai_api_key") || ""
+    const geminiApiKey = configMap.get("gemini_api_key") || ""
+    const deepseekApiKey = configMap.get("deepseek_api_key") || ""
+
+    const selectedModel = model || "gpt-4o-mini"
+
+    let modelInstance
+    if (selectedModel.startsWith("gpt-") && openaiApiKey) {
+        const openaiProvider = createOpenAI({
+            apiKey: openaiApiKey,
+        })
+        modelInstance = openaiProvider(selectedModel)
+    } else if (selectedModel.startsWith("gemini-") && geminiApiKey) {
+        const geminiProvider = createGoogleGenerativeAI({
+            apiKey: geminiApiKey,
+        })
+        modelInstance = geminiProvider(selectedModel)
+    } else if (selectedModel.startsWith("deepseek-") && deepseekApiKey) {
+        const deepseekProvider = createDeepSeek({
+            apiKey: deepseekApiKey,
+        })
+        modelInstance = deepseekProvider(selectedModel)
+    } else {
+        modelInstance = openai("gpt-4o-mini")
+    }
+
     const result = streamText({
-        model: openaiProvider(aiConfig.model),
+        model: modelInstance,
         system: system_prompt,
         messages: convertToModelMessages(messages),
         tools: { ...dbTools, ...emailTools },
+        abortSignal: request.signal,
         experimental_transform: smoothStream({
             chunking: "word",
             delayInMs: 10,
@@ -65,9 +106,13 @@ export async function POST(request: Request) {
         sendReasoning: true,
         sendSources: true,
         originalMessages: messages,
-        onFinish: ({ messages }) => {
+        onFinish: async ({ messages: finishedMessages, isAborted }) => {
+            if (isAborted) {
+                console.log("Stream was aborted by user")
+            }
+
             saveMessages({
-                messages: messages.slice(-2).map((msg) => ({
+                messages: finishedMessages.slice(-2).map((msg) => ({
                     id: msg.id === "" ? generateUUID() : msg.id,
                     role: msg.role,
                     chatId: chatId,
@@ -77,6 +122,7 @@ export async function POST(request: Request) {
                 })),
             })
         },
+        consumeSseStream: consumeStream,
     })
 }
 

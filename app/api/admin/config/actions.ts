@@ -5,12 +5,16 @@ import { prisma } from "@/lib/db/prisma"
 import { requireAdminSession } from "@/app/api/admin/utils"
 
 export interface AIConfig {
-    apiKey: string
+    openaiApiKey: string
+    geminiApiKey: string
+    deepseekApiKey: string
     model: string
 }
 
 const CONFIG_KEYS = {
-    AI_API_KEY: "ai_api_key",
+    OPENAI_API_KEY: "openai_api_key",
+    GEMINI_API_KEY: "gemini_api_key",
+    DEEPSEEK_API_KEY: "deepseek_api_key",
     AI_MODEL: "ai_model",
 } as const
 
@@ -20,7 +24,12 @@ export async function getAIConfig(): Promise<AIConfig> {
     const configs = await prisma.config.findMany({
         where: {
             key: {
-                in: [CONFIG_KEYS.AI_API_KEY, CONFIG_KEYS.AI_MODEL],
+                in: [
+                    CONFIG_KEYS.OPENAI_API_KEY,
+                    CONFIG_KEYS.GEMINI_API_KEY,
+                    CONFIG_KEYS.DEEPSEEK_API_KEY,
+                    CONFIG_KEYS.AI_MODEL,
+                ],
             },
         },
     })
@@ -28,7 +37,9 @@ export async function getAIConfig(): Promise<AIConfig> {
     const configMap = new Map(configs.map((c) => [c.key, c.value]))
 
     return {
-        apiKey: configMap.get(CONFIG_KEYS.AI_API_KEY) || "",
+        openaiApiKey: configMap.get(CONFIG_KEYS.OPENAI_API_KEY) || "",
+        geminiApiKey: configMap.get(CONFIG_KEYS.GEMINI_API_KEY) || "",
+        deepseekApiKey: configMap.get(CONFIG_KEYS.DEEPSEEK_API_KEY) || "",
         model: configMap.get(CONFIG_KEYS.AI_MODEL) || "gpt-4o-mini",
     }
 }
@@ -36,22 +47,34 @@ export async function getAIConfig(): Promise<AIConfig> {
 export async function updateAIConfig(config: AIConfig) {
     await requireAdminSession()
 
-    if (!config.apiKey || config.apiKey.trim() === "") {
-        throw new Error("API Key không được để trống")
-    }
-
     if (!config.model || config.model.trim() === "") {
         throw new Error("Model không được để trống")
     }
 
     try {
-        await prisma.$transaction([
+        const upsertOperations = [
             prisma.config.upsert({
-                where: { key: CONFIG_KEYS.AI_API_KEY },
-                update: { value: config.apiKey.trim() },
+                where: { key: CONFIG_KEYS.OPENAI_API_KEY },
+                update: { value: config.openaiApiKey.trim() },
                 create: {
-                    key: CONFIG_KEYS.AI_API_KEY,
-                    value: config.apiKey.trim(),
+                    key: CONFIG_KEYS.OPENAI_API_KEY,
+                    value: config.openaiApiKey.trim(),
+                },
+            }),
+            prisma.config.upsert({
+                where: { key: CONFIG_KEYS.GEMINI_API_KEY },
+                update: { value: config.geminiApiKey.trim() },
+                create: {
+                    key: CONFIG_KEYS.GEMINI_API_KEY,
+                    value: config.geminiApiKey.trim(),
+                },
+            }),
+            prisma.config.upsert({
+                where: { key: CONFIG_KEYS.DEEPSEEK_API_KEY },
+                update: { value: config.deepseekApiKey.trim() },
+                create: {
+                    key: CONFIG_KEYS.DEEPSEEK_API_KEY,
+                    value: config.deepseekApiKey.trim(),
                 },
             }),
             prisma.config.upsert({
@@ -62,7 +85,9 @@ export async function updateAIConfig(config: AIConfig) {
                     value: config.model,
                 },
             }),
-        ])
+        ]
+
+        await prisma.$transaction(upsertOperations)
 
         revalidatePath("/admin/config")
         revalidatePath("/admin")

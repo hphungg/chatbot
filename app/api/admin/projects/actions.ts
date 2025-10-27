@@ -116,6 +116,60 @@ export async function createProjectAdmin({
     }
 }
 
+export async function updateProjectAction({
+    projectId,
+    name,
+    departmentId,
+    startDate,
+    endDate,
+}: {
+    projectId: string
+    name: string
+    departmentId: string[]
+    startDate: string | null
+    endDate: string | null
+}) {
+    await requireAdminSession()
+    if (!projectId) {
+        throw new Error("Thiếu mã dự án")
+    }
+    if (!name) {
+        throw new Error("Tên dự án là bắt buộc")
+    }
+
+    try {
+        const project = await prisma.project.update({
+            where: { id: projectId },
+            data: {
+                name,
+                startDate: parseDate(startDate),
+                endDate: parseDate(endDate),
+            },
+        })
+
+        await prisma.projectDepartment.deleteMany({
+            where: { projectId },
+        })
+
+        if (departmentId && departmentId.length > 0) {
+            for (const depId of departmentId) {
+                await prisma.projectDepartment.create({
+                    data: {
+                        projectId: project.id,
+                        departmentId: depId,
+                    },
+                })
+            }
+        }
+
+        revalidateProjectPaths()
+
+        return { project }
+    } catch (error) {
+        throw new Error("Lỗi khi cập nhật dự án: " + (error as Error).message)
+    }
+}
+
 export async function deleteProjectAction(projectId: string) {
     await requireAdminSession()
     if (!projectId) {

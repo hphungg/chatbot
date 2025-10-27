@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -20,8 +20,18 @@ import {
 } from "@/components/ui/sidebar"
 import AppLogo from "@/components/app-logo"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { MoreHorizontalIcon, TrashIcon, PlusIcon, Folder } from "lucide-react"
-import { deleteChatById, getChatsByUserId } from "@/app/api/chat/queries"
+import {
+    MoreHorizontalIcon,
+    TrashIcon,
+    PlusIcon,
+    Folder,
+    PencilIcon,
+} from "lucide-react"
+import {
+    deleteChatById,
+    getChatsByUserId,
+    updateChatTitle,
+} from "@/app/api/chat/queries"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -37,6 +47,16 @@ import {
     CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { getGroupsByUserId, deleteGroupById } from "@/app/api/group/queries"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export function ChatSidebar({ user }: { user: any }) {
     const {
@@ -50,6 +70,9 @@ export function ChatSidebar({ user }: { user: any }) {
     } = useChatContext()
     const pathname = usePathname()
     const router = useRouter()
+    const [renameDialogOpen, setRenameDialogOpen] = useState(false)
+    const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+    const [newTitle, setNewTitle] = useState("")
 
     useEffect(() => {
         async function fetchData() {
@@ -97,6 +120,37 @@ export function ChatSidebar({ user }: { user: any }) {
         } catch (error) {
             console.error("Error deleting chat:", error)
             toast.error("Xóa cuộc trò chuyện thất bại")
+        }
+    }
+
+    const handleRenameChat = (chatId: string, currentTitle: string) => {
+        setSelectedChatId(chatId)
+        setNewTitle(currentTitle || "")
+        setRenameDialogOpen(true)
+    }
+
+    const handleConfirmRename = async () => {
+        if (!selectedChatId || !newTitle.trim()) {
+            toast.error("Tiêu đề không được để trống")
+            return
+        }
+
+        try {
+            await updateChatTitle(selectedChatId, newTitle.trim())
+            setChatHistory((prevChats) =>
+                prevChats.map((chat) =>
+                    chat.id === selectedChatId
+                        ? { ...chat, title: newTitle.trim() }
+                        : chat,
+                ),
+            )
+            toast.success("Đổi tiêu đề thành công")
+            setRenameDialogOpen(false)
+            setSelectedChatId(null)
+            setNewTitle("")
+        } catch (error) {
+            console.error("Error renaming chat:", error)
+            toast.error("Đổi tiêu đề thất bại")
         }
     }
 
@@ -292,6 +346,23 @@ export function ChatSidebar({ user }: { user: any }) {
                                                                                     side="bottom"
                                                                                 >
                                                                                     <DropdownMenuItem
+                                                                                        className="cursor-pointer"
+                                                                                        onSelect={() =>
+                                                                                            handleRenameChat(
+                                                                                                chat.id,
+                                                                                                chat.title ||
+                                                                                                    "Untitled Chat",
+                                                                                            )
+                                                                                        }
+                                                                                    >
+                                                                                        <PencilIcon />
+                                                                                        <span>
+                                                                                            Đổi
+                                                                                            tiêu
+                                                                                            đề
+                                                                                        </span>
+                                                                                    </DropdownMenuItem>
+                                                                                    <DropdownMenuItem
                                                                                         className="text-destructive focus:bg-destructive/15 focus:text-destructive cursor-pointer dark:text-red-500"
                                                                                         onSelect={() =>
                                                                                             handleDeleteChat(
@@ -362,6 +433,19 @@ export function ChatSidebar({ user }: { user: any }) {
                                                 side="bottom"
                                             >
                                                 <DropdownMenuItem
+                                                    className="cursor-pointer"
+                                                    onSelect={() =>
+                                                        handleRenameChat(
+                                                            chat.id,
+                                                            chat.title ||
+                                                                "Untitled Chat",
+                                                        )
+                                                    }
+                                                >
+                                                    <PencilIcon />
+                                                    <span>Đổi tiêu đề</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     className="text-destructive focus:bg-destructive/15 focus:text-destructive cursor-pointer dark:text-red-500"
                                                     onSelect={() =>
                                                         handleDeleteChat(
@@ -384,6 +468,42 @@ export function ChatSidebar({ user }: { user: any }) {
             <SidebarFooter>
                 <SidebarUser user={user} />
             </SidebarFooter>
+
+            <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Đổi tiêu đề cuộc trò chuyện</DialogTitle>
+                        <DialogDescription>
+                            Nhập tiêu đề mới cho cuộc trò chuyện
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="title">Tiêu đề</Label>
+                            <Input
+                                id="title"
+                                value={newTitle}
+                                onChange={(e) => setNewTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        handleConfirmRename()
+                                    }
+                                }}
+                                placeholder="Nhập tiêu đề mới..."
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setRenameDialogOpen(false)}
+                        >
+                            Hủy
+                        </Button>
+                        <Button onClick={handleConfirmRename}>Xác nhận</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </Sidebar>
     )
 }

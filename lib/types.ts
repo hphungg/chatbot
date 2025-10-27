@@ -28,6 +28,7 @@ export interface ProjectWithStats {
     id: string
     name: string
     departmentNames: string[]
+    departmentIds: string[]
     memberCount: number
     startDate: string | null
     endDate: string | null

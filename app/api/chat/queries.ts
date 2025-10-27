@@ -65,6 +65,26 @@ export async function saveChat(
     }
 }
 
+export async function updateChatTitle(chatId: string, title: string) {
+    const user = await authenticate()
+    if (!user) throw new Error("Unauthorized")
+    try {
+        const chat = await prisma.chat.updateMany({
+            where: {
+                id: chatId,
+                userId: user.id,
+            },
+            data: {
+                title,
+            },
+        })
+        return chat
+    } catch (error) {
+        console.error("Error updating chat title:", error)
+        throw new Error("Failed to update chat title")
+    }
+}
+
 export async function deleteChatById(chatId: string) {
     const user = await authenticate()
     if (!user) throw new Error("Unauthorized")

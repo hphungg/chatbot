@@ -53,6 +53,7 @@ export const getProjectsWithMembers = async (): Promise<ProjectWithStats[]> => {
                 departmentNames: project.departments.map(
                     (d) => d.department.name,
                 ),
+                departmentIds: project.departments.map((d) => d.department.id),
                 memberCount: uniqueUserIds.size,
                 startDate: project.startDate
                     ? project.startDate.toISOString()

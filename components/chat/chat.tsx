@@ -19,8 +19,9 @@ export function Chat({ id, initialMessages = [], groupId }: ChatProps) {
     const { addChat } = useChatContext()
     const [input, setInput] = useState<string>("")
     const [hasChat, setHasChat] = useState(initialMessages.length > 0)
+    const [selectedModel, setSelectedModel] = useState<string>("gpt-4o-mini")
 
-    const { messages, sendMessage, status } = useChat({
+    const { messages, sendMessage, status, stop } = useChat({
         id,
         messages: initialMessages,
         generateId: generateUUID,
@@ -30,6 +31,7 @@ export function Chat({ id, initialMessages = [], groupId }: ChatProps) {
                 const baseBody = {
                     chatId: request.id,
                     messages: [...request.messages],
+                    model: selectedModel,
                 }
                 return {
                     body: {
@@ -55,12 +57,15 @@ export function Chat({ id, initialMessages = [], groupId }: ChatProps) {
         <div className="relative mx-auto h-[calc(100vh-4rem)] rounded-lg">
             <div className="flex h-full flex-col pb-2">
                 <ChatConversation messages={messages} status={status} />
-                <div className="flex w-full items-center justify-center bg-transparent pt-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <div className="flex w-full items-center justify-center bg-transparent pt-1">
                     <ChatInput
                         input={input}
                         setInput={setInput}
                         sendMessage={sendMessage}
                         status={status}
+                        stop={stop}
+                        selectedModel={selectedModel}
+                        onModelChange={setSelectedModel}
                     />
                 </div>
             </div>

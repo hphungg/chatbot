@@ -4,6 +4,7 @@ import {
     Dispatch,
     SetStateAction,
     useCallback,
+    useEffect,
     useMemo,
     useRef,
     useState,
@@ -12,6 +13,11 @@ import {
     PromptInput,
     PromptInputBody,
     PromptInputButton,
+    PromptInputModelSelect,
+    PromptInputModelSelectContent,
+    PromptInputModelSelectItem,
+    PromptInputModelSelectTrigger,
+    PromptInputModelSelectValue,
     PromptInputSubmit,
     PromptInputTextarea,
     PromptInputToolbar,
@@ -20,13 +26,21 @@ import {
 import { UIMessage, UseChatHelpers } from "@ai-sdk/react"
 import { useWindowSize } from "usehooks-ts"
 import { FileIcon, ImageIcon, PlusIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
 
 interface ChatInputProps {
     input: string
     setInput: Dispatch<SetStateAction<string>>
     sendMessage: UseChatHelpers<UIMessage>["sendMessage"]
     status: UseChatHelpers<UIMessage>["status"]
+    stop: UseChatHelpers<UIMessage>["stop"]
+    selectedModel: string
+    onModelChange: (model: string) => void
+}
+
+interface AIModel {
+    value: string
+    label: string
+    provider: string
 }
 
 const formatFileSize = (size: number): string => {
@@ -44,18 +58,36 @@ export function ChatInput({
     setInput,
     status,
     sendMessage,
+    stop,
+    selectedModel,
+    onModelChange,
 }: ChatInputProps) {
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const { width } = useWindowSize()
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [files, setFiles] = useState<FileList | undefined>(undefined)
+    const [models, setModels] = useState<AIModel[]>([])
     const selectedFiles = useMemo(
         () => (files ? Array.from(files) : []),
         [files],
     )
-    const router = useRouter()
+
+    useEffect(() => {
+        fetch("/api/models")
+            .then((res) => res.json())
+            .then((data) => {
+                setModels(data.models || [])
+            })
+            .catch((error) => {
+                console.error("Failed to fetch models:", error)
+            })
+    }, [])
 
     const handleSubmit = useCallback(() => {
+        if (status === "submitted" || status === "streaming") {
+            return
+        }
+
         const hasMessage = input.trim().length > 0
         const hasFiles = Boolean(files && files.length > 0)
 
@@ -76,13 +108,19 @@ export function ChatInput({
         if (width && width > 768) {
             textareaRef.current?.focus()
         }
-    }, [files, input, router, sendMessage, setInput, width])
+    }, [files, input, sendMessage, setInput, width, status])
+
+    const handleStop = useCallback(() => {
+        stop()
+    }, [stop])
+
+    const placeholder =
+        status === "submitted" || status === "streaming"
+            ? "Chatbot đang trả lời..."
+            : "Hỏi một câu nào đó..."
 
     return (
-        <PromptInput
-            onSubmit={handleSubmit}
-            className="max-w-3xl border-2 shadow-md"
-        >
+        <PromptInput onSubmit={handleSubmit} className="max-w-3xl">
             <PromptInputBody className="gap-2">
                 {selectedFiles.length > 0 && (
                     <div className="flex flex-wrap gap-3 px-6 pt-4">
@@ -114,8 +152,9 @@ export function ChatInput({
                     rows={2}
                     onChange={(e) => setInput(e.target.value)}
                     value={input}
-                    placeholder="Hỏi một câu nào đó..."
-                    className="px-6 py-4 !text-lg !leading-relaxed"
+                    placeholder={placeholder}
+                    className="px-6 py-4 !text-base !leading-relaxed"
+                    disabled={status === "submitted" || status === "streaming"}
                 />
             </PromptInputBody>
             <PromptInputToolbar>
@@ -123,6 +162,9 @@ export function ChatInput({
                     <PromptInputButton
                         onClick={() => fileInputRef.current?.click()}
                         aria-label="Thêm tệp đính kèm"
+                        disabled={
+                            status === "submitted" || status === "streaming"
+                        }
                     >
                         <PlusIcon />
                     </PromptInputButton>
@@ -137,12 +179,43 @@ export function ChatInput({
                         }}
                         multiple
                         accept="application/pdf, image/*"
+                        disabled={
+                            status === "submitted" || status === "streaming"
+                        }
                     />
+
+                    {models.length > 0 && (
+                        <PromptInputModelSelect
+                            value={selectedModel}
+                            onValueChange={onModelChange}
+                            disabled={
+                                status === "submitted" || status === "streaming"
+                            }
+                        >
+                            <PromptInputModelSelectTrigger>
+                                <PromptInputModelSelectValue />
+                            </PromptInputModelSelectTrigger>
+                            <PromptInputModelSelectContent>
+                                {models.map((model) => (
+                                    <PromptInputModelSelectItem
+                                        key={model.value}
+                                        value={model.value}
+                                    >
+                                        {model.label}
+                                    </PromptInputModelSelectItem>
+                                ))}
+                            </PromptInputModelSelectContent>
+                        </PromptInputModelSelect>
+                    )}
                 </PromptInputTools>
 
                 <PromptInputSubmit
-                    disabled={!input && !status}
-                    status={status === "streaming" ? "streaming" : "ready"}
+                    disabled={
+                        status === "submitted" ||
+                        (status === "ready" && !input.trim() && !files?.length)
+                    }
+                    status={status}
+                    onStop={handleStop}
                 />
             </PromptInputToolbar>
         </PromptInput>

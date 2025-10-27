@@ -19,6 +19,10 @@ const AI_MODELS = [
     { value: "gpt-4.1", label: "GPT-4.1" },
     { value: "gpt-4o-mini", label: "GPT-4o mini" },
     { value: "gpt-4o", label: "GPT-4o" },
+    { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+    { value: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite" },
+    { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+    { value: "deepseek-chat", label: "DeepSeek Chat" },
 ] as const
 
 interface ConfigFormProps {
@@ -26,9 +30,15 @@ interface ConfigFormProps {
 }
 
 export function ConfigForm({ initialConfig }: ConfigFormProps) {
-    const [apiKey, setApiKey] = useState(initialConfig.apiKey)
+    const [openaiApiKey, setOpenaiApiKey] = useState(initialConfig.openaiApiKey)
+    const [geminiApiKey, setGeminiApiKey] = useState(initialConfig.geminiApiKey)
+    const [deepseekApiKey, setDeepseekApiKey] = useState(
+        initialConfig.deepseekApiKey,
+    )
     const [model, setModel] = useState(initialConfig.model)
-    const [showApiKey, setShowApiKey] = useState(false)
+    const [showOpenaiApiKey, setShowOpenaiApiKey] = useState(false)
+    const [showGeminiApiKey, setShowGeminiApiKey] = useState(false)
+    const [showDeepseekApiKey, setShowDeepseekApiKey] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -36,7 +46,12 @@ export function ConfigForm({ initialConfig }: ConfigFormProps) {
         setIsSaving(true)
 
         try {
-            await updateAIConfig({ apiKey, model })
+            await updateAIConfig({
+                openaiApiKey,
+                geminiApiKey,
+                deepseekApiKey,
+                model,
+            })
             toast.success("Cấu hình AI đã được cập nhật thành công")
         } catch (error) {
             toast.error(
@@ -52,25 +67,80 @@ export function ConfigForm({ initialConfig }: ConfigFormProps) {
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="apiKey">API Key</Label>
+                <Label htmlFor="openaiApiKey">OpenAI API Key</Label>
                 <div className="relative">
                     <Input
-                        id="apiKey"
-                        type={showApiKey ? "text" : "password"}
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="Nhập API key của bạn"
+                        id="openaiApiKey"
+                        type={showOpenaiApiKey ? "text" : "password"}
+                        value={openaiApiKey}
+                        onChange={(e) => setOpenaiApiKey(e.target.value)}
+                        placeholder="Nhập OpenAI API key"
                         className="pr-10"
-                        required
                     />
                     <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowApiKey(!showApiKey)}
+                        onClick={() => setShowOpenaiApiKey(!showOpenaiApiKey)}
                     >
-                        {showApiKey ? (
+                        {showOpenaiApiKey ? (
+                            <EyeOff className="h-4 w-4" />
+                        ) : (
+                            <Eye className="h-4 w-4" />
+                        )}
+                    </Button>
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="geminiApiKey">Gemini API Key</Label>
+                <div className="relative">
+                    <Input
+                        id="geminiApiKey"
+                        type={showGeminiApiKey ? "text" : "password"}
+                        value={geminiApiKey}
+                        onChange={(e) => setGeminiApiKey(e.target.value)}
+                        placeholder="Nhập Gemini API key"
+                        className="pr-10"
+                    />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowGeminiApiKey(!showGeminiApiKey)}
+                    >
+                        {showGeminiApiKey ? (
+                            <EyeOff className="h-4 w-4" />
+                        ) : (
+                            <Eye className="h-4 w-4" />
+                        )}
+                    </Button>
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="deepseekApiKey">DeepSeek API Key</Label>
+                <div className="relative">
+                    <Input
+                        id="deepseekApiKey"
+                        type={showDeepseekApiKey ? "text" : "password"}
+                        value={deepseekApiKey}
+                        onChange={(e) => setDeepseekApiKey(e.target.value)}
+                        placeholder="Nhập DeepSeek API key"
+                        className="pr-10"
+                    />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() =>
+                            setShowDeepseekApiKey(!showDeepseekApiKey)
+                        }
+                    >
+                        {showDeepseekApiKey ? (
                             <EyeOff className="h-4 w-4" />
                         ) : (
                             <Eye className="h-4 w-4" />
@@ -94,7 +164,7 @@ export function ConfigForm({ initialConfig }: ConfigFormProps) {
                     </SelectContent>
                 </Select>
                 <p className="text-muted-foreground text-sm">
-                    Model được sử dụng cho AI agent
+                    Model mặc định cho agent
                 </p>
             </div>
 
