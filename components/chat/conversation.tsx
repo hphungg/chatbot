@@ -43,6 +43,104 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
     const userAvatarSrc = currentUser?.image ?? ""
     const userAvatarName = currentUser?.displayName ?? currentUser?.name ?? ""
 
+    const renderToolPart = (part: any, messageId: string, index: number) => {
+        if (part.type === "dynamic-tool") {
+            const { toolCallId, toolName, state } = part
+            return (
+                <Tool
+                    defaultOpen={
+                        state === "input-streaming" ||
+                        state === "input-available"
+                    }
+                    key={toolCallId}
+                >
+                    <ToolHeader
+                        state={state}
+                        type={`tool-${toolName}` as `tool-${string}`}
+                    />
+                    <ToolContent>
+                        {(state === "input-streaming" ||
+                            state === "input-available") && (
+                            <ToolInput input={part.input} />
+                        )}
+                        {state === "output-available" && (
+                            <ToolOutput
+                                errorText={undefined}
+                                output={part.output}
+                            />
+                        )}
+                        {state === "output-error" && (
+                            <ToolOutput
+                                errorText={part.errorText}
+                                output={undefined}
+                            />
+                        )}
+                    </ToolContent>
+                </Tool>
+            )
+        }
+
+        if (part.type.startsWith("tool-")) {
+            return (
+                <Tool
+                    defaultOpen={
+                        part.state === "input-streaming" ||
+                        part.state === "input-available"
+                    }
+                    key={`${messageId}-tool-${index}`}
+                >
+                    <ToolHeader
+                        state={part.state}
+                        type={part.type as `tool-${string}`}
+                    />
+                    <ToolContent>
+                        {(part.state === "input-streaming" ||
+                            part.state === "input-available") && (
+                            <ToolInput input={part.input} />
+                        )}
+                        {part.state === "output-available" && (
+                            <ToolOutput
+                                errorText={undefined}
+                                output={part.output}
+                            />
+                        )}
+                        {part.state === "output-error" && (
+                            <ToolOutput
+                                errorText={part.errorText}
+                                output={undefined}
+                            />
+                        )}
+                    </ToolContent>
+                </Tool>
+            )
+        }
+
+        return null
+    }
+
+    const getToolParts = (message: UIMessage) => {
+        return message.parts.filter(
+            (part) =>
+                part.type === "dynamic-tool" || part.type.startsWith("tool-"),
+        )
+    }
+
+    const getTextAndReasoningParts = (message: UIMessage) => {
+        return message.parts.filter(
+            (part) => part.type === "text" || part.type === "reasoning",
+        )
+    }
+
+    const hasTextContent = (message: UIMessage) => {
+        const textParts = getTextAndReasoningParts(message)
+        return textParts.some((part) => {
+            if (part.type === "text") {
+                return part.text && part.text.trim().length > 0
+            }
+            return true
+        })
+    }
+
     return (
         <Conversation className="h-full">
             <ConversationContent>
@@ -58,14 +156,19 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                     const fileFromMessage = message.parts.filter(
                         (part) => part.type === "file",
                     )
+                    const toolParts = getToolParts(message)
+                    const textParts = getTextAndReasoningParts(message)
+                    const hasText = hasTextContent(message)
+
                     return (
                         <div
                             key={message.id}
-                            className={
+                            className={cn(
+                                "flex flex-col gap-2",
                                 message.role === "user"
-                                    ? "flex flex-col items-end"
-                                    : "items-start"
-                            }
+                                    ? "items-end"
+                                    : "items-start",
+                            )}
                         >
                             {fileFromMessage.length > 0 && (
                                 <div className="mr-10 mb-[-10] w-fit md:mr-12">
@@ -77,102 +180,96 @@ export function ChatConversation({ messages, status }: ChatConversationProps) {
                                     ))}
                                 </div>
                             )}
-                            <Message from={message.role} key={message.id}>
-                                <MessageContent
-                                    variant={
-                                        message.role === "assistant"
-                                            ? "flat"
-                                            : "contained"
-                                    }
-                                    className={cn(
-                                        "leading-relaxed md:text-lg",
-                                        message.role === "assistant"
-                                            ? "p-2"
-                                            : "px-4 py-2",
-                                    )}
-                                >
-                                    {message.parts.map((part, i) => {
-                                        switch (part.type) {
-                                            case "text":
-                                                return (
-                                                    <Response
-                                                        key={`${message.id}-${i}`}
-                                                    >
-                                                        {part.text}
-                                                    </Response>
-                                                )
-                                            case "reasoning":
-                                                return (
-                                                    <Reasoning
-                                                        key={`${message.id}-${i}`}
-                                                        className="w-full"
-                                                        isStreaming={
-                                                            status ===
-                                                                "streaming" &&
-                                                            i ===
-                                                                message.parts
-                                                                    .length -
-                                                                    1 &&
-                                                            message.id ===
-                                                                messages.at(-1)
-                                                                    ?.id
-                                                        }
-                                                    >
-                                                        <ReasoningTrigger />
-                                                        <ReasoningContent>
-                                                            {part.text}
-                                                        </ReasoningContent>
-                                                    </Reasoning>
-                                                )
-                                            case "dynamic-tool":
-                                                const { toolCallId, state } =
-                                                    part
 
-                                                return (
-                                                    <Tool
-                                                        defaultOpen={true}
-                                                        key={toolCallId}
-                                                    >
-                                                        <ToolHeader
-                                                            state={state}
-                                                            type="tool-getWeather"
-                                                        />
-                                                        <ToolContent>
-                                                            {state ===
-                                                                "input-available" && (
-                                                                <ToolInput
-                                                                    input={
-                                                                        part.input
-                                                                    }
-                                                                />
-                                                            )}
-                                                            {state ===
-                                                                "output-available" && (
-                                                                <ToolOutput
-                                                                    errorText={
-                                                                        undefined
-                                                                    }
-                                                                    output={
-                                                                        part.output
-                                                                    }
-                                                                />
-                                                            )}
-                                                        </ToolContent>
-                                                    </Tool>
-                                                )
-                                            default:
-                                                return null
-                                        }
-                                    })}
-                                </MessageContent>
-                                {message.role === "user" && (
-                                    <MessageAvatar
-                                        src={userAvatarSrc}
-                                        name={userAvatarName}
-                                        className="size-8 md:size-10"
-                                    />
+                            {/* Tool calls section - hiển thị riêng */}
+                            {message.role === "assistant" &&
+                                toolParts.length > 0 && (
+                                    <div className="flex w-full max-w-[85%] flex-col gap-2">
+                                        {toolParts.map((part, i) =>
+                                            renderToolPart(part, message.id, i),
+                                        )}
+                                    </div>
                                 )}
-                            </Message>
+
+                            {/* Text message section - luôn hiển thị như tin nhắn chat */}
+                            {(hasText || message.role === "user") && (
+                                <Message from={message.role}>
+                                    <MessageContent
+                                        variant={
+                                            message.role === "assistant"
+                                                ? "flat"
+                                                : "contained"
+                                        }
+                                        className={cn(
+                                            "leading-relaxed md:text-lg",
+                                            message.role === "assistant"
+                                                ? "p-2"
+                                                : "px-4 py-2",
+                                        )}
+                                    >
+                                        {textParts.map((part, i) => {
+                                            switch (part.type) {
+                                                case "text":
+                                                    return (
+                                                        <Response
+                                                            key={`${message.id}-text-${i}`}
+                                                        >
+                                                            {part.text}
+                                                        </Response>
+                                                    )
+                                                case "reasoning":
+                                                    return (
+                                                        <Reasoning
+                                                            key={`${message.id}-reasoning-${i}`}
+                                                            className="w-full"
+                                                            isStreaming={
+                                                                status ===
+                                                                    "streaming" &&
+                                                                i ===
+                                                                    textParts.length -
+                                                                        1 &&
+                                                                message.id ===
+                                                                    messages.at(
+                                                                        -1,
+                                                                    )?.id
+                                                            }
+                                                        >
+                                                            <ReasoningTrigger />
+                                                            <ReasoningContent>
+                                                                {part.text}
+                                                            </ReasoningContent>
+                                                        </Reasoning>
+                                                    )
+                                                default:
+                                                    return null
+                                            }
+                                        })}
+
+                                        {/* Hiển thị loading state khi agent đang xử lý */}
+                                        {message.role === "assistant" &&
+                                            !hasText &&
+                                            toolParts.length > 0 &&
+                                            status === "streaming" &&
+                                            message.id ===
+                                                messages.at(-1)?.id && (
+                                                <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                                                    <Spinner className="size-4" />
+                                                    <TextShimmer duration={1}>
+                                                        Đang phân tích kết
+                                                        quả...
+                                                    </TextShimmer>
+                                                </div>
+                                            )}
+                                    </MessageContent>
+                                    {message.role === "user" && (
+                                        <MessageAvatar
+                                            src={userAvatarSrc}
+                                            name={userAvatarName}
+                                            className="size-8 md:size-10"
+                                        />
+                                    )}
+                                </Message>
+                            )}
                         </div>
                     )
                 })}

@@ -36,23 +36,37 @@ export type ToolHeaderProps = {
 
 const getStatusBadge = (status: ToolUIPart["state"]) => {
     const labels = {
-        "input-streaming": "Pending",
-        "input-available": "Running",
-        "output-available": "Completed",
-        "output-error": "Error",
+        "input-streaming": "Đang chuẩn bị",
+        "input-available": "Đang chạy",
+        "output-available": "Hoàn thành",
+        "output-error": "Lỗi",
     } as const
 
     const icons = {
-        "input-streaming": <CircleIcon className="size-4" />,
-        "input-available": <ClockIcon className="size-4 animate-pulse" />,
+        "input-streaming": (
+            <CircleIcon className="size-4 animate-pulse text-blue-500" />
+        ),
+        "input-available": (
+            <ClockIcon className="size-4 animate-pulse text-yellow-500" />
+        ),
         "output-available": (
             <CheckCircleIcon className="size-4 text-green-600" />
         ),
         "output-error": <XCircleIcon className="size-4 text-red-600" />,
     } as const
 
+    const variants = {
+        "input-streaming": "secondary",
+        "input-available": "secondary",
+        "output-available": "secondary",
+        "output-error": "destructive",
+    } as const
+
     return (
-        <Badge className="gap-1.5 rounded-full text-xs" variant="secondary">
+        <Badge
+            className="gap-1.5 rounded-full text-xs"
+            variant={variants[status]}
+        >
             {icons[status]}
             {labels[status]}
         </Badge>
@@ -64,22 +78,31 @@ export const ToolHeader = ({
     type,
     state,
     ...props
-}: ToolHeaderProps) => (
-    <CollapsibleTrigger
-        className={cn(
-            "flex w-full items-center justify-between gap-4 p-3",
-            className,
-        )}
-        {...props}
-    >
-        <div className="flex items-center gap-2">
-            <WrenchIcon className="text-muted-foreground size-4" />
-            <span className="text-sm font-medium">{type}</span>
-            {getStatusBadge(state)}
-        </div>
-        <ChevronDownIcon className="text-muted-foreground size-4 transition-transform group-data-[state=open]:rotate-180" />
-    </CollapsibleTrigger>
-)
+}: ToolHeaderProps) => {
+    const toolName = type
+        .replace("tool-", "")
+        .replace(/([A-Z])/g, " $1")
+        .trim()
+    const formattedToolName =
+        toolName.charAt(0).toUpperCase() + toolName.slice(1)
+
+    return (
+        <CollapsibleTrigger
+            className={cn(
+                "flex w-full items-center justify-between gap-4 p-3",
+                className,
+            )}
+            {...props}
+        >
+            <div className="flex items-center gap-2">
+                <WrenchIcon className="text-muted-foreground size-4" />
+                <span className="text-sm font-medium">{formattedToolName}</span>
+                {getStatusBadge(state)}
+            </div>
+            <ChevronDownIcon className="text-muted-foreground size-4 transition-transform group-data-[state=open]:rotate-180" />
+        </CollapsibleTrigger>
+    )
+}
 
 export type ToolContentProps = ComponentProps<typeof CollapsibleContent>
 
