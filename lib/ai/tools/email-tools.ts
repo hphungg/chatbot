@@ -6,6 +6,12 @@ import {
     getTaskReminderTemplate,
     getAnnouncementTemplate,
 } from "@/lib/email/templates"
+import { createCalendarEvent } from "@/app/api/calendar/queries"
+
+// Helper function để loại bỏ [blocked] khỏi email
+const cleanEmail = (email: string): string => {
+    return email.replace(/\s*\[blocked\]\s*/gi, "")
+}
 
 export const sendTaskReminderToEmployeeTool = tool({
     description:
@@ -24,6 +30,24 @@ export const sendTaskReminderToEmployeeTool = tool({
             .enum(["HIGH", "MEDIUM", "LOW"])
             .optional()
             .describe("Mức độ ưu tiên của công việc"),
+        createCalendarEvent: z
+            .boolean()
+            .optional()
+            .describe(
+                "Có tạo sự kiện trong Google Calendar không? True nếu muốn tạo lịch hẹn",
+            ),
+        eventStartTime: z
+            .string()
+            .optional()
+            .describe(
+                "Thời gian bắt đầu sự kiện (ISO 8601 format hoặc YYYY-MM-DD HH:mm). Bắt buộc nếu createCalendarEvent = true",
+            ),
+        eventDuration: z
+            .number()
+            .optional()
+            .describe(
+                "Thời lượng sự kiện tính bằng phút (ví dụ: 60 cho 1 giờ, 30 cho 30 phút). Mặc định 60 phút",
+            ),
     }),
     execute: async ({
         employeeName,
@@ -31,6 +55,9 @@ export const sendTaskReminderToEmployeeTool = tool({
         taskDescription,
         dueDate,
         priority,
+        createCalendarEvent: shouldCreateEvent,
+        eventStartTime,
+        eventDuration = 60,
     }) => {
         try {
             const employees = await prisma.user.findMany({
@@ -62,30 +89,55 @@ export const sendTaskReminderToEmployeeTool = tool({
             })
 
             if (employees.length === 0) {
-                return {
-                    success: false,
-                    message: `Không tìm thấy nhân viên nào với tên "${employeeName}"`,
-                }
+                return `❌ Không tìm thấy nhân viên nào với tên **"${employeeName}"**`
             }
 
             if (employees.length > 1) {
-                return {
-                    success: false,
-                    message: `Tìm thấy ${employees.length} nhân viên với tên "${employeeName}". Vui lòng cung cấp tên cụ thể hơn hoặc sử dụng email.`,
-                    suggestions: employees.map((emp) => ({
-                        name: emp.displayName || emp.name,
-                        email: emp.email,
-                    })),
-                }
+                let result = `⚠️ Tìm thấy **${employees.length} nhân viên** với tên **"${employeeName}"**\n\nVui lòng chọn người cụ thể:\n\n`
+                employees.forEach((emp, index) => {
+                    result += `${index + 1}. **${emp.displayName || emp.name}** - ${cleanEmail(emp.email)}\n`
+                })
+                return result
             }
 
             const employee = employees[0]
+
+            let calendarEventLink = ""
+            let calendarEventId = ""
+
+            // Tạo calendar event nếu được yêu cầu
+            if (shouldCreateEvent && eventStartTime) {
+                try {
+                    const startDate = new Date(eventStartTime)
+                    const endDate = new Date(
+                        startDate.getTime() + eventDuration * 60000,
+                    )
+
+                    const calendarEvent = await createCalendarEvent({
+                        title: taskTitle,
+                        description:
+                            taskDescription ||
+                            `Nhắc nhở công việc cho ${employee.displayName || employee.name}`,
+                        startTime: startDate,
+                        endTime: endDate,
+                        attendees: [employee.email],
+                    })
+
+                    calendarEventLink = calendarEvent.htmlLink || ""
+                    calendarEventId = calendarEvent.id || ""
+                } catch (calError) {
+                    console.error("Error creating calendar event:", calError)
+                    // Tiếp tục gửi email ngay cả khi tạo calendar event thất bại
+                }
+            }
+
             const htmlBody = getTaskReminderTemplate({
                 recipientName: employee.displayName || employee.name,
                 taskTitle,
                 taskDescription,
                 dueDate,
                 priority,
+                calendarInviteLink: calendarEventLink,
             })
 
             await sendMail({
@@ -95,20 +147,17 @@ export const sendTaskReminderToEmployeeTool = tool({
                 body: htmlBody,
             })
 
-            return {
-                success: true,
-                message: `Email nhắc nhở đã được gửi thành công đến ${employee.displayName || employee.name} (${employee.email})`,
-                recipient: {
-                    name: employee.displayName || employee.name,
-                    email: employee.email,
-                },
+            let result = `✅ Email nhắc nhở về công việc **"${taskTitle}"** đã được gửi thành công!\n\n👤 Người nhận: **${employee.displayName || employee.name}**\n📧 Email: ${cleanEmail(employee.email)}`
+
+            if (calendarEventLink && eventStartTime) {
+                const startTime = new Date(eventStartTime)
+                result += `\n\n📅 **Đã tạo sự kiện Calendar:**\n- Thời gian: ${startTime.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}\n- Thời lượng: ${eventDuration} phút\n- Link: ${calendarEventLink}`
             }
+
+            return result
         } catch (error) {
             console.error("Error sending task reminder:", error)
-            return {
-                success: false,
-                message: `Có lỗi xảy ra khi gửi email: ${error instanceof Error ? error.message : "Unknown error"}`,
-            }
+            return `Có lỗi xảy ra khi gửi email: ${error instanceof Error ? error.message : "Unknown error"}`
         }
     },
 })
@@ -131,6 +180,24 @@ export const sendTaskReminderByEmailTool = tool({
             .enum(["HIGH", "MEDIUM", "LOW"])
             .optional()
             .describe("Mức độ ưu tiên của công việc"),
+        createCalendarEvent: z
+            .boolean()
+            .optional()
+            .describe(
+                "Có tạo sự kiện trong Google Calendar không? True nếu muốn tạo lịch hẹn",
+            ),
+        eventStartTime: z
+            .string()
+            .optional()
+            .describe(
+                "Thời gian bắt đầu sự kiện (ISO 8601 format hoặc YYYY-MM-DD HH:mm). Bắt buộc nếu createCalendarEvent = true",
+            ),
+        eventDuration: z
+            .number()
+            .optional()
+            .describe(
+                "Thời lượng sự kiện tính bằng phút (ví dụ: 60 cho 1 giờ, 30 cho 30 phút). Mặc định 60 phút",
+            ),
     }),
     execute: async ({
         email,
@@ -138,6 +205,9 @@ export const sendTaskReminderByEmailTool = tool({
         taskDescription,
         dueDate,
         priority,
+        createCalendarEvent: shouldCreateEvent,
+        eventStartTime,
+        eventDuration = 60,
     }) => {
         try {
             const employee = await prisma.user.findUnique({
@@ -153,16 +223,38 @@ export const sendTaskReminderByEmailTool = tool({
             })
 
             if (!employee) {
-                return {
-                    success: false,
-                    message: `Không tìm thấy nhân viên với email "${email}"`,
-                }
+                return `❌ Không tìm thấy nhân viên với email **${cleanEmail(email)}**`
             }
 
             if (!employee.userVerified || employee.banned) {
-                return {
-                    success: false,
-                    message: `Không thể gửi email cho nhân viên này vì tài khoản chưa được xác minh hoặc đã bị cấm`,
+                return `⚠️ Không thể gửi email cho nhân viên này vì tài khoản chưa được xác minh hoặc đã bị cấm`
+            }
+
+            let calendarEventLink = ""
+            let calendarEventId = ""
+
+            // Tạo calendar event nếu được yêu cầu
+            if (shouldCreateEvent && eventStartTime) {
+                try {
+                    const startDate = new Date(eventStartTime)
+                    const endDate = new Date(
+                        startDate.getTime() + eventDuration * 60000,
+                    )
+
+                    const calendarEvent = await createCalendarEvent({
+                        title: taskTitle,
+                        description:
+                            taskDescription ||
+                            `Nhắc nhở công việc cho ${employee.displayName || employee.name}`,
+                        startTime: startDate,
+                        endTime: endDate,
+                        attendees: [employee.email],
+                    })
+
+                    calendarEventLink = calendarEvent.htmlLink || ""
+                    calendarEventId = calendarEvent.id || ""
+                } catch (calError) {
+                    console.error("Error creating calendar event:", calError)
                 }
             }
 
@@ -172,6 +264,7 @@ export const sendTaskReminderByEmailTool = tool({
                 taskDescription,
                 dueDate,
                 priority,
+                calendarInviteLink: calendarEventLink,
             })
 
             await sendMail({
@@ -181,20 +274,17 @@ export const sendTaskReminderByEmailTool = tool({
                 body: htmlBody,
             })
 
-            return {
-                success: true,
-                message: `Email nhắc nhở đã được gửi thành công đến ${employee.displayName || employee.name} (${employee.email})`,
-                recipient: {
-                    name: employee.displayName || employee.name,
-                    email: employee.email,
-                },
+            let result = `✅ Email nhắc nhở về công việc **"${taskTitle}"** đã được gửi thành công!\n\n👤 Người nhận: **${employee.displayName || employee.name}**\n📧 Email: ${cleanEmail(employee.email)}`
+
+            if (calendarEventLink && eventStartTime) {
+                const startTime = new Date(eventStartTime)
+                result += `\n\n📅 **Đã tạo sự kiện Calendar:**\n- Thời gian: ${startTime.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}\n- Thời lượng: ${eventDuration} phút\n- Link: ${calendarEventLink}`
             }
+
+            return result
         } catch (error) {
             console.error("Error sending task reminder:", error)
-            return {
-                success: false,
-                message: `Có lỗi xảy ra khi gửi email: ${error instanceof Error ? error.message : "Unknown error"}`,
-            }
+            return `Có lỗi xảy ra khi gửi email: ${error instanceof Error ? error.message : "Unknown error"}`
         }
     },
 })
@@ -245,17 +335,11 @@ export const sendAnnouncementToDepartmentTool = tool({
             })
 
             if (!department) {
-                return {
-                    success: false,
-                    message: `Không tìm thấy phòng ban "${departmentName}"`,
-                }
+                return `❌ Không tìm thấy phòng ban **"${departmentName}"**`
             }
 
             if (department.users.length === 0) {
-                return {
-                    success: false,
-                    message: `Phòng ban ${department.name} không có nhân viên nào`,
-                }
+                return `⚠️ Phòng ban **${department.name}** không có nhân viên nào`
             }
 
             const emailPromises = department.users.map((employee) => {
@@ -276,21 +360,10 @@ export const sendAnnouncementToDepartmentTool = tool({
 
             await Promise.all(emailPromises)
 
-            return {
-                success: true,
-                message: `Thông báo đã được gửi thành công đến ${department.users.length} nhân viên trong phòng ban ${department.name}`,
-                department: {
-                    name: department.name,
-                    code: department.code,
-                },
-                recipientCount: department.users.length,
-            }
+            return `✅ Thông báo **"${subject}"** đã được gửi thành công!\n\n🏢 Phòng ban: **${department.name}** _(${department.code})_\n👥 Số người nhận: **${department.users.length} nhân viên**`
         } catch (error) {
             console.error("Error sending announcement to department:", error)
-            return {
-                success: false,
-                message: `Có lỗi xảy ra khi gửi thông báo: ${error instanceof Error ? error.message : "Unknown error"}`,
-            }
+            return `Có lỗi xảy ra khi gửi thông báo: ${error instanceof Error ? error.message : "Unknown error"}`
         }
     },
 })
@@ -323,10 +396,7 @@ export const sendAnnouncementToCompanyTool = tool({
             })
 
             if (employees.length === 0) {
-                return {
-                    success: false,
-                    message: "Không tìm thấy nhân viên nào trong hệ thống",
-                }
+                return "❌ Không tìm thấy nhân viên nào trong hệ thống"
             }
 
             const emailPromises = employees.map((employee) => {
@@ -347,17 +417,10 @@ export const sendAnnouncementToCompanyTool = tool({
 
             await Promise.all(emailPromises)
 
-            return {
-                success: true,
-                message: `Thông báo đã được gửi thành công đến ${employees.length} nhân viên trong công ty`,
-                recipientCount: employees.length,
-            }
+            return `✅ Thông báo **"${subject}"** đã được gửi thành công đến toàn công ty!\n\n🏢 Phạm vi: **Toàn công ty**\n👥 Số người nhận: **${employees.length} nhân viên**`
         } catch (error) {
             console.error("Error sending announcement to company:", error)
-            return {
-                success: false,
-                message: `Có lỗi xảy ra khi gửi thông báo: ${error instanceof Error ? error.message : "Unknown error"}`,
-            }
+            return `Có lỗi xảy ra khi gửi thông báo: ${error instanceof Error ? error.message : "Unknown error"}`
         }
     },
 })
@@ -394,11 +457,7 @@ export const sendAnnouncementToMultipleEmployeesTool = tool({
             })
 
             if (employees.length === 0) {
-                return {
-                    success: false,
-                    message:
-                        "Không tìm thấy nhân viên nào với danh sách email đã cung cấp",
-                }
+                return "❌ Không tìm thấy nhân viên nào với danh sách email đã cung cấp"
             }
 
             const notFoundEmails = emails.filter(
@@ -422,26 +481,18 @@ export const sendAnnouncementToMultipleEmployeesTool = tool({
 
             await Promise.all(emailPromises)
 
-            let resultMessage = `Thông báo đã được gửi thành công đến ${employees.length} nhân viên`
+            let resultMessage = `✅ Thông báo **"${subject}"** đã được gửi thành công!\n\n👥 Số người nhận: **${employees.length} nhân viên**`
             if (notFoundEmails.length > 0) {
-                resultMessage += `. Không tìm thấy hoặc không thể gửi đến ${notFoundEmails.length} email: ${notFoundEmails.join(", ")}`
+                resultMessage += `\n\n⚠️ **Lưu ý:** Không tìm thấy hoặc không thể gửi đến **${notFoundEmails.length} email**:\n${notFoundEmails.map((e) => `- ${cleanEmail(e)}`).join("\n")}`
             }
 
-            return {
-                success: true,
-                message: resultMessage,
-                recipientCount: employees.length,
-                notFoundEmails,
-            }
+            return resultMessage
         } catch (error) {
             console.error(
                 "Error sending announcement to multiple employees:",
                 error,
             )
-            return {
-                success: false,
-                message: `Có lỗi xảy ra khi gửi thông báo: ${error instanceof Error ? error.message : "Unknown error"}`,
-            }
+            return `Có lỗi xảy ra khi gửi thông báo: ${error instanceof Error ? error.message : "Unknown error"}`
         }
     },
 })

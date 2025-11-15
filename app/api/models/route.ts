@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { prisma } from "@/lib/db/prisma"
 
 export const AI_MODELS = [
     { value: "gpt-4.1", label: "GPT-4.1", provider: "openai" },
@@ -19,8 +20,15 @@ export const AI_MODELS = [
 ] as const
 
 export async function GET() {
+    // Fetch the default model from the database config
+    const modelConfig = await prisma.config.findUnique({
+        where: { key: "ai_model" },
+    })
+
+    const defaultModel = modelConfig?.value || "gpt-4o-mini"
+
     return NextResponse.json({
         models: AI_MODELS,
-        defaultModel: "gpt-4o-mini",
+        defaultModel,
     })
 }

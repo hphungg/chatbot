@@ -2,6 +2,23 @@ import { tool } from "ai"
 import { z } from "zod"
 import { prisma } from "@/lib/db/prisma"
 
+// Helper function để dịch vai trò sang tiếng Việt
+const translateRole = (role: string): string => {
+    const roleMap: Record<string, string> = {
+        admin: "Quản trị viên",
+        manager: "Quản lý",
+        employee: "Nhân viên",
+        leader: "Trưởng nhóm",
+        staff: "Nhân viên",
+    }
+    return roleMap[role.toLowerCase()] || role
+}
+
+// Helper function để loại bỏ [blocked] khỏi email
+const cleanEmail = (email: string): string => {
+    return email.replace(/\s*\[blocked\]\s*/gi, "")
+}
+
 export const getEmployeeByNameTool = tool({
     description:
         "Tìm kiếm thông tin nhân viên theo tên hoặc họ tên. Sử dụng khi cần tra cứu thông tin chi tiết của một nhân viên cụ thể trong công ty.",
@@ -46,34 +63,25 @@ export const getEmployeeByNameTool = tool({
         })
 
         if (employees.length === 0) {
-            return {
-                success: false,
-                message: `Không tìm thấy nhân viên nào với tên "${name}"`,
-                employees: [],
-            }
+            return `❌ Không tìm thấy nhân viên nào với tên **"${name}"**`
         }
 
-        return {
-            success: true,
-            message: `Tìm thấy ${employees.length} nhân viên`,
-            employees: employees.map((emp) => ({
-                id: emp.id,
-                name: emp.displayName || emp.name,
-                email: emp.email,
-                role: emp.role,
-                department: emp.department
-                    ? {
-                          name: emp.department.name,
-                          code: emp.department.code,
-                      }
-                    : null,
-                projects: emp.projects.map((p) => ({
-                    name: p.project.name,
-                    startDate: p.project.startDate,
-                    endDate: p.project.endDate,
-                })),
-            })),
-        }
+        let result = `✅ Tìm thấy **${employees.length} nhân viên** có tên **"${name}"**:\n\n`
+
+        employees.forEach((emp, index) => {
+            result += `### ${index + 1}. **${emp.displayName || emp.name}**\n`
+            result += `- 📧 Email: ${cleanEmail(emp.email)}\n`
+            result += `- 👤 Vai trò: **${translateRole(emp.role)}**\n`
+            if (emp.department) {
+                result += `- 🏢 Phòng ban: **${emp.department.name}** (${emp.department.code})\n`
+            }
+            if (emp.projects.length > 0) {
+                result += `- 📋 Dự án: *${emp.projects.map((p) => p.project.name).join(", ")}*\n`
+            }
+            result += "\n"
+        })
+
+        return result
     },
 })
 
@@ -118,42 +126,35 @@ export const getEmployeeByEmailTool = tool({
         })
 
         if (!employee) {
-            return {
-                success: false,
-                message: `Không tìm thấy nhân viên với email "${email}"`,
-                employee: null,
-            }
+            return `❌ Không tìm thấy nhân viên với email **${cleanEmail(email)}**`
         }
 
         if (!employee.userVerified || employee.banned) {
-            return {
-                success: false,
-                message: `Nhân viên với email "${email}" không có quyền truy cập hoặc đã bị cấm`,
-                employee: null,
-            }
+            return `⚠️ Nhân viên với email **${cleanEmail(email)}** không có quyền truy cập hoặc đã bị cấm`
         }
 
-        return {
-            success: true,
-            message: "Tìm thấy thông tin nhân viên",
-            employee: {
-                id: employee.id,
-                name: employee.displayName || employee.name,
-                email: employee.email,
-                role: employee.role,
-                department: employee.department
-                    ? {
-                          name: employee.department.name,
-                          code: employee.department.code,
-                      }
-                    : null,
-                projects: employee.projects.map((p) => ({
-                    name: p.project.name,
-                    startDate: p.project.startDate,
-                    endDate: p.project.endDate,
-                })),
-            },
+        let result = `## 📋 Thông tin nhân viên\n\n`
+        result += `**👤 Họ tên:** ${employee.displayName || employee.name}\n`
+        result += `**📧 Email:** ${cleanEmail(employee.email)}\n`
+        result += `**💼 Vai trò:** ${translateRole(employee.role)}\n`
+        if (employee.department) {
+            result += `**🏢 Phòng ban:** ${employee.department.name} _(${employee.department.code})_\n`
         }
+        if (employee.projects.length > 0) {
+            result += `\n### 📂 Dự án đang tham gia:\n`
+            employee.projects.forEach((p, index) => {
+                result += `${index + 1}. **${p.project.name}**`
+                if (p.project.startDate) {
+                    result += ` - _Từ ${new Date(p.project.startDate).toLocaleDateString("vi-VN")}_`
+                }
+                if (p.project.endDate) {
+                    result += ` _đến ${new Date(p.project.endDate).toLocaleDateString("vi-VN")}_`
+                }
+                result += "\n"
+            })
+        }
+
+        return result
     },
 })
 
@@ -191,28 +192,19 @@ export const getEmployeesByDepartmentTool = tool({
         })
 
         if (!department) {
-            return {
-                success: false,
-                message: `Không tìm thấy phòng ban "${departmentName}"`,
-                department: null,
-                employees: [],
-            }
+            return `❌ Không tìm thấy phòng ban **"${departmentName}"**`
         }
 
-        return {
-            success: true,
-            message: `Tìm thấy ${department.users.length} nhân viên trong phòng ${department.name}`,
-            department: {
-                name: department.name,
-                code: department.code,
-            },
-            employees: department.users.map((emp) => ({
-                id: emp.id,
-                name: emp.displayName || emp.name,
-                email: emp.email,
-                role: emp.role,
-            })),
-        }
+        let result = `## 🏢 Phòng ban **${department.name}** _(${department.code})_\n\n`
+        result += `👥 Có **${department.users.length} nhân viên**:\n\n`
+
+        department.users.forEach((emp, index) => {
+            result += `### ${index + 1}. **${emp.displayName || emp.name}**\n`
+            result += `- 📧 Email: ${cleanEmail(emp.email)}\n`
+            result += `- 💼 Vai trò: **${translateRole(emp.role)}**\n\n`
+        })
+
+        return result
     },
 })
 
@@ -253,35 +245,29 @@ export const getEmployeesByProjectTool = tool({
         })
 
         if (!project) {
-            return {
-                success: false,
-                message: `Không tìm thấy dự án "${projectName}"`,
-                project: null,
-                employees: [],
-            }
+            return `❌ Không tìm thấy dự án **"${projectName}"**`
         }
 
-        return {
-            success: true,
-            message: `Tìm thấy ${project.users.length} nhân viên trong dự án ${project.name}`,
-            project: {
-                name: project.name,
-                startDate: project.startDate,
-                endDate: project.endDate,
-            },
-            employees: project.users.map((up) => ({
-                id: up.user.id,
-                name: up.user.displayName || up.user.name,
-                email: up.user.email,
-                role: up.user.role,
-                department: up.user.department
-                    ? {
-                          name: up.user.department.name,
-                          code: up.user.department.code,
-                      }
-                    : null,
-            })),
+        let result = `## 📂 Dự án **"${project.name}"**\n\n`
+        if (project.startDate) {
+            result += `📅 **Ngày bắt đầu:** ${new Date(project.startDate).toLocaleDateString("vi-VN")}\n`
         }
+        if (project.endDate) {
+            result += `📅 **Ngày kết thúc:** ${new Date(project.endDate).toLocaleDateString("vi-VN")}\n`
+        }
+        result += `\n👥 Có **${project.users.length} nhân viên** tham gia:\n\n`
+
+        project.users.forEach((up, index) => {
+            result += `### ${index + 1}. **${up.user.displayName || up.user.name}**\n`
+            result += `- 📧 Email: ${cleanEmail(up.user.email)}\n`
+            result += `- 💼 Vai trò: **${translateRole(up.user.role)}**\n`
+            if (up.user.department) {
+                result += `- 🏢 Phòng ban: **${up.user.department.name}** _(${up.user.department.code})_\n`
+            }
+            result += "\n"
+        })
+
+        return result
     },
 })
 
@@ -320,22 +306,19 @@ export const getAllEmployeesTool = tool({
             },
         })
 
-        return {
-            success: true,
-            message: `Tìm thấy ${employees.length} nhân viên`,
-            employees: employees.map((emp) => ({
-                id: emp.id,
-                name: emp.displayName || emp.name,
-                email: emp.email,
-                role: emp.role,
-                department: emp.department
-                    ? {
-                          name: emp.department.name,
-                          code: emp.department.code,
-                      }
-                    : null,
-            })),
-        }
+        let result = `## 👥 Danh sách **${employees.length} nhân viên** trong công ty\n\n`
+
+        employees.forEach((emp, index) => {
+            result += `### ${index + 1}. **${emp.displayName || emp.name}**\n`
+            result += `- 📧 Email: ${cleanEmail(emp.email)}\n`
+            result += `- 💼 Vai trò: **${translateRole(emp.role)}**\n`
+            if (emp.department) {
+                result += `- 🏢 Phòng ban: **${emp.department.name}** _(${emp.department.code})_\n`
+            }
+            result += "\n"
+        })
+
+        return result
     },
 })
 
@@ -351,11 +334,7 @@ export const getEmployeeCountTool = tool({
             },
         })
 
-        return {
-            success: true,
-            message: `Công ty có tổng cộng ${count} nhân viên`,
-            count,
-        }
+        return `👥 Công ty có tổng cộng **${count} nhân viên**`
     },
 })
 

@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react"
 import { ChatInput } from "./input"
 import { generateUUID } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChatConversation } from "./conversation"
 import { DefaultChatTransport, UIMessage } from "ai"
 import { useChatContext } from "@/context/chat-context"
@@ -19,7 +19,23 @@ export function Chat({ id, initialMessages = [], groupId }: ChatProps) {
     const { addChat } = useChatContext()
     const [input, setInput] = useState<string>("")
     const [hasChat, setHasChat] = useState(initialMessages.length > 0)
-    const [selectedModel, setSelectedModel] = useState<string>("gpt-4o-mini")
+    const [selectedModel, setSelectedModel] = useState<string>("")
+
+    // Fetch the default model from the API
+    useEffect(() => {
+        fetch("/api/models")
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.defaultModel) {
+                    setSelectedModel(data.defaultModel)
+                }
+            })
+            .catch((error) => {
+                console.error("Failed to fetch default model:", error)
+                // Fallback to a default model if fetch fails
+                setSelectedModel("gpt-4o-mini")
+            })
+    }, [])
 
     const { messages, sendMessage, status, stop } = useChat({
         id,

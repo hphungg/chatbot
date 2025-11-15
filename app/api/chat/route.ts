@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         },
     })
 
-    const configMap = new Map(configs.map((c) => [c.key, c.value]))
+    const configMap = new Map(configs.map((c: any) => [c.key, c.value]))
     const openaiApiKey = configMap.get("openai_api_key") || ""
     const geminiApiKey = configMap.get("gemini_api_key") || ""
     const deepseekApiKey = configMap.get("deepseek_api_key") || ""
@@ -79,17 +79,17 @@ export async function POST(request: Request) {
     let modelInstance
     if (selectedModel.startsWith("gpt-") && openaiApiKey) {
         const openaiProvider = createOpenAI({
-            apiKey: openaiApiKey,
+            apiKey: openaiApiKey as string,
         })
         modelInstance = openaiProvider(selectedModel)
     } else if (selectedModel.startsWith("gemini-") && geminiApiKey) {
         const geminiProvider = createGoogleGenerativeAI({
-            apiKey: geminiApiKey,
+            apiKey: geminiApiKey as string,
         })
         modelInstance = geminiProvider(selectedModel)
     } else if (selectedModel.startsWith("deepseek-") && deepseekApiKey) {
         const deepseekProvider = createDeepSeek({
-            apiKey: deepseekApiKey,
+            apiKey: deepseekApiKey as string,
         })
         modelInstance = deepseekProvider(selectedModel)
     } else {

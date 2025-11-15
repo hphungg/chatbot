@@ -2,6 +2,11 @@ import { tool } from "ai"
 import { z } from "zod"
 import { prisma } from "@/lib/db/prisma"
 
+// Helper function để loại bỏ [blocked] khỏi email
+const cleanEmail = (email: string): string => {
+    return email.replace(/\s*\[blocked\]\s*/gi, "")
+}
+
 export const getProjectByNameTool = tool({
     description:
         "Tra cứu thông tin chi tiết của một dự án theo tên. Sử dụng khi cần tìm hiểu về một dự án cụ thể trong công ty.",
@@ -49,40 +54,40 @@ export const getProjectByNameTool = tool({
         })
 
         if (!project) {
-            return {
-                success: false,
-                message: `Không tìm thấy dự án với tên "${name}"`,
-                project: null,
-            }
+            return `❌ Không tìm thấy dự án với tên **"${name}"**`
         }
 
         const isActive = project.endDate
             ? new Date(project.endDate) > new Date()
             : true
 
-        return {
-            success: true,
-            message: `Tìm thấy thông tin dự án ${project.name}`,
-            project: {
-                id: project.id,
-                name: project.name,
-                startDate: project.startDate,
-                endDate: project.endDate,
-                isActive,
-                employeeCount: project._count.users,
-                departmentCount: project._count.departments,
-                employees: project.users.map((up) => ({
-                    id: up.user.id,
-                    name: up.user.displayName || up.user.name,
-                    email: up.user.email,
-                })),
-                departments: project.departments.map((pd) => ({
-                    id: pd.department.id,
-                    name: pd.department.name,
-                    code: pd.department.code,
-                })),
-            },
+        let result = `## 📂 Dự án **"${project.name}"**\n\n`
+        result += `**🟢 Trạng thái:** ${isActive ? "✅ _Đang hoạt động_" : "✔️ _Đã hoàn thành_"}\n`
+        if (project.startDate) {
+            result += `**📅 Ngày bắt đầu:** ${new Date(project.startDate).toLocaleDateString("vi-VN")}\n`
         }
+        if (project.endDate) {
+            result += `**📅 Ngày kết thúc:** ${new Date(project.endDate).toLocaleDateString("vi-VN")}\n`
+        }
+        result += `**👥 Số nhân viên:** ${project._count.users}\n`
+        result += `**🏢 Số phòng ban:** ${project._count.departments}\n\n`
+
+        if (project.departments.length > 0) {
+            result += `### 🏢 Phòng ban tham gia:\n`
+            project.departments.forEach((pd, index) => {
+                result += `${index + 1}. **${pd.department.name}** _(${pd.department.code})_\n`
+            })
+            result += "\n"
+        }
+
+        if (project.users.length > 0) {
+            result += `### 👥 Nhân viên tham gia _(hiển thị 10 người đầu tiên)_:\n`
+            project.users.forEach((up, index) => {
+                result += `${index + 1}. **${up.user.displayName || up.user.name}** - ${cleanEmail(up.user.email)}\n`
+            })
+        }
+
+        return result
     },
 })
 
@@ -112,25 +117,26 @@ export const getAllProjectsTool = tool({
             },
         })
 
-        return {
-            success: true,
-            message: `Tìm thấy ${projects.length} dự án`,
-            projects: projects.map((project) => {
-                const isActive = project.endDate
-                    ? new Date(project.endDate) > new Date()
-                    : true
+        let result = `## 📂 Danh sách **${projects.length} dự án** trong công ty\n\n`
 
-                return {
-                    id: project.id,
-                    name: project.name,
-                    startDate: project.startDate,
-                    endDate: project.endDate,
-                    isActive,
-                    employeeCount: project._count.users,
-                    departmentCount: project._count.departments,
-                }
-            }),
-        }
+        projects.forEach((project, index) => {
+            const isActive = project.endDate
+                ? new Date(project.endDate) > new Date()
+                : true
+
+            result += `### ${index + 1}. **${project.name}** ${isActive ? "✅" : "✔️"}\n`
+            result += `- **Trạng thái:** ${isActive ? "_Đang hoạt động_" : "_Đã hoàn thành_"}\n`
+            if (project.startDate) {
+                result += `- 📅 Bắt đầu: ${new Date(project.startDate).toLocaleDateString("vi-VN")}\n`
+            }
+            if (project.endDate) {
+                result += `- 📅 Kết thúc: ${new Date(project.endDate).toLocaleDateString("vi-VN")}\n`
+            }
+            result += `- 👥 Số nhân viên: **${project._count.users}**\n`
+            result += `- 🏢 Số phòng ban: **${project._count.departments}**\n\n`
+        })
+
+        return result
     },
 })
 
@@ -141,11 +147,7 @@ export const getProjectCountTool = tool({
     execute: async () => {
         const count = await prisma.project.count()
 
-        return {
-            success: true,
-            message: `Hệ thống có tổng cộng ${count} dự án`,
-            count,
-        }
+        return `📂 Hệ thống có tổng cộng **${count} dự án**`
     },
 })
 
@@ -179,18 +181,21 @@ export const getActiveProjectsTool = tool({
             },
         })
 
-        return {
-            success: true,
-            message: `Tìm thấy ${projects.length} dự án đang hoạt động`,
-            projects: projects.map((project) => ({
-                id: project.id,
-                name: project.name,
-                startDate: project.startDate,
-                endDate: project.endDate,
-                employeeCount: project._count.users,
-                departmentCount: project._count.departments,
-            })),
-        }
+        let result = `## 🟢 Có **${projects.length} dự án đang hoạt động**\n\n`
+
+        projects.forEach((project, index) => {
+            result += `### ${index + 1}. **${project.name}** ✅\n`
+            if (project.startDate) {
+                result += `- 📅 Bắt đầu: ${new Date(project.startDate).toLocaleDateString("vi-VN")}\n`
+            }
+            if (project.endDate) {
+                result += `- 📅 Kết thúc dự kiến: ${new Date(project.endDate).toLocaleDateString("vi-VN")}\n`
+            }
+            result += `- 👥 Số nhân viên: **${project._count.users}**\n`
+            result += `- 🏢 Số phòng ban: **${project._count.departments}**\n\n`
+        })
+
+        return result
     },
 })
 
@@ -206,11 +211,7 @@ export const getActiveProjectCountTool = tool({
             },
         })
 
-        return {
-            success: true,
-            message: `Hiện có ${count} dự án đang hoạt động`,
-            count,
-        }
+        return `🟢 Hiện có **${count} dự án đang hoạt động**`
     },
 })
 
@@ -244,18 +245,21 @@ export const getCompletedProjectsTool = tool({
             },
         })
 
-        return {
-            success: true,
-            message: `Tìm thấy ${projects.length} dự án đã hoàn thành`,
-            projects: projects.map((project) => ({
-                id: project.id,
-                name: project.name,
-                startDate: project.startDate,
-                endDate: project.endDate,
-                employeeCount: project._count.users,
-                departmentCount: project._count.departments,
-            })),
-        }
+        let result = `## ✔️ Có **${projects.length} dự án đã hoàn thành**\n\n`
+
+        projects.forEach((project, index) => {
+            result += `### ${index + 1}. **${project.name}** ✔️\n`
+            if (project.startDate) {
+                result += `- 📅 Bắt đầu: ${new Date(project.startDate).toLocaleDateString("vi-VN")}\n`
+            }
+            if (project.endDate) {
+                result += `- 📅 Kết thúc: ${new Date(project.endDate).toLocaleDateString("vi-VN")}\n`
+            }
+            result += `- 👥 Số nhân viên: **${project._count.users}**\n`
+            result += `- 🏢 Số phòng ban: **${project._count.departments}**\n\n`
+        })
+
+        return result
     },
 })
 
@@ -271,11 +275,7 @@ export const getCompletedProjectCountTool = tool({
             },
         })
 
-        return {
-            success: true,
-            message: `Có ${count} dự án đã hoàn thành`,
-            count,
-        }
+        return `✔️ Có **${count} dự án đã hoàn thành**`
     },
 })
 
@@ -314,38 +314,31 @@ export const getProjectsByDepartmentTool = tool({
         })
 
         if (!department) {
-            return {
-                success: false,
-                message: `Không tìm thấy phòng ban "${departmentName}"`,
-                department: null,
-                projects: [],
+            return `❌ Không tìm thấy phòng ban **"${departmentName}"**`
+        }
+
+        let result = `## 🏢 Phòng ban **${department.name}** _(${department.code})_\n\n`
+        result += `📂 Đang tham gia **${department.projects.length} dự án**:\n\n`
+
+        department.projects.forEach((pd, index) => {
+            const project = pd.project
+            const isActive = project.endDate
+                ? new Date(project.endDate) > new Date()
+                : true
+
+            result += `### ${index + 1}. **${project.name}** ${isActive ? "✅" : "✔️"}\n`
+            result += `- **Trạng thái:** ${isActive ? "_Đang hoạt động_" : "_Đã hoàn thành_"}\n`
+            if (project.startDate) {
+                result += `- 📅 Bắt đầu: ${new Date(project.startDate).toLocaleDateString("vi-VN")}\n`
             }
-        }
+            if (project.endDate) {
+                result += `- 📅 Kết thúc: ${new Date(project.endDate).toLocaleDateString("vi-VN")}\n`
+            }
+            result += `- 👥 Số nhân viên: **${project._count.users}**\n`
+            result += `- 🏢 Số phòng ban: **${project._count.departments}**\n\n`
+        })
 
-        return {
-            success: true,
-            message: `Phòng ban ${department.name} đang tham gia ${department.projects.length} dự án`,
-            department: {
-                name: department.name,
-                code: department.code,
-            },
-            projects: department.projects.map((pd) => {
-                const project = pd.project
-                const isActive = project.endDate
-                    ? new Date(project.endDate) > new Date()
-                    : true
-
-                return {
-                    id: project.id,
-                    name: project.name,
-                    startDate: project.startDate,
-                    endDate: project.endDate,
-                    isActive,
-                    employeeCount: project._count.users,
-                    departmentCount: project._count.departments,
-                }
-            }),
-        }
+        return result
     },
 })
 

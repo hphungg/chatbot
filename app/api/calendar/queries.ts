@@ -47,23 +47,47 @@ export async function getCalendarEvents(): Promise<Events[]> {
     const user = await authenticate()
     if (!user) throw new Error("Unauthorized")
 
-    const results = await google.calendar("v3").events.list({
-        auth: await getGoogleAuthClient(user.id),
-        calendarId: "primary",
-        eventTypes: ["default"],
-        singleEvents: true,
+    const authClient = await getGoogleAuthClient(user.id)
+
+    // Get list of all calendars
+    const calendarList = await google.calendar("v3").calendarList.list({
+        auth: authClient,
     })
 
-    const events: Events[] =
-        results.data.items?.map((event) => ({
-            id: event.id || "",
-            title: event.summary || "Unknown",
-            creator: event.creator?.email || "Unknown",
-            start: event.start?.dateTime || event.start?.date || "",
-            end: event.end?.dateTime || event.end?.date || "",
-            eventType: event.eventType || "default",
-            colorId: event.colorId ? parseInt(event.colorId) : 0,
-        })) || []
+    const calendars = calendarList.data.items || []
+
+    // Fetch events from all calendars
+    const allEventsPromises = calendars.map(async (calendar) => {
+        try {
+            const results = await google.calendar("v3").events.list({
+                auth: authClient,
+                calendarId: calendar.id || "primary",
+                eventTypes: ["default"],
+                singleEvents: true,
+            })
+
+            return (
+                results.data.items?.map((event) => ({
+                    id: event.id || "",
+                    title: event.summary || "Unknown",
+                    creator: event.creator?.email || "Unknown",
+                    start: event.start?.dateTime || event.start?.date || "",
+                    end: event.end?.dateTime || event.end?.date || "",
+                    eventType: event.eventType || "default",
+                    colorId: event.colorId ? parseInt(event.colorId) : 0,
+                })) || []
+            )
+        } catch (error) {
+            console.error(
+                `Error fetching events from calendar ${calendar.id}:`,
+                error,
+            )
+            return []
+        }
+    })
+
+    const allEventsArrays = await Promise.all(allEventsPromises)
+    const events: Events[] = allEventsArrays.flat()
 
     return events.sort((a, b) => {
         const dateA = new Date(a.start).getTime()
@@ -78,12 +102,14 @@ export async function createCalendarEvent({
     startTime,
     endTime,
     colorId,
+    attendees,
 }: {
     title: string
     description?: string
     startTime: Date
     endTime: Date
     colorId?: string
+    attendees?: string[]
 }) {
     const user = await authenticate()
     if (!user) throw new Error("Unauthorized")
@@ -91,6 +117,7 @@ export async function createCalendarEvent({
         const result = await google.calendar("v3").events.insert({
             auth: await getGoogleAuthClient(user.id),
             calendarId: "primary",
+            sendUpdates: "all",
             requestBody: {
                 summary: title,
                 description: description,
@@ -101,6 +128,7 @@ export async function createCalendarEvent({
                     dateTime: endTime.toISOString(),
                 },
                 colorId: colorId || "7",
+                attendees: attendees?.map((email) => ({ email })),
             },
         })
         return result.data

@@ -4,6 +4,7 @@ export function getTaskReminderTemplate(params: {
     taskDescription?: string
     dueDate?: string
     priority?: string
+    calendarInviteLink?: string
 }): string {
     return `
         <!DOCTYPE html>
@@ -103,6 +104,33 @@ export function getTaskReminderTemplate(params: {
                     background-color: #c6f6d5;
                     color: #2f855a;
                 }
+                .calendar-invite {
+                    margin: 25px 0;
+                    padding: 20px;
+                    background-color: #edf2f7;
+                    border-radius: 8px;
+                    text-align: center;
+                }
+                .calendar-invite-title {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #2d3748;
+                    margin-bottom: 12px;
+                }
+                .calendar-button {
+                    display: inline-block;
+                    padding: 12px 30px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    font-size: 15px;
+                    transition: transform 0.2s;
+                }
+                .calendar-button:hover {
+                    transform: translateY(-2px);
+                }
                 .footer {
                     background-color: #f7fafc;
                     padding: 20px;
@@ -160,6 +188,21 @@ export function getTaskReminderTemplate(params: {
                         Vui lòng hoàn thành công việc này đúng hạn. Nếu có bất kỳ thắc mắc nào, 
                         hãy liên hệ với quản lý của bạn.
                     </p>
+                    ${
+                        params.calendarInviteLink
+                            ? `
+                    <div class="calendar-invite">
+                        <div class="calendar-invite-title">📅 Lịch hẹn đã được tạo</div>
+                        <p style="color: #4a5568; margin: 10px 0; font-size: 14px;">
+                            Nhấn vào nút bên dưới để thêm sự kiện này vào Google Calendar của bạn
+                        </p>
+                        <a href="${params.calendarInviteLink}" class="calendar-button" target="_blank">
+                            🗓️ Thêm vào Calendar
+                        </a>
+                    </div>
+                    `
+                            : ""
+                    }
                 </div>
                 <div class="footer">
                     <p><strong>Email tự động từ hệ thống Chatbot</strong></p>

@@ -77,11 +77,15 @@ export function ChatInput({
             .then((res) => res.json())
             .then((data) => {
                 setModels(data.models || [])
+                // Update the parent's selected model if it hasn't been set yet
+                if (!selectedModel && data.defaultModel) {
+                    onModelChange(data.defaultModel)
+                }
             })
             .catch((error) => {
                 console.error("Failed to fetch models:", error)
             })
-    }, [])
+    }, [selectedModel, onModelChange])
 
     const handleSubmit = useCallback(() => {
         if (status === "submitted" || status === "streaming") {

@@ -2,6 +2,11 @@ import { tool } from "ai"
 import { z } from "zod"
 import { prisma } from "@/lib/db/prisma"
 
+// Helper function để loại bỏ [blocked] khỏi email
+const cleanEmail = (email: string): string => {
+    return email.replace(/\s*\[blocked\]\s*/gi, "")
+}
+
 export const getDepartmentByNameTool = tool({
     description:
         "Tra cứu thông tin chi tiết của một phòng ban theo tên. Sử dụng khi cần tìm hiểu về một phòng ban cụ thể trong công ty.",
@@ -37,33 +42,20 @@ export const getDepartmentByNameTool = tool({
         })
 
         if (!department) {
-            return {
-                success: false,
-                message: `Không tìm thấy phòng ban với tên "${name}"`,
-                department: null,
-            }
+            return `❌ Không tìm thấy phòng ban với tên **"${name}"**`
         }
 
-        return {
-            success: true,
-            message: `Tìm thấy thông tin phòng ban ${department.name}`,
-            department: {
-                id: department.id,
-                name: department.name,
-                code: department.code,
-                manager: department.manager
-                    ? {
-                          id: department.manager.id,
-                          name:
-                              department.manager.displayName ||
-                              department.manager.name,
-                          email: department.manager.email,
-                      }
-                    : null,
-                employeeCount: department._count.users,
-                projectCount: department._count.projects,
-            },
+        let result = `## 🏢 Phòng ban **${department.name}**\n\n`
+        result += `**🏷️ Mã phòng ban:** ${department.code}\n`
+        if (department.manager) {
+            result += `**👤 Quản lý:** ${department.manager.displayName || department.manager.name} _(${cleanEmail(department.manager.email)})_\n`
+        } else {
+            result += `**👤 Quản lý:** _Chưa có_\n`
         }
+        result += `**👥 Số lượng nhân viên:** ${department._count.users}\n`
+        result += `**📂 Số lượng dự án:** ${department._count.projects}\n`
+
+        return result
     },
 })
 
@@ -102,33 +94,20 @@ export const getDepartmentByCodeTool = tool({
         })
 
         if (!department) {
-            return {
-                success: false,
-                message: `Không tìm thấy phòng ban với mã "${code}"`,
-                department: null,
-            }
+            return `❌ Không tìm thấy phòng ban với mã **"${code}"**`
         }
 
-        return {
-            success: true,
-            message: `Tìm thấy thông tin phòng ban ${department.name}`,
-            department: {
-                id: department.id,
-                name: department.name,
-                code: department.code,
-                manager: department.manager
-                    ? {
-                          id: department.manager.id,
-                          name:
-                              department.manager.displayName ||
-                              department.manager.name,
-                          email: department.manager.email,
-                      }
-                    : null,
-                employeeCount: department._count.users,
-                projectCount: department._count.projects,
-            },
+        let result = `## 🏢 Phòng ban **${department.name}**\n\n`
+        result += `**🏷️ Mã phòng ban:** ${department.code}\n`
+        if (department.manager) {
+            result += `**👤 Quản lý:** ${department.manager.displayName || department.manager.name} _(${cleanEmail(department.manager.email)})_\n`
+        } else {
+            result += `**👤 Quản lý:** _Chưa có_\n`
         }
+        result += `**👥 Số lượng nhân viên:** ${department._count.users}\n`
+        result += `**📂 Số lượng dự án:** ${department._count.projects}\n`
+
+        return result
     },
 })
 
@@ -164,24 +143,20 @@ export const getAllDepartmentsTool = tool({
             },
         })
 
-        return {
-            success: true,
-            message: `Tìm thấy ${departments.length} phòng ban`,
-            departments: departments.map((dept) => ({
-                id: dept.id,
-                name: dept.name,
-                code: dept.code,
-                manager: dept.manager
-                    ? {
-                          id: dept.manager.id,
-                          name: dept.manager.displayName || dept.manager.name,
-                          email: dept.manager.email,
-                      }
-                    : null,
-                employeeCount: dept._count.users,
-                projectCount: dept._count.projects,
-            })),
-        }
+        let result = `## 🏢 Danh sách **${departments.length} phòng ban** trong công ty\n\n`
+
+        departments.forEach((dept, index) => {
+            result += `### ${index + 1}. **${dept.name}** _(${dept.code})_\n`
+            if (dept.manager) {
+                result += `- 👤 Quản lý: **${dept.manager.displayName || dept.manager.name}**\n`
+            } else {
+                result += `- 👤 Quản lý: _Chưa có_\n`
+            }
+            result += `- 👥 Số nhân viên: **${dept._count.users}**\n`
+            result += `- 📂 Số dự án: **${dept._count.projects}**\n\n`
+        })
+
+        return result
     },
 })
 
@@ -216,23 +191,10 @@ export const getDepartmentEmployeeCountTool = tool({
         })
 
         if (!department) {
-            return {
-                success: false,
-                message: `Không tìm thấy phòng ban "${departmentName}"`,
-                department: null,
-                employeeCount: 0,
-            }
+            return `❌ Không tìm thấy phòng ban **"${departmentName}"**`
         }
 
-        return {
-            success: true,
-            message: `Phòng ban ${department.name} có ${department._count.users} nhân viên`,
-            department: {
-                name: department.name,
-                code: department.code,
-            },
-            employeeCount: department._count.users,
-        }
+        return `🏢 Phòng ban **${department.name}** _(${department.code})_ có **${department._count.users} nhân viên**`
     },
 })
 
@@ -262,23 +224,10 @@ export const getDepartmentProjectCountTool = tool({
         })
 
         if (!department) {
-            return {
-                success: false,
-                message: `Không tìm thấy phòng ban "${departmentName}"`,
-                department: null,
-                projectCount: 0,
-            }
+            return `❌ Không tìm thấy phòng ban **"${departmentName}"**`
         }
 
-        return {
-            success: true,
-            message: `Phòng ban ${department.name} đang tham gia ${department._count.projects} dự án`,
-            department: {
-                name: department.name,
-                code: department.code,
-            },
-            projectCount: department._count.projects,
-        }
+        return `🏢 Phòng ban **${department.name}** _(${department.code})_ đang tham gia **${department._count.projects} dự án**`
     },
 })
 
@@ -312,40 +261,14 @@ export const getDepartmentManagerTool = tool({
         })
 
         if (!department) {
-            return {
-                success: false,
-                message: `Không tìm thấy phòng ban "${departmentName}"`,
-                department: null,
-                manager: null,
-            }
+            return `❌ Không tìm thấy phòng ban **"${departmentName}"**`
         }
 
         if (!department.manager) {
-            return {
-                success: false,
-                message: `Phòng ban ${department.name} hiện chưa có quản lý`,
-                department: {
-                    name: department.name,
-                    code: department.code,
-                },
-                manager: null,
-            }
+            return `⚠️ Phòng ban **${department.name}** _(${department.code})_ hiện chưa có quản lý`
         }
 
-        return {
-            success: true,
-            message: `Tìm thấy thông tin quản lý của phòng ban ${department.name}`,
-            department: {
-                name: department.name,
-                code: department.code,
-            },
-            manager: {
-                id: department.manager.id,
-                name: department.manager.displayName || department.manager.name,
-                email: department.manager.email,
-                role: department.manager.role,
-            },
-        }
+        return `## 👤 Quản lý phòng ban **${department.name}** _(${department.code})_\n\n**Họ tên:** ${department.manager.displayName || department.manager.name}\n**Email:** ${cleanEmail(department.manager.email)}\n**Vai trò:** Quản lý`
     },
 })
 
